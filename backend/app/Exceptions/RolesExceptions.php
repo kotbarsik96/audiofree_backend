@@ -28,4 +28,9 @@ class RolesExceptions extends Exception
     {
         return new self('Нет прав для совершения этого действия');
     }
+
+    public static function noRightsResponse()
+    {
+        return response(['error' => self::noRights()->getMessage()], 400);
+    }
 }

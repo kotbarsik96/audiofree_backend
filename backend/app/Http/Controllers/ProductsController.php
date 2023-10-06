@@ -15,6 +15,7 @@ class ProductsController extends Controller
 {
     public $storeAndUpdateReqs = [
         'price' => 'numeric|required',
+        'description_price' => 'nullable|numeric',
         'description' => 'string',
         'brand_id' => 'numeric|exists:brands,id|required',
         'category_id' => 'numeric|exists:categories,id|required',
@@ -59,7 +60,7 @@ class ProductsController extends Controller
     }
 
     // удалит те вариации, name которых отсутствует в списке, но связаны с товаром по product_id
-    public function removeVariations($variations, $productId)
+    public function clearVariations($variations, $productId)
     {
         $allProductVariations = Variation::where('product_id', $productId)
             ->get();
@@ -84,7 +85,7 @@ class ProductsController extends Controller
     {
         $rightCheck = AuthController::checkUserRight($request, 'add_product');
         if (!$rightCheck['has_right'])
-            return response(['error' => RolesExceptions::noRights()->getMessage()], 400);
+            return RolesExceptions::noRightsResponse();
 
         $validator = $this->storeValidationReq($request);
         if ($validator->fails())
@@ -103,9 +104,9 @@ class ProductsController extends Controller
 
     public function update(Request $request, $id)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'add_product');
+        $rightCheck = AuthController::checkUserRight($request, 'update_product');
         if (!$rightCheck['has_right'])
-            return response(['error' => RolesExceptions::noRights()->getMessage()], 400);
+            return RolesExceptions::noRightsResponse();
 
         $validator = $this->updateValidationReq($request);
         if ($validator->fails())
@@ -113,7 +114,7 @@ class ProductsController extends Controller
 
         $product = Product::find($id);
         if (empty($product))
-            return (['error' => ProductsExceptions::noProduct()]);
+            return (['error' => ProductsExceptions::noProduct()->getMessage()]);
 
         $fields = $validator->validated();
 
@@ -133,11 +134,31 @@ class ProductsController extends Controller
         // создать/обновить вариации товара и их значения
         $storedVariations = $this->storeVariations($request->variations, $product);
         // удалить вариации, которые не пришли в $request, но присутствуют в таблице variations и связаны с данным $product->id
-        $this->removeVariations($request->variations, $product->id);
+        $this->clearVariations($request->variations, $product->id);
 
         return array_merge(
             Product::singleFullData($product->id),
             ['errors' => $storedVariations['errors']]
         );
+    }
+
+    public function delete(Request $request, $id)
+    {
+        $rightCheck = AuthController::checkUserRight($request, 'delete_product');
+        if (!$rightCheck['has_right'])
+            return RolesExceptions::noRightsResponse();
+
+        $product = Product::find($id);
+
+        if (empty($product))
+            return response(['error' => ProductsExceptions::noProduct()->getMessage()], 400);
+            
+        $prodName = $product->name;
+        $product->delete();
+        return response([
+            'success' => true,
+            'error' => false,
+            'message' => 'Успешно удалено: товар' . $prodName
+        ]);
     }
 }

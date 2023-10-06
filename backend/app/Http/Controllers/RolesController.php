@@ -22,10 +22,16 @@ class RolesController extends Controller
         'add_variation' => ['ADMINISTRATOR'],
         'update_variation' => ['ADMINISTRATOR'],
         'delete_variation' => ['ADMINISTRATOR'],
+        'assign_role' => ['ADMINISTRATOR'],
+        'add_rating' => ['ADMINISTRATOR', 'USER']
     ];
 
     public function store(Request $request)
     {
+        $rightCheck = AuthController::checkUserRight($request, 'assign_role');
+        if (!$rightCheck['has_right'])
+            return RolesExceptions::noRightsResponse();
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|unique:roles'
         ], RolesExceptions::storeValidator());

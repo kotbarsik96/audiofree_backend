@@ -23,8 +23,13 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 
     Route::post('/roles/create', [RolesController::class, 'store']);
 
-    Route::post('/taxonomy/create/{taxName}', [TaxonomiesController::class, 'store']);
+    Route::post('/taxonomy/create/{taxName}', [TaxonomiesController::class, 'storeOrUpdate']);
+    Route::post('/taxonomy/update/{taxName}/{id}', [TaxonomiesController::class, 'storeOrUpdate']);
+    Route::post('/taxonomy/delete/{taxName}/{id}', [TaxonomiesController::class, 'delete']);
 
     Route::post('/products/create', [ProductsController::class, 'store']);
     Route::post('/products/update/{id}', [ProductsController::class, 'update']);
+    Route::post('/products/delete/{id}', [ProductsController::class, 'delete']);
+
+    Route::post('/rating/set/{productId}/{ratingValue}');
 // });

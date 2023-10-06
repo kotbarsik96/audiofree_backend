@@ -13,15 +13,7 @@ class VariationsExceptions extends Exception
         return [
             'required' => 'Не указано поле ":attribute" для вариации',
             'product_id.exists' => 'Товар с таким id не существует',
-            'name.unique' => 'Такая вариация товара уже существует',
             'string' => 'Некорректное значение для поля ":attribute"'
-        ];
-    }
-
-    public static function updateValidator()
-    {
-        return [
-            'required' => 'Не указано название вариации'
         ];
     }
 
@@ -37,5 +29,10 @@ class VariationsExceptions extends Exception
             'variation_id.exists' => 'Такой вариации не существует',
             'value.unique' => 'Такое значение вариации уже существует'
         ];
+    }
+
+    public static function alreadyExists($variationName)
+    {
+        return new self('Вариация ' . $variationName . ' уже существует для этого товара');
     }
 }

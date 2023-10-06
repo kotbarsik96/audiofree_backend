@@ -9,51 +9,102 @@ use App\Models\Taxonomies\Brand;
 use App\Models\Taxonomies\Category;
 use App\Models\Taxonomies\Type;
 use App\Http\Controllers\AuthController;
+use App\Exceptions\RolesExceptions;
+use Illuminate\Validation\Rule;
 
 class TaxonomiesController extends Controller
 {
-    public function taxonomyValidationReq(Request $request, $name, $title)
+    public function taxonomyValidationReq(Request $request, $name, $title, $taxId = null)
     {
         return Validator::make($request->all(), [
-            'name' => 'required|string|unique:' . $name
+            'name' => ['required', 'string', Rule::unique($name, 'name')->ignore($taxId)]
         ], TaxonomiesExceptions::storeValidator($title));
     }
 
-    public function store(Request $request, $taxName)
+    public function getTaxData($taxName)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'add_taxonomy');
-        if (!$rightCheck['has_right'])
-            return $rightCheck;
-
-        $title = '';
-        $taxModel = null;
+        $model = null;
         switch ($taxName) {
             default:
-                return TaxonomiesExceptions::notExists()->getMessage();
+                throw TaxonomiesExceptions::notExists();
             case 'brands':
             case 'brand':
-                $taxName = 'brands';
+                $name = 'brands';
                 $title = 'Бренд';
-                $taxModel = Brand::class;
+                $model = Brand::class;
                 break;
             case 'categories':
             case 'category':
-                $taxName = 'categories';
+                $name = 'categories';
                 $title = 'Категория';
-                $taxModel = Category::class;
+                $model = Category::class;
                 break;
             case 'types':
             case 'type':
-                $taxName = 'types';
+                $name = 'types';
                 $title = 'Тип';
-                $taxModel = Type::class;
+                $model = Type::class;
                 break;
         }
 
-        $validator = $this->taxonomyValidationReq($request, $taxName, $title);
+        return [
+            'name' => $name,
+            'model' => $model,
+            'title' => $title
+        ];
+    }
+
+    public function storeOrUpdate(Request $request, $taxName, $id = null)
+    {
+        $taxData = null;
+        try {
+            $taxData = $this->getTaxData($taxName);
+        } catch (TaxonomiesExceptions $err) {
+            return ['error' => $err->getMessage()];
+        }
+
+        $validator = $this->taxonomyValidationReq($request, $taxData['name'], $taxData['title'], $id);
         if ($validator->fails())
             return response(['errors' => $validator->errors()], 400);
 
-        return $taxModel::create($validator->validated());
+        if ($id) {
+            $taxModelInst = $taxData['model']::find($id);
+            if ($taxModelInst) {
+                $rightCheck = AuthController::checkUserRight($request, 'update_taxonomy');
+                if (!$rightCheck['has_right'])
+                    return RolesExceptions::noRightsResponse();
+
+                $taxModelInst->update($validator->validated());
+                return $taxModelInst;
+            }
+        }
+
+        $rightCheck = AuthController::checkUserRight($request, 'add_taxonomy');
+        if (!$rightCheck['has_right'])
+            return RolesExceptions::noRightsResponse();
+
+        return $taxData['model']::create($validator->validated());
+    }
+
+    public function delete(Request $request, $taxName, $id)
+    {
+        $rightCheck = AuthController::checkUserRight($request, 'delete_taxonomy');
+        if (!$rightCheck['has_right'])
+            return RolesExceptions::noRightsResponse();
+
+        $taxData = null;
+        try {
+            $taxData = $this->getTaxData($taxName);
+        } catch (TaxonomiesExceptions $err) {
+            return ['error' => $err->getMessage()];
+        }
+
+        $taxonomy = $taxData['model']::find($id);
+        if (empty($taxonomy))
+            return response(['error' => TaxonomiesExceptions::notExists()]);
+
+        $taxDeletedMessage = 'Успешно удалено: ' . $taxData['title'] . ' "' . $taxonomy->name . '"';
+        $taxonomy->delete();
+        return response(['success' => true, 'message' => $taxDeletedMessage]);
     }
 }
