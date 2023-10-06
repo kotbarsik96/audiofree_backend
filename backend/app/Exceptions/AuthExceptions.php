@@ -1,0 +1,90 @@
+<?php
+
+namespace App\Exceptions;
+
+use Exception;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Http\JsonResponse;
+
+class AuthExceptions extends Exception
+{
+    protected static $wrongLoginDataMsg = 'Неверные данные для входа';
+    protected static $passwordMinMsg = 'Пароль должен содержать не менее :min символов';
+
+    public static function registerValidator()
+    {
+        return [
+            'name.required' => 'Не указано имя',
+            'email.required' => 'Не указан email',
+            'email.email' => 'Формат электронной почты: example@mail.com',
+            'email.unique' => 'Пользователь с таким email уже зарегистрирован',
+            'password.required' => 'Не указан пароль',
+            'password.min' => self::$passwordMinMsg,
+            'password_confirmation.required' => 'Необходимо подтвердить пароль',
+            'password_confirmation.same' => 'Пароли не совпадают'
+        ];
+    }
+
+    public static function registerError()
+    {
+        return new self('Произошла ошибка при регистрации');
+    }
+
+    public static function loginValidator()
+    {
+        return [
+            'email.exists' => self::$wrongLoginDataMsg,
+            'email.required' => 'Не указан email',
+            'password.required' => 'Не указан пароль'
+        ];
+    }
+
+    public static function loginIncorrectData()
+    {
+        return new self(self::$wrongLoginDataMsg);
+    }
+
+    public static function checkAuthFailed(): JsonResponse
+    {
+        // помимо возвращенной ошибки также удалит невалидные куки
+        return response()
+            ->json(['error' => 'Провал проверки авторизации'])
+            ->cookie(Cookie::forget('user'))
+            ->cookie(Cookie::forget('userAdd'));
+    }
+
+    public static function changePasswordValidator()
+    {
+        return [
+            'password.required' => 'Не указан текущий пароль',
+            'new_password.required' => 'Не указан новый пароль',
+            'new_password.min' => self::$passwordMinMsg,
+            'new_password_confirmation.same' => 'Новый пароль подтвержден неверно',
+        ];
+    }
+
+    public static function changePasswordSame()
+    {
+        return new self('Пароли совпадают, изменение не произошло');
+    }
+
+    public static function incorrectPassword()
+    {
+        return new self('Неверно введен пароль');
+    }
+
+    public static function userNotExists()
+    {
+        return new self('Пользователь не существует');
+    }
+
+    public static function userNotLoggedIn()
+    {
+        return new self('Пользователь не авторизован');
+    }
+
+    public static function alreadyLoggedIn()
+    {
+        return new self('Вы уже авторизованы');
+    }
+}
