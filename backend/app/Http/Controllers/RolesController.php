@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\RolesExceptions;
 use App\Models\Role;
+use Illuminate\Validation\Rule;
 
 class RolesController extends Controller
 {
@@ -31,18 +32,24 @@ class RolesController extends Controller
         'delete_image' => ['ADMINISTRATOR', 'USER'],
     ];
 
+    public function validateRequest($request, $ignoreId = null)
+    {
+        return Validator::make($request->all(), [
+            // 'name' => 'required|string|unique:roles'
+            'name' => ['string', Rule::unique('roles', 'name')->ignore($ignoreId), 'required']
+        ], [
+            'name.required' => 'Не указано название роли',
+            'name.unique' => 'Роль с таким названием уже существует'
+        ]);
+    }
+
     public function store(Request $request)
     {
         $rightCheck = AuthController::checkUserRight($request, 'add_role');
         if (!$rightCheck['has_right'])
             return RolesExceptions::noRightsResponse();
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|unique:roles'
-        ], [
-            'name.required' => 'Не указано название роли',
-            'name.unique' => 'Роль с таким названием уже существует'
-        ]);
+        $validator = $this->validateRequest($request);
         if ($validator->fails())
             return response(['errors' => $validator->errors()], 400);
 
@@ -56,6 +63,16 @@ class RolesController extends Controller
         if (!$rightCheck['has_right'])
             return RolesExceptions::noRightsResponse();
 
+        $validator = $this->validateRequest($request, $id);
+        if ($validator->fails())
+            return response(['errors' => $validator->errors()], 400);
+
+        $role = Role::find($id);
+        if (empty($role))
+            return response(['error' => RolesExceptions::roleNotExists()->getMessage()], 400);
+
+        $role->update($validator->validated());
+        return $role;
     }
 
     public function delete(Request $request, $id)
@@ -63,6 +80,15 @@ class RolesController extends Controller
         $rightCheck = AuthController::checkUserRight($request, 'delete_role');
         if (!$rightCheck['has_right'])
             return RolesExceptions::noRightsResponse();
+
+        $role = Role::find($id);
+        if (empty($role))
+            return response(['error' => RolesExceptions::roleNotExists()->getMessage()], 400);
+
+        $roleName = $role->name;
+
+        $role->delete();
+        return ['success' => true, 'message' => 'Успешно удалено: роль ' . $roleName];
     }
 
     /* returns array: ['has_right' => false|true, 'error' => false|Exception $e] 

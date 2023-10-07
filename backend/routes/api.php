@@ -16,7 +16,7 @@ Route::post('/user-entities/create/favorite', [UserEntitiesController::class, 's
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->group(function () {
+// Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/check', [AuthController::class, 'checkAuth']);
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -42,4 +42,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/products/create', [ProductsController::class, 'store']);
     Route::post('/products/update/{id}', [ProductsController::class, 'update']);
     Route::post('/products/delete/{id}', [ProductsController::class, 'delete']);
-});
+// });
