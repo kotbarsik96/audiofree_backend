@@ -23,7 +23,10 @@ class RolesController extends Controller
         'update_variation' => ['ADMINISTRATOR'],
         'delete_variation' => ['ADMINISTRATOR'],
         'assign_role' => ['ADMINISTRATOR'],
-        'add_rating' => ['ADMINISTRATOR', 'USER']
+        'add_rating' => ['ADMINISTRATOR', 'USER'],
+        'load_image' => ['ADMINISTRATOR', 'USER'],
+        'update_rating' => ['ADMINISTRATOR', 'USER'],
+        'delete_image' => ['ADMINISTRATOR', 'USER'],
     ];
 
     public function store(Request $request)

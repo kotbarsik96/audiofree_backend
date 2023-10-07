@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ImagesController;
 use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\TaxonomiesController;
@@ -34,4 +35,8 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 
     Route::post('/rating/set/{productId}/{ratingValue}', [RatingsController::class, 'store']);
     Route::post('/rating/delete/{productId}', [RatingsController::class, 'delete']);
+
+    Route::post('/image/load', [ImagesController::class, 'store']);
+    Route::post('/image/update/{id}', [ImagesController::class, 'update']);
+    Route::post('/image/delete/{id}', [ImagesController::class, 'delete']);
 // });
