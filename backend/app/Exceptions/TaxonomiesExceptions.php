@@ -10,12 +10,4 @@ class TaxonomiesExceptions extends Exception
     {
         return new self('Таксономия не существует');
     }
-
-    public static function storeValidator($title)
-    {
-        return [
-            'name.required' => 'Не указано название для таксономии "' . $title . '"',
-            'name.unique' => $title . ' с таким названием уже существует'
-        ];
-    }
 }

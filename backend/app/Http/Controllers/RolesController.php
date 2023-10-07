@@ -18,11 +18,13 @@ class RolesController extends Controller
         'add_taxonomy' => ['ADMINISTRATOR'],
         'update_taxonomy' => ['ADMINISTRATOR'],
         'delete_taxonomy' => ['ADMINISTRATOR'],
-        'update_role' => ['ADMINISTRATOR'],
         'add_variation' => ['ADMINISTRATOR'],
         'update_variation' => ['ADMINISTRATOR'],
         'delete_variation' => ['ADMINISTRATOR'],
         'assign_role' => ['ADMINISTRATOR'],
+        'add_role' => [],
+        'update_role' => [],
+        'delete_role' => [],
         'add_rating' => ['ADMINISTRATOR', 'USER'],
         'load_image' => ['ADMINISTRATOR', 'USER'],
         'update_rating' => ['ADMINISTRATOR', 'USER'],
@@ -31,19 +33,36 @@ class RolesController extends Controller
 
     public function store(Request $request)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'assign_role');
+        $rightCheck = AuthController::checkUserRight($request, 'add_role');
         if (!$rightCheck['has_right'])
             return RolesExceptions::noRightsResponse();
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|unique:roles'
-        ], RolesExceptions::storeValidator());
-
+        ], [
+            'name.required' => 'Не указано название роли',
+            'name.unique' => 'Роль с таким названием уже существует'
+        ]);
         if ($validator->fails())
             return response(['errors' => $validator->errors()], 400);
 
         $role = Role::create($validator->validated());
         return $role;
+    }
+
+    public function update(Request $request, $id)
+    {
+        $rightCheck = AuthController::checkUserRight($request, 'update_role');
+        if (!$rightCheck['has_right'])
+            return RolesExceptions::noRightsResponse();
+
+    }
+
+    public function delete(Request $request, $id)
+    {
+        $rightCheck = AuthController::checkUserRight($request, 'delete_role');
+        if (!$rightCheck['has_right'])
+            return RolesExceptions::noRightsResponse();
     }
 
     /* returns array: ['has_right' => false|true, 'error' => false|Exception $e] 

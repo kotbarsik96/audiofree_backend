@@ -15,7 +15,7 @@ class UsersController extends Controller
 {
     public function updateRole(Request $request, $roleId)
     {
-        $updaterCheck = AuthController::checkUserRight($request, 'update_role');
+        $updaterCheck = AuthController::checkUserRight($request, 'assign_role');
         if (!$updaterCheck['has_right'])
             return ['error' => RolesExceptions::noRights()->getMessage()];
 

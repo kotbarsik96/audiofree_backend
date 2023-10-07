@@ -25,9 +25,10 @@ class RatingsController extends Controller
         $validator = Validator::make($validatableFields, [
             'value' => 'numeric|required',
             'product_id' => 'exists:products,id|required'
-        ], RatingsExceptions::storeValidator(), [
-            'value' => 'значение рейтинга',
-            'product_id' => 'id товара'
+        ], [
+            'required' => 'Не указано: :attribute',
+            'value.numeric' => 'Значение рейтинга должно быть числом',
+            'product_id.exists' => 'Товар не существует'
         ]);
 
         if ($validator->fails())

@@ -16,14 +16,24 @@ Route::post('/user-entities/create/favorite', [UserEntitiesController::class, 's
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
-// Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/check', [AuthController::class, 'checkAuth']);
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
+    Route::post('/rating/set/{productId}/{ratingValue}', [RatingsController::class, 'store']);
+    Route::post('/rating/delete/{productId}', [RatingsController::class, 'delete']);
+
+    Route::post('/image/load', [ImagesController::class, 'store']);
+    Route::post('/image/update/{id}', [ImagesController::class, 'update']);
+    Route::post('/image/delete/{id}', [ImagesController::class, 'delete']);
+
+    // админские привилегии
     Route::post('/users/update/role/{roleId}', [UsersController::class, 'updateRole']);
 
     Route::post('/roles/create', [RolesController::class, 'store']);
+    Route::post('/roles/update/{id}', [RolesController::class, 'update']);
+    Route::post('/roles/delete/{id}', [RolesController::class, 'delete']);
 
     Route::post('/taxonomy/create/{taxName}', [TaxonomiesController::class, 'storeOrUpdate']);
     Route::post('/taxonomy/update/{taxName}/{id}', [TaxonomiesController::class, 'storeOrUpdate']);
@@ -32,11 +42,4 @@ Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/products/create', [ProductsController::class, 'store']);
     Route::post('/products/update/{id}', [ProductsController::class, 'update']);
     Route::post('/products/delete/{id}', [ProductsController::class, 'delete']);
-
-    Route::post('/rating/set/{productId}/{ratingValue}', [RatingsController::class, 'store']);
-    Route::post('/rating/delete/{productId}', [RatingsController::class, 'delete']);
-
-    Route::post('/image/load', [ImagesController::class, 'store']);
-    Route::post('/image/update/{id}', [ImagesController::class, 'update']);
-    Route::post('/image/delete/{id}', [ImagesController::class, 'delete']);
-// });
+});

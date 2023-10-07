@@ -18,7 +18,10 @@ class TaxonomiesController extends Controller
     {
         return Validator::make($request->all(), [
             'name' => ['required', 'string', Rule::unique($name, 'name')->ignore($taxId)]
-        ], TaxonomiesExceptions::storeValidator($title));
+        ], [
+            'name.required' => 'Не указано название для таксономии "' . $title . '"',
+            'name.unique' => $title . ' с таким названием уже существует'
+        ]);
     }
 
     public function getTaxData($taxName)

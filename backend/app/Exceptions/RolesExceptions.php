@@ -6,13 +6,6 @@ use Exception;
 
 class RolesExceptions extends Exception
 {
-    public static function storeValidator()
-    {
-        return [
-            'name.required' => 'Не указано название роли',
-            'name.unique' => 'Роль с таким названием уже существует'
-        ];
-    }
 
     public static function roleNotExists()
     {
