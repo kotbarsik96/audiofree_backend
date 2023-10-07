@@ -15,7 +15,7 @@ class ProductsController extends Controller
 {
     public $storeAndUpdateReqs = [
         'price' => 'numeric|required',
-        'description_price' => 'nullable|numeric',
+        'discount_price' => 'nullable|numeric',
         'description' => 'string',
         'brand_id' => 'numeric|exists:brands,id|required',
         'category_id' => 'numeric|exists:categories,id|required',

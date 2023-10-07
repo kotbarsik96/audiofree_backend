@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('ratings', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('value');
+            $table->unsignedTinyInteger('value');
             $table->foreignId('product_id')
                 ->constrained(table: 'products')
                 ->onDelete('cascade');

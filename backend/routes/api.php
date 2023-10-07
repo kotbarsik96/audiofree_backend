@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\TaxonomiesController;
 use App\Http\Controllers\UserEntitiesController;
@@ -31,5 +32,6 @@ Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/products/update/{id}', [ProductsController::class, 'update']);
     Route::post('/products/delete/{id}', [ProductsController::class, 'delete']);
 
-    Route::post('/rating/set/{productId}/{ratingValue}');
+    Route::post('/rating/set/{productId}/{ratingValue}', [RatingsController::class, 'store']);
+    Route::post('/rating/delete/{productId}', [RatingsController::class, 'delete']);
 // });
