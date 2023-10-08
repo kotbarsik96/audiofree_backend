@@ -22,6 +22,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 
     Route::get('/auth/check', [AuthController::class, 'checkAuth']);
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
+    Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     Route::post('/rating/set/{productId}/{ratingValue}', [RatingsController::class, 'store']);

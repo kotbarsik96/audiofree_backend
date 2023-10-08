@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Mail\EmailVerification;
+use App\Mail\ResetPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\AuthExceptions;
@@ -16,6 +17,25 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Mail;
 use App\Models\VerifyEmail;
+
+function generate_pass()
+{
+    $chars = '-#$!%^&*;.qazxswedcvfrtgbnhyujmkiolp1234567890QAZXSWEDCVFRTGBNHYUJMKIOLP';
+    $chars_split = mb_str_split($chars);
+    $count = count($chars_split);
+    $length = random_int(15, 20);
+
+    $pass = '';
+    for ($i = 0; $i < $length; $i++) {
+        $j = random_int(0, $count - 1);
+        $char = $chars_split[$j];
+        $pass .= $char;
+    }
+    while (!preg_match('/[-#$!%^&*;.]/', $pass)) {
+        $pass = generate_pass();
+    }
+    return $pass;
+}
 
 class AuthController extends Controller
 {
@@ -169,6 +189,22 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Пароль успешно изменен'
         ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $check = $this->checkAuth($request, true);
+        if (!is_array($check))
+            return $check;
+
+        $user = $check['user'];
+        $newPassword = generate_pass();
+        $user->update([
+            'password' => $newPassword
+        ]);
+
+        Mail::to($user->email)
+            ->send(new ResetPassword(['user' => $user, 'newPassword' => $newPassword]));
     }
 
     // если нужно проверять право не из request, нужно обращаться напрямую к (new User())->checkUserRight($action)
