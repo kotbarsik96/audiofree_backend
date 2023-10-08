@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\EmailVerification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\AuthExceptions;
@@ -13,6 +14,8 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Mail;
+use App\Models\VerifyEmail;
 
 class AuthController extends Controller
 {
@@ -181,5 +184,80 @@ class AuthController extends Controller
         }
 
         return $checkOrUser['user']->checkUserRight($action);
+    }
+
+    public function getVerificationHash($email)
+    {
+        return 'verification_of_' . $email . '_email_user';
+    }
+
+    public function sendEmailVerification(Request $request)
+    {
+        $userId = $request->cookie('user');
+        $user = User::find($userId);
+        if (empty($user))
+            return response(['error' => AuthExceptions::userNotExists()->getMessage()], 400);
+
+        if (!empty($user->email_verified_at))
+            return response(['error' => AuthExceptions::emailAlreadyVerified()->getMessage()]);
+
+        $codeFirst = random_int(100, 999);
+        $codeSecond = random_int(100, 999);
+        $code = (string) $codeFirst . (string) $codeSecond;
+
+        $verifyModelData = [
+            'user_id' => $userId,
+            'code' => $code
+        ];
+        $verifyingCodeModel = VerifyEmail::where('user_id', $userId)->first();
+        if ($verifyingCodeModel) {
+            // отправлять запросы можно не чаще раза в минуту
+            $passedSeconds = time() - strtotime($verifyingCodeModel->updated_at);
+            if ($passedSeconds <= 60)
+                return response(['error' => 'Повторное отправление возможно не чаще раза в минуту'], 400);
+
+            $verifyingCodeModel->update($verifyModelData);
+        } else {
+            VerifyEmail::create($verifyModelData);
+        }
+
+        Mail::to($user->email)
+            ->send(new EmailVerification(['user' => $user, 'code' => $code]));
+
+        return response([
+            'success' => true,
+            'message' => 'Письмо с кодом подтверждения было отправлено на вашу почту'
+        ]);
+    }
+
+    public function verifyEmail(Request $request, $code)
+    {
+        $userId = $request->cookie('user');
+        $user = User::find($userId);
+        if (empty($user))
+            return response(['error' => AuthExceptions::userNotExists()->getMessage()], 400);
+
+        $verifyingCodeModel = VerifyEmail::where('user_id', $userId)->first();
+        if (empty($verifyingCodeModel))
+            return response(['error' => AuthExceptions::incorrectVerifyingEmailCode()->getMessage()], 400);
+
+        $verifyingCode = $verifyingCodeModel->code;
+        if ((int) $verifyingCode !== (int) $code)
+            return response(['error' => AuthExceptions::incorrectVerifyingEmailCode()->getMessage()], 400);
+
+        $user->update([
+            'email_verified_at' => date('Y-m-d H:i:s', time())
+        ]);
+
+        $allUserCodes = VerifyEmail::where('user_id', $userId)
+            ->get();
+        foreach ($allUserCodes as $userCodeModel) {
+            $userCodeModel->delete();
+        }
+
+        return response([
+            'success' => true,
+            'message' => 'Ваш Email подтвержден'
+        ]);
     }
 }

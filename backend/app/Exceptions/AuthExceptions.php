@@ -87,4 +87,14 @@ class AuthExceptions extends Exception
     {
         return new self('Вы уже авторизованы');
     }
+
+    public static function incorrectVerifyingEmailCode()
+    {
+        return new self('Неверный код подтверждения email');
+    }
+
+    public static function emailAlreadyVerified()
+    {
+        return new self('Email уже подтвержден');
+    }
 }
