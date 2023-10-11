@@ -31,7 +31,7 @@ return new class extends Migration {
                 ->nullOnDelete();
             $table->foreignId('image_id')
                 ->nullable()
-                ->constrained(table: 'products')
+                ->constrained(table: 'images')
                 ->nullOnDelete();
             $table->timestamps();
         });
