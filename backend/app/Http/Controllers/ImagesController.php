@@ -103,6 +103,9 @@ class ImagesController extends Controller
         if (empty($image))
             return response(['error' => ImagesExceptions::noImage()->getMessage()], 400);
 
+        $path = public_path() . '/' . $image->path;
+        unlink($path);
+
         $image->delete();
 
         return ['success' => true];
