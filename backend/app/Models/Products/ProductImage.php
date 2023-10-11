@@ -1,16 +1,18 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Products;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Variation extends Model
+class ProductImage extends Model
 {
     use HasFactory;
 
+    public $table = 'product_images';
+
     protected $fillable = [
-        'name',
-        'product_id'
+        'product_id',
+        'image_id'
     ];
 }

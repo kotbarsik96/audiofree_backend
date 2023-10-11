@@ -8,10 +8,12 @@ use App\Http\Controllers\UserEntitiesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UsersController;
-use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\Products\ProductsController;
 
 Route::post('/user-entities/create/cart', [UserEntitiesController::class, 'storeCart']);
 Route::post('/user-entities/create/favorite', [UserEntitiesController::class, 'storeFavorite']);
+
+Route::get('/products/{id}', [ProductsController::class, 'index']);
 
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);

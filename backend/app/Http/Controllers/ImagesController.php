@@ -34,7 +34,7 @@ class ImagesController extends Controller
             : public_path('images');
 
         $uploaded = $request->image;
-        $imageName = substr(md5(time()), -5) . '_' . $uploaded->getClientOriginalName();
+        $imageName = substr(md5(time()), -8) . '_' . $uploaded->getClientOriginalName();
         $uploaded->move($movePath, $imageName);
 
         $image = ImageManager::make($movePath . '/' . $imageName);

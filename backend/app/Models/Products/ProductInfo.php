@@ -1,16 +1,19 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Products;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class VariationValue extends Model
+class ProductInfo extends Model
 {
     use HasFactory;
 
+    public $table = 'product_info';
+
     protected $fillable = [
-        'variation_id',
+        'product_id',
+        'name',
         'value'
     ];
 }

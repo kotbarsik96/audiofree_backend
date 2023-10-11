@@ -6,7 +6,7 @@ use App\Exceptions\AuthExceptions;
 use App\Exceptions\ProductsExceptions;
 use Illuminate\Http\Request;
 use App\Models\Rating;
-use App\Models\Product;
+use App\Models\Products\Product;
 use App\Exceptions\RolesExceptions;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\RatingsExceptions;
