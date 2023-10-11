@@ -4,7 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Illuminate\Support\Facades\DB;
+use App\Models\ScheduleTask;
 
 class Kernel extends ConsoleKernel
 {
@@ -14,10 +14,12 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->call(function () {
-            DB::table('verify_email')
-                ->where('updated_at', '<', DB::raw('NOW() - INTERVAL 10 MINUTE'))
-                ->delete();
+            ScheduleTask::clearVerifyEmailTable();
         })->everyMinute();
+
+        $schedule->call(function () {
+            ScheduleTask::clearImages();
+        })->daily();
     }
 
     /**
