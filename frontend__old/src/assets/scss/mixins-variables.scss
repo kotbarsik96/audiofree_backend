@@ -1,0 +1,34 @@
+// <VARIABLES>===================================================================================
+$screenSize: 1200;
+
+// colors
+$themeColor: #8b75c8;
+$themeColor-dark: #251c41;
+
+$greenIcon: #0db10a;
+$ratingColorOff: #d4d4d4;
+$ratingColorActive: #ffc107;
+
+$buttonHover: #766d8f;
+
+$borderColor: #dedede;
+
+// timevalues
+$anchorHover: 0.3s;
+// <VARIABLES>===================================================================================
+
+// <MIXINS>======================================================================================
+@mixin adaptive-font($pcSize, $mobSize) {
+    $adaptSize: $pcSize - $mobSize;
+    $devAdaptSize: $adaptSize + $adaptSize * 0.7;
+    @media (max-width: 767px) {
+        font-size: calc(#{$mobSize}px + #{$devAdaptSize} * (100vw - 320px) / #{$screenSize});
+    }
+    @media (min-width: 768px) {
+        font-size: calc(#{$mobSize}px + #{$adaptSize} * (100vw /#{$screenSize}));
+    }
+}
+@mixin line-height($font-size, $line-height) {
+    line-height: calc($line-height / $font-size * 100%);
+}
+// <MIXINS>======================================================================================

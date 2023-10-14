@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 
 class AuthExceptions extends Exception
 {
-    protected static $wrongLoginDataMsg = 'Неверные данные для входа';
     protected static $passwordMinMsg = 'Пароль должен содержать не менее :min символов';
 
     public static function registerValidator()
@@ -20,6 +19,7 @@ class AuthExceptions extends Exception
             'email.unique' => 'Пользователь с таким email уже зарегистрирован',
             'password.required' => 'Не указан пароль',
             'password.min' => self::$passwordMinMsg,
+            'password.string' => 'Не указан пароль',
             'password_confirmation.required' => 'Необходимо подтвердить пароль',
             'password_confirmation.same' => 'Пароли не совпадают'
         ];
@@ -33,7 +33,6 @@ class AuthExceptions extends Exception
     public static function loginValidator()
     {
         return [
-            'email.exists' => self::$wrongLoginDataMsg,
             'email.required' => 'Не указан email',
             'password.required' => 'Не указан пароль'
         ];
@@ -41,7 +40,7 @@ class AuthExceptions extends Exception
 
     public static function loginIncorrectData()
     {
-        return new self(self::$wrongLoginDataMsg);
+        return new self('Неверные данные для входа');
     }
 
     public static function checkAuthFailed(): JsonResponse

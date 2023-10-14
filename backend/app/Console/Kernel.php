@@ -14,11 +14,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->call(function () {
-            ScheduleTask::clearVerifyEmailTable();
         })->everyMinute();
 
         $schedule->call(function () {
             ScheduleTask::clearImages();
+            ScheduleTask::clearVerifyEmailTable();
         })->daily();
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Exceptions\UserEntitiesExceptions;
 use App\Models\UserEntities\Cart;
 use App\Models\UserEntities\Favorite;
+use App\Models\User;
 
 class UserEntitiesController extends Controller
 {
@@ -34,5 +35,22 @@ class UserEntitiesController extends Controller
 
         $favorites = Favorite::create($validator->validated());
         return $favorites;
+    }
+
+    public static function clearUserEntities()
+    {
+        $entities = [
+            Cart::all(),
+            Favorite::all()
+        ];
+
+        foreach ($entities as $modelsArray) {
+            foreach ($modelsArray as $model) {
+                $user = User::find($model->id);
+                if (empty($user)) {
+                    $model->delete();
+                }
+            }
+        }
     }
 }

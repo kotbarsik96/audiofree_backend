@@ -35,7 +35,6 @@ class RolesController extends Controller
     public function validateRequest($request, $ignoreId = null)
     {
         return Validator::make($request->all(), [
-            // 'name' => 'required|string|unique:roles'
             'name' => ['string', Rule::unique('roles', 'name')->ignore($ignoreId), 'required']
         ], [
             'name.required' => 'Не указано название роли',

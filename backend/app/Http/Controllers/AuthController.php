@@ -11,6 +11,7 @@ use App\Exceptions\AuthExceptions;
 use App\Models\User;
 use App\Models\UserEntities\Cart;
 use App\Models\UserEntities\Favorite;
+use App\Http\Controllers\UserEntitiesController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -65,61 +66,76 @@ class AuthController extends Controller
     {
         $checkAuth = $this->checkAuth($request);
         if (is_array($checkAuth))
-            return ['error' => AuthExceptions::alreadyLoggedIn()->getMessage()];
+            return response(['error' => AuthExceptions::alreadyLoggedIn()->getMessage()], 400);
 
         $validator = $this->registerValidationReq($request);
 
         if ($validator->fails())
-            return response(['errors' => $validator->errors()], 400);
+            return response(['errors' => $validator->errors()], 422);
 
 
         $role = Role::find($this->roleDefault);
         if (empty($role))
-            return ['error' => AuthExceptions::registerError()->getMessage()];
+            return response(['error' => AuthExceptions::registerError()->getMessage()], 422);
 
-        $cart = Cart::create();
-        $favorite = Favorite::create();
+        UserEntitiesController::clearUserEntities();
         $data = array_merge(
             $validator->validated(),
-            [
-                'cart_id' => $cart->id,
-                'favorite_id' => $favorite->id,
-                'role_id' => $role->id
-            ]
+            ['role_id' => $role->id]
         );
         $user = User::create($data);
-        $cart->update(['user_id' => $user->id]);
-        $favorite->update(['user_id' => $user->id]);
+        Cart::create(['user_id' => $user->id]);
+        Favorite::create(['user_id' => $user->id]);
 
-        return $user;
+        return response()
+            ->json([
+                'success' => true,
+                'message' => 'Здравствуйте, ' . $user->name . '! Регистрация прошла успешно',
+                'user_id' => $user->id
+            ])
+            ->cookie('user', $user->id, null, null, env('SESSION_DOMAIN'))
+            ->cookie('userAdd', bcrypt($user->email . $user->id), null, null, env('SESSION_DOMAIN'));
     }
 
     public function login(Request $request)
     {
         $checkAuth = $this->checkAuth($request);
         if (is_array($checkAuth))
-            return ['error' => AuthExceptions::alreadyLoggedIn()->getMessage()];
+            return response(['error' => AuthExceptions::alreadyLoggedIn()->getMessage()], 422);
 
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string|exists:users',
+            'email' => 'required|string',
             'password' => 'required|string',
         ], AuthExceptions::loginValidator());
 
         if ($validator->fails())
-            return response(['errors' => $validator->errors()], 400);
+            return response(['errors' => $validator->errors()], 422);
 
         $credentials = $validator->validated();
         $user = User::where('email', $credentials['email'])->first();
+        if (!$user)
+            return response(
+                ['error' => AuthExceptions::loginIncorrectData()->getMessage()],
+                422
+            );
+
         if (!Hash::check($credentials['password'], $user->password))
-            return ['error' => AuthExceptions::loginIncorrectData()->getMessage()];
+            return response(
+                ['error' => AuthExceptions::loginIncorrectData()->getMessage()],
+                422
+            );
 
         if (!Auth::attempt($credentials))
-            return ['error' => AuthExceptions::loginIncorrectData()->getMessage()];
+            return response(
+                ['error' => AuthExceptions::loginIncorrectData()->getMessage()],
+                422
+            );
 
         return response()
             ->json([
                 'success' => true,
-                'message' => 'Здравствуйте, ' . $user->name . '!'
+                'message' => 'Здравствуйте, ' . $user->name . '!',
+                'user_id' => $user->id
             ])
             ->cookie('user', $user->id, null, null, env('SESSION_DOMAIN'))
             ->cookie('userAdd', bcrypt($user->email . $user->id), null, null, env('SESSION_DOMAIN'));
@@ -137,7 +153,8 @@ class AuthController extends Controller
 
         return response()
             ->json([
-                'message' => 'До свидания, ' . $user->name
+                'success' => true,
+                'message' => 'Ждем вас, ' . $user->name
             ])
             ->cookie(Cookie::forget('user'))
             ->cookie(Cookie::forget('userAdd'));
@@ -158,7 +175,7 @@ class AuthController extends Controller
         if ($userOnSuccess)
             return ['user' => $user, 'error' => false];
         else
-            return ['success' => true, 'error' => false];
+            return ['success' => true, 'user_id' => $user->id, 'error' => false];
     }
 
     public function changePassword(Request $request)
@@ -171,15 +188,15 @@ class AuthController extends Controller
 
         $validator = $this->changePasswordValidationReq($request);
         if ($validator->fails())
-            return response(['errors' => $validator->errors()], 400);
+            return response(['errors' => $validator->errors()], 422);
 
         $credentials = $validator->validated();
         if (!Hash::check($credentials['password'], $user->password))
-            return ['error' => AuthExceptions::incorrectPassword()->getMessage()];
+            return response(['error' => AuthExceptions::incorrectPassword()->getMessage()], 422);
 
-        $newPassword = $request['new_password'];
+        $newPassword = $request->new_password;
         if ($newPassword === $credentials['password'])
-            return ['error' => AuthExceptions::changePasswordSame()->getMessage()];
+            return response(['error' => AuthExceptions::changePasswordSame()->getMessage()], 422);
 
         $user->update([
             'password' => $newPassword
@@ -232,10 +249,10 @@ class AuthController extends Controller
         $userId = $request->cookie('user');
         $user = User::find($userId);
         if (empty($user))
-            return response(['error' => AuthExceptions::userNotExists()->getMessage()], 400);
+            return response(['error' => AuthExceptions::userNotExists()->getMessage()], 422);
 
         if (!empty($user->email_verified_at))
-            return response(['error' => AuthExceptions::emailAlreadyVerified()->getMessage()]);
+            return response(['error' => AuthExceptions::emailAlreadyVerified()->getMessage()], 400);
 
         $codeFirst = random_int(100, 999);
         $codeSecond = random_int(100, 999);
@@ -275,11 +292,11 @@ class AuthController extends Controller
 
         $verifyingCodeModel = VerifyEmail::where('user_id', $userId)->first();
         if (empty($verifyingCodeModel))
-            return response(['error' => AuthExceptions::incorrectVerifyingEmailCode()->getMessage()], 400);
+            return response(['error' => AuthExceptions::incorrectVerifyingEmailCode()->getMessage()], 422);
 
         $verifyingCode = $verifyingCodeModel->code;
         if ((int) $verifyingCode !== (int) $code)
-            return response(['error' => AuthExceptions::incorrectVerifyingEmailCode()->getMessage()], 400);
+            return response(['error' => AuthExceptions::incorrectVerifyingEmailCode()->getMessage()], 422);
 
         $user->update([
             'email_verified_at' => date('Y-m-d H:i:s', time())

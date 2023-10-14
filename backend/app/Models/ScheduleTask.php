@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Models\Image;
+use App\Models\UserEntities\Cart;
+use App\Models\UserEntities\Favorite;
 
 class ScheduleTask extends Model
 {
