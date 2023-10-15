@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { useNotificationsStore } from '@/stores/notifications.js'
 
 axios.defaults.withCredentials = true
 
@@ -41,6 +42,9 @@ export const useIndexStore = defineStore('index', {
             try {
                 const res = await axios.post(import.meta.env.VITE_AUTH_LOGOUT_LINK)
                 this.isUserLogged = false
+                useNotificationsStore().addNotification({
+                    message: res.data.message
+                })
                 return res
             } catch (err) {
                 throw err

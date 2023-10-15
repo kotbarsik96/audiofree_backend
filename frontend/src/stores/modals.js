@@ -24,7 +24,7 @@ export const useModalsStore = defineStore('modals', {
             modalData.component.modalId = modalData.id
             return modalData.id
         },
-        // удалит первый в списке this.modals окно, ЕСЛИ НЕ передан ИЛИ передан НЕКОРРЕКТНО modalId. Если передан КОРРЕКТНЫЙ modalId, удалит окно с этим modalId
+        // удалит первый в списке this.modals окно, ЕСЛИ НЕ передан ИЛИ передан НЕЧИСЛОВОЙ modalId. Если передан ЧИСЛОВОЙ modalId, удалит окно с этим modalId
         removeModal(modalId = null) {
             if (isNaN(parseInt(modalId))) {
                 this.modals.splice(0, 1)

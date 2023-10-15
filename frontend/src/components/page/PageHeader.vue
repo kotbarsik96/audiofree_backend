@@ -549,13 +549,13 @@ export default {
             display: flex;
             align-items: center;
             background-color: #fff;
-            border-radius: 0 0 9px 9px;
+            border-radius: 0 0 var(--border_radius) var(--border_radius);
             padding: 13px 15px;
             transition: border-radius .3s;
         }
 
         .__shown-menu &__mobile-top {
-            border-radius: 0 0 9px 0;
+            border-radius: 0 0 var(--border_radius) 0;
         }
 
         &__mobile-burger {
@@ -615,7 +615,7 @@ export default {
             left: -100vw;
             top: 100%;
             background-color: #fff;
-            border-radius: 0 0 9px 9px;
+            border-radius: 0 0 var(--border_radius) var(--border_radius);
             width: 100%;
             max-width: 300px;
             height: calc(100vh - 100%);
@@ -727,7 +727,7 @@ export default {
             width: 100%;
             height: 100%;
             background-color: #fff;
-            border-radius: 0 0 9px 9px;
+            border-radius: 0 0 var(--border_radius) var(--border_radius);
             z-index: 50;
             padding: 0 10px;
 

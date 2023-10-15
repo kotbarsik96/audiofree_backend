@@ -89,7 +89,10 @@ export default {
         },
         greetUser(message) {
             this.greetingMessage = message
-            setTimeout(this.removeModal, 2000)
+            setTimeout(() => {
+                if (this.modalId)
+                    this.removeModal(modalId)
+            }, 2000)
         }
     }
 }

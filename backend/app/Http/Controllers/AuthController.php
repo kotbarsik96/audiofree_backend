@@ -154,7 +154,7 @@ class AuthController extends Controller
         return response()
             ->json([
                 'success' => true,
-                'message' => 'Ждем вас, ' . $user->name
+                'message' => 'До свидания, ' . $user->name
             ])
             ->cookie(Cookie::forget('user'))
             ->cookie(Cookie::forget('userAdd'));
