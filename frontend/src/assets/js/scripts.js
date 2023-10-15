@@ -55,15 +55,20 @@ export function removeErrorsOnInput(event) {
         this.errorMessage = ''
 }
 
-export function findClosest(relative, selector) {
+export function findClosest(relative, selector, maxParentsCount = null) {
     let closestNode = null
     let parent = relative
+    let count = 0
 
     while (!closestNode) {
+        if (isNumeric(maxParentsCount) && maxParentsCount <= count)
+            break
+
         parent = parent.parentNode
-        if(!parent)
+        if (!parent)
             break
         closestNode = parent.querySelector(selector)
+        count++
     }
 
     return closestNode

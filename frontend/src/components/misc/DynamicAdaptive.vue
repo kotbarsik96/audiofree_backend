@@ -24,6 +24,7 @@ export default {
                 return value.match(/(^\.)|(^\#)|(\[.+\])/)
             }
         },
+        maxParentsCount: Number,
         tagName: {
             type: String,
             default: 'div'
@@ -64,7 +65,7 @@ export default {
             }
         },
         moveToDestination() {
-            this.usedDestination = findClosest(this.$refs.el, this.destinationSelector)
+            this.usedDestination = findClosest(this.$refs.el, this.destinationSelector, this.maxParentsCount)
             this.$refs.el.replaceWith(this.anchor)
             if (!this.usedDestination)
                 return
