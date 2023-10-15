@@ -5,6 +5,8 @@
 </template>
 
 <script>
+import { findClosest } from '@/assets/js/scripts.js'
+
 export default {
     name: 'DynamicAdaptive',
     props: {
@@ -62,7 +64,7 @@ export default {
             }
         },
         moveToDestination() {
-            this.usedDestination = document.querySelector(this.destinationSelector)
+            this.usedDestination = findClosest(this.$refs.el, this.destinationSelector)
             this.$refs.el.replaceWith(this.anchor)
             if (!this.usedDestination)
                 return

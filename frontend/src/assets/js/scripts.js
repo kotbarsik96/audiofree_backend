@@ -51,6 +51,20 @@ export function removeErrorsOnInput(event) {
     if (this.errors[name])
         delete this.errors[name]
 
-    if(this.errorMessage)
+    if (this.errorMessage)
         this.errorMessage = ''
+}
+
+export function findClosest(relative, selector) {
+    let closestNode = null
+    let parent = relative
+
+    while (!closestNode) {
+        parent = parent.parentNode
+        if(!parent)
+            break
+        closestNode = parent.querySelector(selector)
+    }
+
+    return closestNode
 }
