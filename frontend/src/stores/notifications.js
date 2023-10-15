@@ -21,6 +21,9 @@ export const useNotificationsStore = defineStore('notifications', {
     },
     actions: {
         addNotification(notificationData) {
+            if(!notificationData.component && !notificationData.message)
+                return
+
             // определить props
             if (!notificationData.props || typeof notificationData.props !== 'object')
                 notificationData.props = {}

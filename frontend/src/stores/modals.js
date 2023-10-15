@@ -10,9 +10,7 @@ ImportedComponent example: import RegisterModal from '@/components/modals/Regist
 export const useModalsStore = defineStore('modals', {
     state: () => {
         return {
-            modals: [
-
-            ]
+            modals: []
         }
     },
     actions: {
