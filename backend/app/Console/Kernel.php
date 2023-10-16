@@ -17,7 +17,8 @@ class Kernel extends ConsoleKernel
         })->everyMinute();
 
         $schedule->call(function () {
-            ScheduleTask::clearImages();
+            ScheduleTask::clearOldImages();
+            ScheduleTask::clearRemovedImages();
             ScheduleTask::clearVerifyEmailTable();
         })->daily();
     }

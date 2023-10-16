@@ -20,12 +20,12 @@ class ScheduleTask extends Model
             ->delete();
     }
 
-    public static function clearImages()
+    public static function clearOldImages()
     {
         $tablesToCheck = Image::getTablesWhereExist();
         $oldImages = DB::table('images')
             ->select('id', 'path')
-            ->where('updated_at', '<', DB::raw('NOW() - INTERVAL 7 DAY'))
+            ->where('updated_at', '<', DB::raw('NOW() - INTERVAL 1 DAY'))
             ->get();
 
         foreach ($oldImages as $imageData) {
@@ -53,6 +53,19 @@ class ScheduleTask extends Model
                 if ($imageModel)
                     $imageModel->delete();
             }
+        }
+    }
+
+    public static function clearRemovedImages()
+    {
+        $allImages = Image::all();
+        foreach ($allImages as $imageModel) {
+            $path = public_path() . '/' . $imageModel->path;
+            if (file_exists($path))
+                continue;
+
+            // файла не существует - удалить из бд
+            $imageModel->delete();
         }
     }
 }
