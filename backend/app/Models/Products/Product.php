@@ -27,9 +27,9 @@ class Product extends FilterableModel
         'rating_value' => 'float'
     ];
 
-    public static function selectMain(): array
+    public static function scopeMainData(Builder $builder)
     {
-        return [
+        $builder->addSelect(
             'products.id',
             'products.name',
             'products.price',
@@ -38,35 +38,27 @@ class Product extends FilterableModel
             'images.path AS image_path',
             DB::raw('avg(ratings.value) as rating_value'),
             DB::raw('count(*) as rating_count')
-        ];
-    }
-    public static function scopeMainData(Builder $builder)
-    {
-        $builder->leftJoin('images', 'products.image_id', '=', 'images.id')
+        )
+            ->leftJoin('images', 'products.image_id', '=', 'images.id')
             ->leftJoin('ratings', 'products.id', '=', 'ratings.product_id')
             ->groupBy('products.id');
     }
 
-    public static function selectTaxonomies(): array
+    public static function scopeTaxonomies(Builder $builder)
     {
-        return [
+        $builder->addSelect(
             'types.name AS type',
             'brands.name AS brand',
             'categories.name AS category'
-        ];
-    }
-    public static function scopeTaxonomies(Builder $builder)
-    {
-        $builder->leftJoin('types', 'products.type_id', '=', 'types.id')
+        )
+            ->leftJoin('types', 'products.type_id', '=', 'types.id')
             ->leftJoin('brands', 'products.brand_id', '=', 'brands.id')
             ->leftJoin('categories', 'products.category_id', '=', 'categories.id');
     }
 
     public static function singleFullData($id, $needExtra = false)
     {
-        $selectFields = array_merge(self::selectMain(), self::selectTaxonomies());
-        $product = self::select($selectFields)
-            ->mainData()
+        $product = self::mainData()
             ->taxonomies()
             ->find($id);
         if (empty($product))
@@ -74,11 +66,6 @@ class Product extends FilterableModel
 
         $product = self::addOuterData($product);
         return $product;
-    }
-
-    public static function previewData()
-    {
-        
     }
 
     /* добавляет данные из других таблиц: характеристики, вариации, галерея */
