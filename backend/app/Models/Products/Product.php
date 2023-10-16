@@ -56,16 +56,25 @@ class Product extends FilterableModel
             ->leftJoin('categories', 'products.category_id', '=', 'categories.id');
     }
 
-    public static function singleFullData($id, $needExtra = false)
+    public static function singleFullData($id, $selectTimestamps = false)
     {
         $product = self::mainData()
-            ->taxonomies()
-            ->find($id);
+            ->taxonomies();
+        if ($selectTimestamps)
+            $product->timestamps();
+
+        $product = $product->find($id);
+
         if (empty($product))
             return ['error' => ProductsExceptions::noProduct()->getMessage()];
 
         $product = self::addOuterData($product);
         return $product;
+    }
+
+    public static function scopeTimestamps(Builder $builder)
+    {
+        $builder->addSelect('products.updated_at', 'products.created_at');
     }
 
     /* добавляет данные из других таблиц: характеристики, вариации, галерея */
