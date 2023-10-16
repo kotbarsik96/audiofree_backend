@@ -331,6 +331,7 @@ export default {
 <style lang="scss">
 .header {
     --hover_color: #97d413;
+    z-index: 150;
 
     &__body,
     &__bottom {
