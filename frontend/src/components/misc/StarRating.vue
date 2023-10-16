@@ -1,8 +1,8 @@
 <template>
-    <div class="star-rating" :class="{ 'star-rating--interactive': isInteractive }">
+    <div class="star-rating" :class="{ 'star-rating--interactive': interactive }">
         <div class="star-rating__stars star-rating__stars--empty">
             <div v-for="star in stars" class="star-rating__star">
-                <StarIcon @click="setValue(star)"></StarIcon>
+                <StarIcon v-on="interactive ? { click: () => setValue(star) } : {}"></StarIcon>
             </div>
         </div>
         <div class="star-rating__stars star-rating__stars--active" :style="{ 'width': activeStarsWidth }">
@@ -27,12 +27,12 @@ export default {
             type: Number,
             default: 0
         },
-        isInteractive: Boolean,
+        interactive: Boolean,
     },
-    mounted(){
+    mounted() {
         this.$emit('update:modelValue', this.value)
     },
-    data(){
+    data() {
         return {
             value: this.rating
         }
@@ -44,14 +44,17 @@ export default {
     },
     methods: {
         setValue(value) {
-            if(value < 1 || value > this.stars)
+            if (!this.interactive)
+                return
+
+            if (value < 1 || value > this.stars)
                 return
 
             this.value = value
         }
     },
     watch: {
-        value(){
+        value() {
             this.$emit('update:modelValue', this.value)
         }
     }
@@ -86,9 +89,16 @@ export default {
         height: 14px;
         color: #d4d4d4;
         margin-right: 5px;
+        flex: 0 0 auto;
 
         &:last-child {
             margin-right: 0;
+        }
+
+        svg {
+
+            width: 100%;
+            height: 100%;
         }
     }
 
