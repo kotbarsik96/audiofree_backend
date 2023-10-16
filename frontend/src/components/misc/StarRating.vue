@@ -1,0 +1,99 @@
+<template>
+    <div class="star-rating" :class="{ 'star-rating--interactive': isInteractive }">
+        <div class="star-rating__stars star-rating__stars--empty">
+            <div v-for="star in stars" class="star-rating__star">
+                <StarIcon @click="setValue(star)"></StarIcon>
+            </div>
+        </div>
+        <div class="star-rating__stars star-rating__stars--active" :style="{ 'width': activeStarsWidth }">
+            <div v-for="star in stars" class="star-rating__star star-rating__star--active">
+                <StarIcon></StarIcon>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+export default {
+    name: 'StarRating',
+    emits: ['update:modelValue'],
+    props: {
+        modelValue: Number,
+        stars: {
+            type: Number,
+            required: true
+        },
+        rating: {
+            type: Number,
+            default: 0
+        },
+        isInteractive: Boolean,
+    },
+    mounted(){
+        this.$emit('update:modelValue', this.value)
+    },
+    data(){
+        return {
+            value: this.rating
+        }
+    },
+    computed: {
+        activeStarsWidth() {
+            return `${this.value / (this.stars / 100)}%`
+        }
+    },
+    methods: {
+        setValue(value) {
+            if(value < 1 || value > this.stars)
+                return
+
+            this.value = value
+        }
+    },
+    watch: {
+        value(){
+            this.$emit('update:modelValue', this.value)
+        }
+    }
+}
+</script>
+
+<style lang="scss">
+.star-rating {
+    position: relative;
+    display: inline-block;
+
+    &__stars {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    &--interactive &__stars--empty {
+        cursor: pointer;
+    }
+
+    &__stars--active {
+        position: absolute;
+        pointer-events: none;
+        overflow: hidden;
+        width: 0;
+        top: 0;
+        left: 0;
+    }
+
+    &__star {
+        width: 14px;
+        height: 14px;
+        color: #d4d4d4;
+        margin-right: 5px;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+
+    &__star--active {
+        color: #ffc107;
+    }
+}
+</style>
