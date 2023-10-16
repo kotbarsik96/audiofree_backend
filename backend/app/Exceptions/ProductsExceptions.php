@@ -10,7 +10,7 @@ class ProductsExceptions extends Exception
         'required' => 'Не указано поле :attribute',
         'string' => 'Неверно указано поле :attribute',
         'numeric' => 'Неверно указано поле :attribute',
-        'exists' => ':attribute не существует в таблице',
+        'exists' => ':attribute не существует',
     ];
 
     public static function storeValidator($request)

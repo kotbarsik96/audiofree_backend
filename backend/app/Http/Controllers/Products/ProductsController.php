@@ -5,20 +5,34 @@ namespace App\Http\Controllers\Products;
 use App\Exceptions\RolesExceptions;
 use App\Models\Products\Product;
 use Illuminate\Http\Request;
+use App\Filters\QueryFilter;
 use App\Http\Controllers\AuthController;
 use App\Exceptions\ProductsExceptions;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Products\Variations\VariationsController;
-use App\Http\Controllers\ProductsProductImagesController;
-use App\Http\Controllers\ProductsProductInfoController;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 
 class ProductsController extends Controller
 {
-    public function index($id)
+    public function index(Request $request, $id)
     {
-        return Product::singleFullData($id);
+        $timestampsQuery = $request->query('timestamps');
+        $selectTimestamps = $timestampsQuery === 'true'
+            ? true : false;
+        return Product::singleFullData($id, $selectTimestamps);
+    }
+
+    public function filter(QueryFilter $request)
+    {
+        $queries = $request->queries();
+        $limit = array_key_exists('limit', $queries) ? $queries['limit'] : null;
+        $offset = array_key_exists('offset', $queries) ? $queries['offset'] : null;
+
+        return Product::filter($request)
+            ->offsetLimit($limit, $offset)
+            ->mainData()
+            ->get();
     }
 
     public function storeValidationReq(Request $request, $ignoreId = null)
@@ -28,12 +42,21 @@ class ProductsController extends Controller
             'price' => 'numeric|required',
             'discount_price' => 'nullable|numeric',
             'description' => 'string',
-            'brand_id' => 'numeric|exists:brands,id|required',
-            'category_id' => 'numeric|exists:categories,id|required',
-            'type_id' => 'numeric|exists:types,id|required',
+            'brand_id' => 'exists:brands,id|required',
+            'category_id' => 'exists:categories,id|required',
+            'type_id' => 'exists:types,id|required',
             'image_id' => 'nullable|numeric|exists:images,id'
         ];
-        return Validator::make($request->all(), $reqs, ProductsExceptions::storeValidator($request));
+        return Validator::make(
+            $request->all(),
+            $reqs,
+            ProductsExceptions::storeValidator($request),
+            [
+                'brand' => 'Бренд',
+                'category' => 'Категория',
+                'type' => 'Тип'
+            ]
+        );
     }
 
     public function store(Request $request)
@@ -59,16 +82,14 @@ class ProductsController extends Controller
         // связать с изображениями
         $storedImages = $productImagesController->storeArray($request->images, $product);
 
-        return array_merge(
-            Product::singleFullData($product->id),
-            [
-                'errors' => [
-                    'variations' => $storedVariations['errors'],
-                    'images' => $storedImages['errors'],
-                    'info' => $storedInfo['errors']
-                ]
+        return [
+            'product' => Product::singleFullData($product->id),
+            'errors' => [
+                'variations' => $storedVariations['errors'],
+                'images' => $storedImages['errors'],
+                'info' => $storedInfo['errors']
             ]
-        );
+        ];
     }
 
     public function update(Request $request, $id)
@@ -115,16 +136,14 @@ class ProductsController extends Controller
         $productImagesController->clear($request->images, $product->id);
         $productInfoController->clear($request->info, $product->id);
 
-        return array_merge(
-            Product::singleFullData($product->id),
-            [
-                'errors' => [
-                    'variations' => $storedVariations['errors'],
-                    'images' => $storedImages['errors'],
-                    'info' => $storedInfo['errors']
-                ]
+        return [
+            'product' => Product::singleFullData($product->id),
+            'errors' => [
+                'variations' => $storedVariations['errors'],
+                'images' => $storedImages['errors'],
+                'info' => $storedInfo['errors']
             ]
-        );
+        ];
     }
 
     public function delete(Request $request, $id)

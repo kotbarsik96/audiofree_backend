@@ -14,6 +14,7 @@ Route::post('/user-entities/create/cart', [UserEntitiesController::class, 'store
 Route::post('/user-entities/create/favorite', [UserEntitiesController::class, 'storeFavorite']);
 
 Route::get('/products/{id}', [ProductsController::class, 'index']);
+Route::get('/products', [ProductsController::class, 'filter']);
 
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
