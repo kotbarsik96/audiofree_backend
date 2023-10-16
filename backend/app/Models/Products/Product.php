@@ -3,11 +3,13 @@
 namespace App\Models\Products;
 
 use App\Exceptions\ProductsExceptions;
+use App\Models\FilterableModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Rating;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
-class Product extends Model
+class Product extends FilterableModel
 {
     use HasFactory;
 
@@ -21,58 +23,93 @@ class Product extends Model
         'category_id',
         'image_id'
     ];
+    protected $casts = [
+        'rating_value' => 'float'
+    ];
 
-    /* $needExtra == false - не отобразит такие поля, как: "created_at", "updated_at", не укажет id у таксономий и изображений, а вернет только названия таксономий и пути к изображениям. 
-        $needExtra == true - отобразит указанные выше поля, покажет id у таксономий и изображений
-    */
+    public static function selectMain(): array
+    {
+        return [
+            'products.id',
+            'products.name',
+            'products.price',
+            'products.discount_price',
+            'products.description',
+            'images.path AS image_path',
+            DB::raw('avg(ratings.value) as rating_value'),
+            DB::raw('count(*) as rating_count')
+        ];
+    }
+    public static function scopeMainData(Builder $builder)
+    {
+        $builder->leftJoin('images', 'products.image_id', '=', 'images.id')
+            ->leftJoin('ratings', 'products.id', '=', 'ratings.product_id')
+            ->groupBy('products.id');
+    }
+
+    public static function selectTaxonomies(): array
+    {
+        return [
+            'types.name AS type',
+            'brands.name AS brand',
+            'categories.name AS category'
+        ];
+    }
+    public static function scopeTaxonomies(Builder $builder)
+    {
+        $builder->leftJoin('types', 'products.type_id', '=', 'types.id')
+            ->leftJoin('brands', 'products.brand_id', '=', 'brands.id')
+            ->leftJoin('categories', 'products.category_id', '=', 'categories.id');
+    }
+
     public static function singleFullData($id, $needExtra = false)
     {
-        $product = self::select('products.id', 'products.name', 'products.price', 'products.discount_price', 'products.description', 'types.name AS type', 'brands.name AS brand', 'categories.name AS category', 'images.path AS image_path')
-            ->leftJoin('types', 'products.type_id', '=', 'types.id')
-            ->leftJoin('brands', 'products.brand_id', '=', 'brands.id')
-            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
-            ->leftJoin('images', 'products.image_id', '=', 'images.id')
+        $selectFields = array_merge(self::selectMain(), self::selectTaxonomies());
+        $product = self::select($selectFields)
+            ->mainData()
+            ->taxonomies()
             ->find($id);
         if (empty($product))
             return ['error' => ProductsExceptions::noProduct()->getMessage()];
 
-        $ratingValue = Rating::where('product_id', $product->id)
-            ->avg('value') ?? 0;
-        $ratingAmount = Rating::where('product_id', $product->id)
-            ->count();
+        $product = self::addOuterData($product);
+        return $product;
+    }
 
-        $info = ProductInfo::select('id', 'name', 'value')
-            ->where('product_id', $product->id)
-            ->get();
-        $images = ProductImage::select('product_images.id', 'images.id as image_id', 'images.path')
-            ->leftJoin('images', 'product_images.image_id', '=', 'images.id')
-            ->where('product_id', $product->id)
-            ->get();
-        $variations = Variation::select('id', 'name')
-            ->where('product_id', $product->id)
-            ->get();
+    public static function previewData()
+    {
+        
+    }
 
-        $arr = [
-            'product' => $product,
-            'rating' => [
-                'value' => (int) $ratingValue,
-                'amount' => $ratingAmount
-            ],
-            'info' => $info,
-            'images' => $images,
-            'variations' => [],
-        ];
+    /* добавляет данные из других таблиц: характеристики, вариации, галерея */
+    public static function addOuterData(Product $product)
+    {
+        if (empty($product))
+            return $product;
+
+        $info = ProductInfo::where('product_id', $product->id)
+            ->get(['id', 'name', 'value']);
+        $images = ProductImage::leftJoin('images', 'product_images.image_id', '=', 'images.id')
+            ->where('product_id', $product->id)
+            ->get(['product_images.id', 'images.id as image_id', 'images.path']);
+        $variations = Variation::where('product_id', $product->id)
+            ->get(['id', 'name']);
+
+        $productVariations = [];
         foreach ($variations as $variationModel) {
-            $values = VariationValue::select('id', 'value')
-                ->where('variation_id', $variationModel->id)
-                ->get();
+            $values = VariationValue::where('variation_id', $variationModel->id)
+                ->get(['id', 'value']);
 
-            array_push($arr['variations'], [
+            array_push($productVariations, [
                 'variation' => $variationModel,
                 'values' => $values
             ]);
         }
 
-        return $arr;
+        $product->info = $info;
+        $product->images = $images;
+        $product->variations = $productVariations;
+
+        return $product;
     }
 }
