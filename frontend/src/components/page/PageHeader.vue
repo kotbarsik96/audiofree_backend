@@ -540,9 +540,15 @@ export default {
 
 @media (max-width: 949px) {
     .header {
+        --header_height: 51px;
+
+        position: relative;
+        height: var(--header_height);
 
         &__mobile {
-            position: relative;
+            position: fixed;
+            width: 100%;
+            z-index: 200;
         }
 
         &__mobile-top {
@@ -612,14 +618,14 @@ export default {
         }
 
         &__mobile-menu {
-            position: absolute;
+            position: fixed;
             left: -100vw;
-            top: 100%;
+            top: var(--header_height);
             background-color: #fff;
             border-radius: 0 0 var(--border_radius) var(--border_radius);
             width: 100%;
             max-width: 300px;
-            height: calc(100vh - 100%);
+            height: calc(100vh - var(--header_height));
             overflow: auto;
             transition: left .3s;
         }
