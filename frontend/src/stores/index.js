@@ -8,7 +8,8 @@ export const useIndexStore = defineStore('index', {
     state: () => {
         return {
             isUserLogged: false,
-            products: []
+            products: [],
+            currentRoute: null
         }
     },
     actions: {
