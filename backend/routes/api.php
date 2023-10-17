@@ -16,17 +16,18 @@ Route::post('/user-entities/create/favorite', [UserEntitiesController::class, 's
 Route::get('/products/{id}', [ProductsController::class, 'index']);
 Route::get('/products', [ProductsController::class, 'filter']);
 
+Route::get('/auth/check', [AuthController::class, 'checkAuth']);
+
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-// Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('/email/verify', [AuthController::class, 'sendEmailVerification']);
     Route::get('/email/verify/{code}', [AuthController::class, 'verifyEmail']);
 
-    Route::get('/auth/check', [AuthController::class, 'checkAuth']);
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
     Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
-    Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     Route::post('/rating/set/{productId}/{ratingValue}', [RatingsController::class, 'store']);
     Route::post('/rating/delete/{productId}', [RatingsController::class, 'delete']);
@@ -41,6 +42,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/roles/create', [RolesController::class, 'store']);
     Route::post('/roles/update/{id}', [RolesController::class, 'update']);
     Route::post('/roles/delete/{id}', [RolesController::class, 'delete']);
+    Route::get('/roles/check/page-access', [RolesController::class, 'checkPageAccess']);
 
     Route::post('/taxonomy/create/{taxName}', [TaxonomiesController::class, 'storeOrUpdate']);
     Route::post('/taxonomy/update/{taxName}/{id}', [TaxonomiesController::class, 'storeOrUpdate']);
@@ -49,4 +51,4 @@ Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/products/create', [ProductsController::class, 'store']);
     Route::post('/products/update/{id}', [ProductsController::class, 'update']);
     Route::post('/products/delete/{id}', [ProductsController::class, 'delete']);
-// });
+});

@@ -42,6 +42,7 @@ class AuthController extends Controller
 {
     public $roleDefault = 3;
     protected $passwordRequirement = 'string|min:7|required';
+    protected $userCookiesMinutes = 60 * 240;
 
     public function registerValidationReq(Request $request)
     {
@@ -93,8 +94,8 @@ class AuthController extends Controller
                 'message' => 'Здравствуйте, ' . $user->name . '! Регистрация прошла успешно',
                 'user_id' => $user->id
             ])
-            ->cookie('user', $user->id, null, null, env('SESSION_DOMAIN'))
-            ->cookie('userAdd', bcrypt($user->email . $user->id), null, null, env('SESSION_DOMAIN'));
+            ->cookie('user', $user->id, $this->userCookiesMinutes, null, env('SESSION_DOMAIN'))
+            ->cookie('userAdd', bcrypt($user->email . $user->id), $this->userCookiesMinutes, null, env('SESSION_DOMAIN'));
     }
 
     public function login(Request $request)
@@ -137,8 +138,8 @@ class AuthController extends Controller
                 'message' => 'Здравствуйте, ' . $user->name . '!',
                 'user_id' => $user->id
             ])
-            ->cookie('user', $user->id, null, null, env('SESSION_DOMAIN'))
-            ->cookie('userAdd', bcrypt($user->email . $user->id), null, null, env('SESSION_DOMAIN'));
+            ->cookie('user', $user->id, $this->userCookiesMinutes, null, env('SESSION_DOMAIN'))
+            ->cookie('userAdd', bcrypt($user->email . $user->id), $this->userCookiesMinutes, null, env('SESSION_DOMAIN'));
     }
 
     public function logout(Request $request)

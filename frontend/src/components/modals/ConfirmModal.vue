@@ -33,13 +33,13 @@ export default {
         text: [String, Number],
         nestedComponent: Object, // h(NestedComponentName, nestedComponentProps = {})
         confirmProps: Object,
-        declineProps: Object
+        declineProps: Object,
+        modalId: [String, Number]
     },
     data() {
         return {
             defaultConfirmText: 'Подтвердить',
-            defaultDeclineText: 'Отменить',
-            modalId: null
+            defaultDeclineText: 'Отменить'
         }
     },
     computed: {

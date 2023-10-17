@@ -19,7 +19,6 @@ export const useModalsStore = defineStore('modals', {
             modalData.id = generateRandom(usedIds)
 
             this.modals.push(modalData)
-            modalData.component.modalId = modalData.id
             return modalData.id
         },
         // удалит первый в списке this.modals окно, ЕСЛИ НЕ передан ИЛИ передан НЕЧИСЛОВОЙ modalId. Если передан ЧИСЛОВОЙ modalId, удалит окно с этим modalId
@@ -29,7 +28,7 @@ export const useModalsStore = defineStore('modals', {
                 return
             }
 
-            const index = this.modals.findIndex(data => data.id === id)
+            const index = this.modals.findIndex(data => data.id === modalId)
             if (index >= 0)
                 this.modals.splice(index, 1)
             else 

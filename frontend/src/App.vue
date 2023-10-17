@@ -27,8 +27,6 @@ export default {
         ModalsList
     },
     async mounted() {
-        await this.getToken()
-
         const store = useIndexStore()
         store.checkAuth()
     },
@@ -40,11 +38,6 @@ export default {
         transitionMode() {
             return "out-in";
         },
-    },
-    methods: {
-        async getToken() {
-            await axios.get(import.meta.env.VITE_TOKEN_LINK, { withCredentials: true })
-        }
     }
 }
 </script>

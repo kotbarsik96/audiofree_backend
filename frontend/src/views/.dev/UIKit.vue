@@ -18,7 +18,7 @@
             <div class="product-cards">
                 <ProductCardDiscount v-for="product in products" :key="product.id" :product="product"></ProductCardDiscount>
             </div>
-            <div class="product-cards product-cards--horizontal">
+            <div class="product-cards product-cards--horizontal" v-if="products && products[0]">
                 <ProductCardHorizontal v-for="num in 6" :key="products[0].id" :product="products[0]"></ProductCardHorizontal>
             </div>
         </div>

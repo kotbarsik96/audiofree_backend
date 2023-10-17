@@ -22,6 +22,7 @@ export default {
             default: 2000
         },
         message: [String, Number],
+        notificationId: [String, Number]
     },
     mounted() {
         const progressScale = this.$refs.progressScale
@@ -34,11 +35,6 @@ export default {
     },
     beforeUnmount() {
         clearTimeout(this.setTimeoutFunc)
-    },
-    data() {
-        return {
-            notificationId: null
-        }
     },
     methods: {
         removeNotification() {

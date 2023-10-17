@@ -51,7 +51,6 @@ export const useNotificationsStore = defineStore('notifications', {
             notificationData.id = generateRandom(usedIds)
 
             this.notifications.push(notificationData)
-            notificationData.component.notificationId = notificationData.id
             return notificationData.id
         },
         // удалит первый в списке this.notifications окно, ЕСЛИ НЕ передан ИЛИ передан НЕЧИСЛОВОЙ notificationId. Если передан ЧИСЛОВОЙ notificationId, удалит окно с этим notificationId
@@ -61,7 +60,7 @@ export const useNotificationsStore = defineStore('notifications', {
                 return
             }
 
-            const index = this.notifications.findIndex(data => data.id === id)
+            const index = this.notifications.findIndex(data => data.id === notificationId)
             if (index >= 0)
                 this.notifications.splice(index, 1)
             else

@@ -2,7 +2,7 @@
     <Transition name="modals-list">
         <div v-if="firstModal" class="modals-list">
             <Transition name="modal">
-                <component :is="firstModal.component"></component>
+                <component :is="firstModal.component" :modalId="firstModal.id"></component>
             </Transition>
         </div>
     </Transition>

@@ -8,29 +8,11 @@ use Illuminate\Support\Facades\Validator;
 use App\Exceptions\RolesExceptions;
 use App\Models\Role;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\AuthController;
 
 class RolesController extends Controller
 {
     protected static $super_role = 'SUPER_ADMINISTRATOR';
-    protected static $rolesRights = [
-        'add_product' => ['ADMINISTRATOR'],
-        'update_product' => ['ADMINISTRATOR'],
-        'delete_product' => ['ADMINISTRATOR'],
-        'add_taxonomy' => ['ADMINISTRATOR'],
-        'update_taxonomy' => ['ADMINISTRATOR'],
-        'delete_taxonomy' => ['ADMINISTRATOR'],
-        'add_variation' => ['ADMINISTRATOR'],
-        'update_variation' => ['ADMINISTRATOR'],
-        'delete_variation' => ['ADMINISTRATOR'],
-        'assign_role' => ['ADMINISTRATOR'],
-        'add_role' => [],
-        'update_role' => [],
-        'delete_role' => [],
-        'add_rating' => ['ADMINISTRATOR', 'USER'],
-        'load_image' => ['ADMINISTRATOR', 'USER'],
-        'update_rating' => ['ADMINISTRATOR', 'USER'],
-        'delete_image' => ['ADMINISTRATOR', 'USER'],
-    ];
 
     public function validateRequest($request, $ignoreId = null)
     {
@@ -108,7 +90,7 @@ class RolesController extends Controller
 
         $role = $role->name;
 
-        if (!array_key_exists($action, self::$rolesRights)) {
+        if (!array_key_exists($action, Role::$rolesRights)) {
             return [
                 'has_right' => false,
                 'error' => RolesExceptions::actionNotExists()->getMessage()
@@ -118,10 +100,28 @@ class RolesController extends Controller
         if ($role === self::$super_role)
             return ['has_right' => true, 'error' => false];
 
-        $allowed = self::$rolesRights[$action];
+        $allowed = Role::$rolesRights[$action];
         return [
             'has_right' => is_numeric(array_search($role, $allowed)),
             'error' => RolesExceptions::noRights()->getMessage()
         ];
+    }
+
+    public function checkPageAccess(Request $request)
+    {
+        $authController = new AuthController();
+        $checkedAuth = $authController->checkAuth($request, true);
+        $user = null;
+
+        if (empty($checkedAuth['error']))
+            $user = $checkedAuth['user'];
+
+        $userRole = Role::find($user->role_id);
+        $userRoleName = $userRole->name;
+        $allowedPages = Role::$allowedPages[$userRoleName];
+        if (is_numeric(array_search($request->query('page'), $allowedPages)))
+            return response(['success' => true, 'error' => false]);
+
+        return response(['error' => RolesExceptions::noRights()->getMessage()], 403);
     }
 }

@@ -48,11 +48,11 @@ export default {
             default: 'Авторизация'
         },
         defaultType: String,
+        modalId: [String, Number],
     },
     data() {
         return {
             type: 'register', // | 'login'
-            modalId: null,
             isLoading: false,
             greetingMessage: ''
         }
@@ -91,7 +91,7 @@ export default {
             this.greetingMessage = message
             setTimeout(() => {
                 if (this.modalId)
-                    this.removeModal(modalId)
+                    this.removeModal(this.modalId)
             }, 2000)
         }
     }

@@ -2,7 +2,7 @@
     <Transition name="notifications-list">
         <div v-if="notifications.length > 0" class="notifications-list">
             <TransitionGroup name="notifications-list">
-                <component v-for="notification of notifications" :key="notification.id" :is="notification.component">
+                <component v-for="notification of notifications" :key="notification.id" :is="notification.component" :notificationId="notification.id">
                 </component>
             </TransitionGroup>
         </div>
