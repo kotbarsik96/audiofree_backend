@@ -12,8 +12,6 @@ use App\Http\Controllers\AuthController;
 
 class RolesController extends Controller
 {
-    protected static $super_role = 'SUPER_ADMINISTRATOR';
-
     public function validateRequest($request, $ignoreId = null)
     {
         return Validator::make($request->all(), [
@@ -97,7 +95,7 @@ class RolesController extends Controller
             ];
         }
 
-        if ($role === self::$super_role)
+        if ($role === Role::$superRole)
             return ['has_right' => true, 'error' => false];
 
         $allowed = Role::$rolesRights[$action];
@@ -107,21 +105,33 @@ class RolesController extends Controller
         ];
     }
 
+    /* если указать в $request->query('noError'), будет возвращен обычный ответ, без ошибки */
     public function checkPageAccess(Request $request)
     {
         $authController = new AuthController();
         $checkedAuth = $authController->checkAuth($request, true);
         $user = null;
 
-        if (empty($checkedAuth['error']))
-            $user = $checkedAuth['user'];
+        if (!is_array($checkedAuth)) {
+            $noError = $request->query('noError');
+            if (empty($noError || $noError === 'false'))
+                return $checkedAuth;
+
+            return response(['success' => false, 'error' => true]);
+        }
+
+        $user = $checkedAuth['user'];
 
         $userRole = Role::find($user->role_id);
         $userRoleName = $userRole->name;
-        $allowedPages = Role::$allowedPages[$userRoleName];
-        if (is_numeric(array_search($request->query('page'), $allowedPages)))
+
+        if ($userRoleName === Role::$superRole)
             return response(['success' => true, 'error' => false]);
 
-        return response(['error' => RolesExceptions::noRights()->getMessage()], 403);
+        $keyExists = array_key_exists($userRoleName, Role::$allowedPages);
+        $allowedPages = $keyExists
+            ? Role::$allowedPages[$userRoleName] : [];
+        if (is_numeric(array_search($request->query('page'), $allowedPages)))
+            return response(['success' => true, 'error' => false]);
     }
 }

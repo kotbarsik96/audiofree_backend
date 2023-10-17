@@ -17,20 +17,31 @@ export const useIndexStore = defineStore('index', {
             return true
         },
         async checkAuth() {
-            const res = await axios(import.meta.env.VITE_AUTH_CHECK_LINK)
-            if (res.data.error || !res.data.success)
-                return
+            if (this.isUserLogged)
+                return true
 
-            this.isUserLogged = true
-        },
-        async checkPageAccess(page) {
-            const res = await axios(import.meta.env.VITE_ROLE_CHECK_PAGE_ACCESS_LINK, {
-                page
-            })
+            const res = await axios(import.meta.env.VITE_AUTH_CHECK_LINK)
             if (res.data.error || !res.data.success)
                 return false
 
+            this.isUserLogged = true
             return true
+        },
+        async checkPageAccess(page) {
+            try {
+                const res = await axios.get(import.meta.env.VITE_ROLE_CHECK_PAGE_ACCESS_LINK, {
+                    params: {
+                        page,
+                        noError: true
+                    }
+                })
+                if (!res.data.success || res.data.error)
+                    return false
+
+                return true
+            } catch (err) {
+                return false
+            }
         },
         async register(data) {
             try {

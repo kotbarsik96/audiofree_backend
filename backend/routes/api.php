@@ -16,8 +16,9 @@ Route::post('/user-entities/create/favorite', [UserEntitiesController::class, 's
 Route::get('/products/{id}', [ProductsController::class, 'index']);
 Route::get('/products', [ProductsController::class, 'filter']);
 
-Route::get('/auth/check', [AuthController::class, 'checkAuth']);
+Route::get('/roles/check/page-access', [RolesController::class, 'checkPageAccess']);
 
+Route::get('/auth/check', [AuthController::class, 'checkAuth']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -42,7 +43,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/roles/create', [RolesController::class, 'store']);
     Route::post('/roles/update/{id}', [RolesController::class, 'update']);
     Route::post('/roles/delete/{id}', [RolesController::class, 'delete']);
-    Route::get('/roles/check/page-access', [RolesController::class, 'checkPageAccess']);
 
     Route::post('/taxonomy/create/{taxName}', [TaxonomiesController::class, 'storeOrUpdate']);
     Route::post('/taxonomy/update/{taxName}/{id}', [TaxonomiesController::class, 'storeOrUpdate']);

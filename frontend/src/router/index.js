@@ -19,9 +19,13 @@ const router = createRouter({
             }
         },
         {
-            path: '/:pathMatch(.*)*',
+            path: '/not-found',
             name: 'NotFound',
             component: () => import('@/views/index/NotFound.vue')
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            redirect: { name: 'NotFound' }
         },
         // DEVELOPMENT:
         {
@@ -35,10 +39,8 @@ const router = createRouter({
 router.beforeEach(async (to, from) => {
     if (to.meta.requiresAdmin) {
         const store = useIndexStore()
-        if (!store.isUserLogged)
-            return { name: 'NotFound' }
 
-        const hasRight = await store.checkPageAccess()
+        const hasRight = await store.checkPageAccess(to.name)
         if (!hasRight)
             return { name: 'NotFound' }
     }

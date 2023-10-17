@@ -161,7 +161,7 @@ class AuthController extends Controller
             ->cookie(Cookie::forget('userAdd'));
     }
 
-    // метод сначала проходит auth:sanctum. Таким образом, если до выполнения метода дело не дошло, значит пользователь не авторизован. В случае успеха возвращает array, в случае ошибки - JsonResponse
+    // в случае успеха возвращает array, в случае ошибки - JsonResponse
     public function checkAuth(Request $request, $userOnSuccess = false)
     {
         $userId = $request->cookie('user');

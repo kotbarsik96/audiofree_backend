@@ -12,8 +12,8 @@ class Role extends Model
     protected $fillable = [
         'name'
     ];
-
-    protected static $rolesRights = [
+    public static $superRole = 'SUPER_ADMINISTRATOR';
+    public static $rolesRights = [
         'add_product' => ['ADMINISTRATOR'],
         'update_product' => ['ADMINISTRATOR'],
         'delete_product' => ['ADMINISTRATOR'],
@@ -32,8 +32,7 @@ class Role extends Model
         'update_rating' => ['ADMINISTRATOR', 'USER'],
         'delete_image' => ['ADMINISTRATOR', 'USER'],
     ];
-
-    protected static $allowedPages = [
+    public static $allowedPages = [
         'ADMINISTRATOR' => [
             'Admin'
         ]
