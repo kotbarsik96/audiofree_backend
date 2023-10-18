@@ -74,7 +74,7 @@ class TaxonomiesController extends Controller
         if ($id) {
             $taxModelInst = $taxData['model']::find($id);
             if ($taxModelInst) {
-                if (!User::hasRight($request->cookie('user'), 'update_taxonomy'))
+                if (!User::hasRight($request->cookie('user'), 'update_taxonomy', $request))
                     return RolesExceptions::noRightsResponse();
 
                 $taxModelInst->update($validator->validated());
@@ -82,7 +82,7 @@ class TaxonomiesController extends Controller
             }
         }
 
-        if (!User::hasRight($request->cookie('user'), 'add_taxonomy'))
+        if (!User::hasRight($request->cookie('user'), 'add_taxonomy', $request))
             return RolesExceptions::noRightsResponse();
 
         return $taxData['model']::create($validator->validated());
@@ -90,7 +90,7 @@ class TaxonomiesController extends Controller
 
     public function delete(Request $request, $taxName, $id)
     {
-        if (!User::hasRight($request->cookie('user'), 'delete_taxonomy'))
+        if (!User::hasRight($request->cookie('user'), 'delete_taxonomy', $request))
             return RolesExceptions::noRightsResponse();
 
         $taxData = null;

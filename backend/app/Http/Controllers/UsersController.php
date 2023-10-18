@@ -15,7 +15,7 @@ class UsersController extends Controller
 {
     public function updateRole(Request $request, $roleId)
     {
-        if (!User::hasRight($request->cookie('user'), 'assign_role'))
+        if (!User::hasRight($request->cookie('user'), 'assign_role', $request))
             return RolesExceptions::noRightsResponse();
 
         $validator = Validator::make($request->all(), [

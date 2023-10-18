@@ -61,7 +61,7 @@ class ProductsController extends Controller
 
     public function store(Request $request)
     {
-        if (!User::hasRight($request->cookie('user'), 'add_product'))
+        if (!User::hasRight($request->cookie('user'), 'add_product', $request))
             return RolesExceptions::noRightsResponse();
 
         $validator = $this->storeValidationReq($request);
@@ -93,7 +93,7 @@ class ProductsController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!User::hasRight($request->cookie('user'), 'update_product'))
+        if (!User::hasRight($request->cookie('user'), 'update_product', $request))
             return RolesExceptions::noRightsResponse();
 
         $validator = $this->storeValidationReq($request, $id);
@@ -146,7 +146,7 @@ class ProductsController extends Controller
 
     public function delete(Request $request, $id)
     {
-        if (!User::hasRight($request->cookie('user'), 'delete_product'))
+        if (!User::hasRight($request->cookie('user'), 'delete_product', $request))
             return RolesExceptions::noRightsResponse();
 
         $product = Product::find($id);

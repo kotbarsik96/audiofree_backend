@@ -36,7 +36,7 @@ class RolesController extends Controller
 
     public function store(Request $request)
     {
-        if (!User::hasRight($request->cookie('user'), 'add_role'))
+        if (!User::hasRight($request->cookie('user'), 'add_role', $request))
             return RolesExceptions::noRightsResponse();
 
         $validator = $this->validateRequest($request);
@@ -55,7 +55,7 @@ class RolesController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!User::hasRight($request->cookie('user'), 'update_role'))
+        if (!User::hasRight($request->cookie('user'), 'update_role', $request))
             return RolesExceptions::noRightsResponse();
 
         $validator = $this->validateRequest($request, $id);
@@ -72,7 +72,7 @@ class RolesController extends Controller
 
     public function delete(Request $request, $id)
     {
-        if (!User::hasRight($request->cookie('user'), 'delete_role'))
+        if (!User::hasRight($request->cookie('user'), 'delete_role', $request))
             return RolesExceptions::noRightsResponse();
 
         $role = Role::find($id);

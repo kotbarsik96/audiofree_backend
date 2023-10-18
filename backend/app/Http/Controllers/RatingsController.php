@@ -16,7 +16,7 @@ class RatingsController extends Controller
 {
     public function store(Request $request, $productId, $ratingValue)
     {
-        if (!User::hasRight($request->cookie('user'), 'add_rating'))
+        if (!User::hasRight($request->cookie('user'), 'add_rating', $request))
             return RolesExceptions::noRightsResponse();
 
         $userId = $request->cookie('user');
