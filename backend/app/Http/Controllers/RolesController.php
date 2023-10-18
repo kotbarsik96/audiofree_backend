@@ -15,11 +15,22 @@ class RolesController extends Controller
     public function validateRequest($request, $ignoreId = null)
     {
         return Validator::make($request->all(), [
-            'name' => ['string', Rule::unique('roles', 'name')->ignore($ignoreId), 'required']
+            'name' => ['string', Rule::unique('roles', 'name')->ignore($ignoreId), 'required'],
+            'priority' => ['numeric']
         ], [
             'name.required' => 'Не указано название роли',
-            'name.unique' => 'Роль с таким названием уже существует'
+            'name.unique' => 'Роль с таким названием уже существует',
+            'priority.numeric' => 'Приоритет роли должен быть числовым'
         ]);
+    }
+
+    public static function getNotExistingPriority()
+    {
+        $priority = 5;
+        while (Role::where('priority', $priority)->first()) {
+            $priority++;
+        }
+        return $priority;
     }
 
     public function store(Request $request)
@@ -32,7 +43,13 @@ class RolesController extends Controller
         if ($validator->fails())
             return response(['errors' => $validator->errors()], 400);
 
-        $role = Role::create($validator->validated());
+        $fields = $validator->validated();
+        if (!array_key_exists('priority', $fields))
+            $fields['priority'] = $this->getNotExistingPriority();
+        if (!$fields['priority'] || $fields['priority'] <= 0)
+            $fields['priority'] = $this->getNotExistingPriority();
+
+        $role = Role::create($fields);
         return $role;
     }
 
