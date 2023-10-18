@@ -10,13 +10,13 @@ use App\Models\Products\Product;
 use App\Exceptions\RolesExceptions;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\RatingsExceptions;
+use App\Models\User;
 
 class RatingsController extends Controller
 {
     public function store(Request $request, $productId, $ratingValue)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'add_rating');
-        if (!$rightCheck['has_right'])
+        if (!User::hasRight($request->cookie('user'), 'add_rating'))
             return RolesExceptions::noRightsResponse();
 
         $userId = $request->cookie('user');

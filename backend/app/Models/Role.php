@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Role extends Model
 {
@@ -13,7 +14,6 @@ class Role extends Model
         'name',
         'priority'
     ];
-    public static $superRole = 'SUPER_ADMINISTRATOR';
     public static $rolesRights = [
         'add_product' => ['ADMINISTRATOR'],
         'update_product' => ['ADMINISTRATOR'],

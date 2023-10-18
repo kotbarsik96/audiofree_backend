@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Exceptions\RolesExceptions;
 use Intervention\Image\ImageManagerStatic as ImageManager;
 use App\Models\Image;
+use App\Models\User;
 
 class ImagesController extends Controller
 {
@@ -16,7 +17,8 @@ class ImagesController extends Controller
         return Validator::make(
             $request->all(),
             [
-                'image' => 'image|max:2048|mimes:png,jpg,jpeg|required'
+                'image' => 'image|max:2048|mimes:png,jpg,jpeg|required',
+                'user_id' => 'numeric',
             ],
             [
                 'max' => 'Изображение должно весить меньше :max килобайт',
@@ -49,7 +51,8 @@ class ImagesController extends Controller
             'path' => $path,
             'size_kb' => $filesizeKb,
             'width' => $image->width(),
-            'height' => $image->height()
+            'height' => $image->height(),
+            'user_id' => $request->cookie('user')
         ];
     }
 
@@ -57,8 +60,7 @@ class ImagesController extends Controller
      */
     public function store(Request $request)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'load_image');
-        if (!$rightCheck['has_right'])
+        if (!User::hasRight($request->cookie('user'), 'load_image'))
             return RolesExceptions::noRightsResponse();
 
         $validator = $this->imageValidator($request);
@@ -71,8 +73,7 @@ class ImagesController extends Controller
 
     public function update(Request $request, $id)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'load_image');
-        if (!$rightCheck['has_right'])
+        if (!User::hasRight($request->cookie('user'), 'update_role'))
             return RolesExceptions::noRightsResponse();
 
         $validator = $this->imageValidator($request);
@@ -95,8 +96,7 @@ class ImagesController extends Controller
 
     public function delete(Request $request, $id)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'load_image');
-        if (!$rightCheck['has_right'])
+        if (!User::hasRight($request->cookie('user'), 'update_role'))
             return RolesExceptions::noRightsResponse();
 
         $image = Image::find($id);

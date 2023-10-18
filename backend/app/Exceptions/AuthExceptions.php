@@ -43,13 +43,10 @@ class AuthExceptions extends Exception
         return new self('Неверные данные для входа');
     }
 
-    public static function checkAuthFailed(): JsonResponse
+    public static function authFaildedResponse()
     {
         // помимо возвращенной ошибки также удалит невалидные куки
-        return response()
-            ->json(['error' => 'Провал проверки авторизации'])
-            ->cookie(Cookie::forget('user'))
-            ->cookie(Cookie::forget('userAdd'));
+        return response(['error' => 'Провал проверки авторизации'], 403);
     }
 
     public static function changePasswordValidator()

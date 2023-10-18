@@ -15,22 +15,18 @@ class UsersController extends Controller
 {
     public function updateRole(Request $request, $roleId)
     {
-        $updaterCheck = AuthController::checkUserRight($request, 'assign_role');
-        if (!$updaterCheck['has_right'])
-            return ['error' => RolesExceptions::noRights()->getMessage()];
-
-        $authController = new AuthController();
-        // checkAuth уже был пройден в checkUserRight, поэтому можно спокойно сразу получить 'user'
-        $updaterUser = $authController->checkAuth($request, true)['user'];
+        if (!User::hasRight($request->cookie('user'), 'assign_role'))
+            return RolesExceptions::noRightsResponse();
 
         $validator = Validator::make($request->all(), [
             'id' => 'numeric|exists:users,id',
             'email' => 'exists:users,email|email:dns'
-        ], );
+        ]);
 
         if ($validator->fails())
             return response(['errors' => $validator->errors()], 400);
 
+        $updaterUser = User::find($request->cookie('user'));
         $fields = $validator->validated();
         $userIdOrEmail = array_key_exists('id', $fields) ? $fields['id'] : null;
         if (!$userIdOrEmail)
@@ -54,7 +50,13 @@ class UsersController extends Controller
 
         // пользователь с ролью ниже, чем у того, у кого он её меняет, не может поменять ему роль
         if ($oldRole) {
-            if ((int) $oldRole->id < (int) $updaterUser->role_id)
+            $updaterUserRole = Role::find($updaterUser->role_id);
+            if (!$updaterUserRole)
+                return ['error' => RolesExceptions::noRights()->getMessage()];
+
+            $updaterUserRolePriority = $updaterUserRole->priority;
+
+            if (!$oldRole->priority || (int) $oldRole->priority < (int) $updaterUserRolePriority)
                 return ['error' => RolesExceptions::noRights()->getMessage()];
         }
         // нельзя задать роль, которая старше или равна своей

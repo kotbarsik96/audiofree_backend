@@ -23,7 +23,7 @@ Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-Route::middleware('auth:sanctum')->group(function () {
+// Route::middleware('auth:sanctum')->group(function () {
     Route::get('/email/verify', [AuthController::class, 'sendEmailVerification']);
     Route::get('/email/verify/{code}', [AuthController::class, 'verifyEmail']);
 
@@ -51,4 +51,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/products/create', [ProductsController::class, 'store']);
     Route::post('/products/update/{id}', [ProductsController::class, 'update']);
     Route::post('/products/delete/{id}', [ProductsController::class, 'delete']);
-});
+// });

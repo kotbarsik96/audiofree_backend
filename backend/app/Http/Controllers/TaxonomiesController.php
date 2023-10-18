@@ -11,6 +11,7 @@ use App\Models\Taxonomies\Type;
 use App\Http\Controllers\AuthController;
 use App\Exceptions\RolesExceptions;
 use Illuminate\Validation\Rule;
+use App\Models\User;
 
 class TaxonomiesController extends Controller
 {
@@ -73,8 +74,7 @@ class TaxonomiesController extends Controller
         if ($id) {
             $taxModelInst = $taxData['model']::find($id);
             if ($taxModelInst) {
-                $rightCheck = AuthController::checkUserRight($request, 'update_taxonomy');
-                if (!$rightCheck['has_right'])
+                if (!User::hasRight($request->cookie('user'), 'update_taxonomy'))
                     return RolesExceptions::noRightsResponse();
 
                 $taxModelInst->update($validator->validated());
@@ -82,8 +82,7 @@ class TaxonomiesController extends Controller
             }
         }
 
-        $rightCheck = AuthController::checkUserRight($request, 'add_taxonomy');
-        if (!$rightCheck['has_right'])
+        if (!User::hasRight($request->cookie('user'), 'add_taxonomy'))
             return RolesExceptions::noRightsResponse();
 
         return $taxData['model']::create($validator->validated());
@@ -91,8 +90,7 @@ class TaxonomiesController extends Controller
 
     public function delete(Request $request, $taxName, $id)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'delete_taxonomy');
-        if (!$rightCheck['has_right'])
+        if (!User::hasRight($request->cookie('user'), 'delete_taxonomy'))
             return RolesExceptions::noRightsResponse();
 
         $taxData = null;

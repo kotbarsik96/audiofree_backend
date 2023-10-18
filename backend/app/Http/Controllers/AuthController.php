@@ -65,8 +65,7 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $checkAuth = $this->checkAuth($request);
-        if (is_array($checkAuth))
+        if (User::authenticate($request))
             return response(['error' => AuthExceptions::alreadyLoggedIn()->getMessage()], 400);
 
         $validator = $this->registerValidationReq($request);
@@ -100,8 +99,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $checkAuth = $this->checkAuth($request);
-        if (is_array($checkAuth))
+        if (User::authenticate($request))
             return response(['error' => AuthExceptions::alreadyLoggedIn()->getMessage()], 422);
 
         $validator = Validator::make($request->all(), [
@@ -146,46 +144,27 @@ class AuthController extends Controller
     {
         $userId = $request->cookie('user');
         $user = User::find($userId);
-
-        if (empty($user))
-            return AuthExceptions::checkAuthFailed();
+        $userName = $user ? $user->name : '';
 
         Auth::logout();
 
+        $nameMessage = !empty($userName) ? ', ' . $userName : '';
+        $message = 'До свидания' . $nameMessage;
         return response()
             ->json([
                 'success' => true,
-                'message' => 'До свидания, ' . $user->name
+                'message' => $message
             ])
             ->cookie(Cookie::forget('user'))
             ->cookie(Cookie::forget('userAdd'));
     }
 
-    // в случае успеха возвращает array, в случае ошибки - JsonResponse
-    public function checkAuth(Request $request, $userOnSuccess = false)
-    {
-        $userId = $request->cookie('user');
-        $userSecret = $request->cookie('userAdd');
-        if (empty($userId) || empty($userSecret))
-            return AuthExceptions::checkAuthFailed();
-
-        $user = User::find($userId);
-        if (!$user || !Hash::check($user->email . $user->id, $userSecret))
-            return AuthExceptions::checkAuthFailed();
-
-        if ($userOnSuccess)
-            return ['user' => $user, 'error' => false];
-        else
-            return ['success' => true, 'user_id' => $user->id, 'error' => false];
-    }
-
     public function changePassword(Request $request)
     {
-        $check = $this->checkAuth($request, true);
-        if (!is_array($check))
-            return $check;
+        if (!User::authenticate($request))
+            return AuthExceptions::authFaildedResponse();
 
-        $user = $check['user'];
+        $user = User::find($request->cookie('user'));
 
         $validator = $this->changePasswordValidationReq($request);
         if ($validator->fails())
@@ -209,13 +188,20 @@ class AuthController extends Controller
         ]);
     }
 
+    public function checkAuth(Request $request)
+    {
+        if(!User::authenticate($request))
+            return response(['success' => false, 'error' => 'Вы не авторизованы']);
+
+        return response(['success' => true, 'error' => false]);
+    }
+
     public function resetPassword(Request $request)
     {
-        $check = $this->checkAuth($request, true);
-        if (!is_array($check))
-            return $check;
+        if (!User::authenticate($request))
+            return AuthExceptions::authFaildedResponse();
 
-        $user = $check['user'];
+        $user = User::find($request->cookie('user'));
         $newPassword = generate_pass();
         $user->update([
             'password' => $newPassword
@@ -223,21 +209,6 @@ class AuthController extends Controller
 
         Mail::to($user->email)
             ->send(new ResetPassword(['user' => $user, 'newPassword' => $newPassword]));
-    }
-
-    // если нужно проверять право не из request, нужно обращаться напрямую к (new User())->checkUserRight($action)
-    public static function checkUserRight(Request $request, $action)
-    {
-        $authController = new self();
-        $checkOrUser = $authController->checkAuth($request, true);
-        if (!is_array($checkOrUser)) {
-            return [
-                'has_right' => false,
-                'error' => AuthExceptions::userNotLoggedIn()->getMessage()
-            ];
-        }
-
-        return $checkOrUser['user']->checkUserRight($action);
     }
 
     public function getVerificationHash($email)

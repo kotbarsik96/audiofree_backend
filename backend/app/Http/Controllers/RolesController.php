@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Exceptions\RolesExceptions;
 use App\Models\Role;
 use Illuminate\Validation\Rule;
-use App\Http\Controllers\AuthController;
+use App\Exceptions\AuthExceptions;
+use App\Models\User;
 
 class RolesController extends Controller
 {
@@ -35,8 +36,7 @@ class RolesController extends Controller
 
     public function store(Request $request)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'add_role');
-        if (!$rightCheck['has_right'])
+        if (!User::hasRight($request->cookie('user'), 'add_role'))
             return RolesExceptions::noRightsResponse();
 
         $validator = $this->validateRequest($request);
@@ -55,8 +55,7 @@ class RolesController extends Controller
 
     public function update(Request $request, $id)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'update_role');
-        if (!$rightCheck['has_right'])
+        if (!User::hasRight($request->cookie('user'), 'update_role'))
             return RolesExceptions::noRightsResponse();
 
         $validator = $this->validateRequest($request, $id);
@@ -73,8 +72,7 @@ class RolesController extends Controller
 
     public function delete(Request $request, $id)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'delete_role');
-        if (!$rightCheck['has_right'])
+        if (!User::hasRight($request->cookie('user'), 'delete_role'))
             return RolesExceptions::noRightsResponse();
 
         $role = Role::find($id);
@@ -87,63 +85,29 @@ class RolesController extends Controller
         return ['success' => true, 'message' => 'Успешно удалено: роль ' . $roleName];
     }
 
-    /* returns array: ['has_right' => false|true, 'error' => false|Exception $e] 
-    role - id or string
-    */
-    public static function checkRoleRight($role, $action)
-    {
-        $role = Role::where('id', $role)
-            ->orWhere('name', $role)
-            ->first();
-
-        if (empty($role)) {
-            return [
-                'has_right' => false,
-                'error' => RolesExceptions::roleNotExists()->getMessage()
-            ];
-        }
-
-        $role = $role->name;
-
-        if (!array_key_exists($action, Role::$rolesRights)) {
-            return [
-                'has_right' => false,
-                'error' => RolesExceptions::actionNotExists()->getMessage()
-            ];
-        }
-
-        if ($role === Role::$superRole)
-            return ['has_right' => true, 'error' => false];
-
-        $allowed = Role::$rolesRights[$action];
-        return [
-            'has_right' => is_numeric(array_search($role, $allowed)),
-            'error' => RolesExceptions::noRights()->getMessage()
-        ];
-    }
-
     /* если указать в $request->query('noError'), будет возвращен обычный ответ, без ошибки */
     public function checkPageAccess(Request $request)
     {
-        $authController = new AuthController();
-        $checkedAuth = $authController->checkAuth($request, true);
         $user = null;
 
-        if (!is_array($checkedAuth)) {
+        if (!User::authenticate($request)) {
             $noError = $request->query('noError');
             if (empty($noError || $noError === 'false'))
-                return $checkedAuth;
+                return AuthExceptions::authFaildedResponse();
 
             return response(['success' => false, 'error' => true]);
         }
 
-        $user = $checkedAuth['user'];
+        $user = User::find($request->cookie('user'));
 
         $userRole = Role::find($user->role_id);
-        $userRoleName = $userRole->name;
+        if (empty($userRole))
+            return response(['error' => RolesExceptions::roleNotExists()->getMessage()], 400);
 
-        if ($userRoleName === Role::$superRole)
+        if ($userRole->priority === 1)
             return response(['success' => true, 'error' => false]);
+
+        $userRoleName = $userRole->name;
 
         $keyExists = array_key_exists($userRoleName, Role::$allowedPages);
         $allowedPages = $keyExists

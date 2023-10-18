@@ -6,12 +6,12 @@ use App\Exceptions\RolesExceptions;
 use App\Models\Products\Product;
 use Illuminate\Http\Request;
 use App\Filters\QueryFilter;
-use App\Http\Controllers\AuthController;
 use App\Exceptions\ProductsExceptions;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Products\Variations\VariationsController;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
+use App\Models\User;
 
 class ProductsController extends Controller
 {
@@ -61,8 +61,7 @@ class ProductsController extends Controller
 
     public function store(Request $request)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'add_product');
-        if (!$rightCheck['has_right'])
+        if (!User::hasRight($request->cookie('user'), 'add_product'))
             return RolesExceptions::noRightsResponse();
 
         $validator = $this->storeValidationReq($request);
@@ -94,8 +93,7 @@ class ProductsController extends Controller
 
     public function update(Request $request, $id)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'update_product');
-        if (!$rightCheck['has_right'])
+        if (!User::hasRight($request->cookie('user'), 'update_product'))
             return RolesExceptions::noRightsResponse();
 
         $validator = $this->storeValidationReq($request, $id);
@@ -148,8 +146,7 @@ class ProductsController extends Controller
 
     public function delete(Request $request, $id)
     {
-        $rightCheck = AuthController::checkUserRight($request, 'delete_product');
-        if (!$rightCheck['has_right'])
+        if (!User::hasRight($request->cookie('user'), 'delete_product'))
             return RolesExceptions::noRightsResponse();
 
         $product = Product::find($id);
@@ -162,7 +159,7 @@ class ProductsController extends Controller
         return response([
             'success' => true,
             'error' => false,
-            'message' => 'Успешно удалено: товар' . $prodName
+            'message' => 'Успешно удалено: товар ' . $prodName
         ]);
     }
 }

@@ -6,7 +6,8 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Http\Controllers\RolesController;
+use App\Models\Role;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
@@ -50,8 +51,48 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function checkUserRight($action)
+    /* проверяет, авторизован ли пользователь на самом деле. В случае false можно вернуть AuthExceptions::checkAuthFailed(), это разавторизует пользователя, убрав куки 'user' и 'userAdd' */
+    public static function authenticate($request)
     {
-        return RolesController::checkRoleRight($this->role_id, $action);
+        $userId = $request->cookie('user');
+        $userSecret = $request->cookie('userAdd');
+        if (empty($userId) || empty($userSecret))
+            return false;
+
+        $user = self::find($userId);
+        if (empty($user) || !Hash::check($user->email . $user->id, $userSecret))
+            return false;
+
+        return true;
+    }
+
+    public static function hasRight($user, $action, $request = null)
+    {
+        if ($request) {
+            if (!self::authenticate($request))
+                return false;
+        }
+
+        if (is_numeric($user))
+            $user = self::find($user);
+
+        if (empty($user))
+            return false;
+
+        $role = Role::where('id', $user->role_id)->first();
+        if (empty($role))
+            return false;
+
+        if ($role->priority === 1)
+            return true;
+
+        $roleName = $role->name;
+        if (!array_key_exists($action, Role::$rolesRights))
+            return false;
+
+        if (!is_array(Role::$rolesRights[$action]))
+            return false;
+
+        return is_numeric(array_search($roleName, Role::$rolesRights[$action]));
     }
 }
