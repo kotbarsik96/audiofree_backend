@@ -130,7 +130,7 @@
                         </li>
                         <li v-if="isAdmin" class="header__bottom-nav-item">
                             <DynamicAdaptive destinationSelector="#header-mobile-admin-link" :query="mobileMediaQuery">
-                                <RouterLink :to="{ name: 'Home' }" class="header__bottom-nav-link link">
+                                <RouterLink :to="{ name: 'Admin' }" class="header__bottom-nav-link link">
                                     Админка
                                 </RouterLink>
                             </DynamicAdaptive>

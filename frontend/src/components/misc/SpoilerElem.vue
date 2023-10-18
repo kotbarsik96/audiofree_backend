@@ -62,36 +62,40 @@ export default {
         async hide() {
             this.isBodyShown = false
         },
-        onBeforeEnter(el){
+        onBeforeEnter(el) {
             gsap.set(el, {
                 maxHeight: '0px',
                 padding: '0px',
                 margin: '0px'
             })
         },
-        onEnter(el, done){
+        onEnter(el, done) {
             const maxHeight = `${getHeight(el)}px`
+            gsap.set(el, { overflow: 'hidden' })
             gsap.to(el, {
                 maxHeight,
                 duration: .3,
-                onComplete: done
+                onComplete: () => {
+                    el.style.removeProperty('overflow')
+                    done()
+                }
             })
         },
-        onLeave(el, done){
+        onLeave(el, done) {
+            gsap.set(el, { overflow: 'hidden' })
             gsap.to(el, {
                 maxHeight: '0px',
                 padding: '0px',
                 margin: '0px',
                 duration: .3,
-                onComplete: done
+                onComplete: () => {
+                    el.style.removeProperty('overflow')
+                    done()
+                }
             })
         },
     }
 }
 </script>
 
-<style>
-.spoiler__body {
-    overflow: hidden;
-}
-</style>
+<style></style>

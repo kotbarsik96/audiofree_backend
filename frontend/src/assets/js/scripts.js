@@ -11,6 +11,12 @@ export function generateRandom(array = []) {
     return parseInt(rand)
 }
 
+export function delay(timeout) {
+    return new Promise(resolve => {
+        setTimeout(resolve, timeout);
+    })
+}
+
 export function getCoords(el) {
     const c = el.getBoundingClientRect()
 
@@ -72,4 +78,24 @@ export function findClosest(relative, selector, maxParentsCount = null) {
     }
 
     return closestNode
+}
+
+export function getHeight(el, opts = {}) {
+    let clone = el.cloneNode(true)
+    const origStyles = getComputedStyle(el)
+    clone.style.cssText = `
+        width: ${opts.width || el.offsetWidth}px;
+        position: absolute; 
+        top: 0; 
+        left: 0;
+        z-index: -999;
+        font-size: ${origStyles.fontSize};
+        line-height: ${origStyles.lineHeight};
+    `
+    document.body.append(clone)
+    const height = clone.offsetHeight
+    clone.remove()
+    clone = null
+
+    return height
 }

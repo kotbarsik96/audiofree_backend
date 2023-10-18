@@ -14,13 +14,6 @@
 }
 
 /* <GENERAL>==================================================================================== */
-.container {
-    max-width: 1200px;
-    box-sizing: border-box;
-    padding: 0 10px;
-    margin: 0 auto;
-}
-
 .wrapper {
     position: relative;
     min-height: 100vh;
@@ -32,6 +25,15 @@
 
 .content {
     flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: 1200px;
+    box-sizing: border-box;
+    padding: 0 10px;
+    margin: 0 auto;
 }
 
 svg {

@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/index/HomeView.vue'
 import { useIndexStore } from '@/stores'
-import { nextTick } from 'vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,7 +23,22 @@ const router = createRouter({
                 {
                     path: 'products',
                     name: 'ProductsControl',
-                    component: () => import('@/views/admin/ProductsControl.vue')
+                    component: () => import('@/views/admin/products/ProductsControl.vue')
+                },
+                {
+                    path: 'product/create',
+                    name: 'ProductCreate',
+                    component: () => import('@/views/admin/products/ProductCreate.vue')
+                },
+                {
+                    path: 'taxonomy/create/:taxonomyName',
+                    name: 'TaxonomyCreate',
+                    component: () => import('@/views/admin/taxonomies/TaxonomyCreate.vue')
+                },
+                {
+                    path: 'taxonomies-control/:taxonomyName',
+                    name: 'TaxonomiesControl',
+                    component: () => import('@/views/admin/taxonomies/TaxonomiesControl.vue')
                 }
             ]
         },
