@@ -1,5 +1,5 @@
 <template>
-    
+    .admin-page__
 </template>
 
 <script>

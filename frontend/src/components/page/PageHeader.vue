@@ -396,6 +396,8 @@ export default {
 
     &__body {
         padding: 25px 0;
+        position: relative;
+        z-index: 15;
 
         .container {
             display: flex;
@@ -419,8 +421,10 @@ export default {
     }
 
     &__bottom {
+        position: relative;
+        z-index: 10;
         border-top: 1px solid #e7e7e7;
-        border-bottom: 1px solid #e7e7e7;
+        box-shadow: 0px 10px 30px rgba(0, 0, 0, .12);
 
         .container {
             display: flex;
@@ -549,6 +553,7 @@ export default {
             position: fixed;
             width: 100%;
             z-index: 200;
+            box-shadow: 0px 0px 11px rgba(0, 0, 0, .05);
         }
 
         &__mobile-top {

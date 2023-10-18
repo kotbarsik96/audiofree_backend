@@ -13,6 +13,7 @@ import LocationIcon from '@/components/icons/LocationIcon.vue'
 import MailIcon from '@/components/icons/MailIcon.vue'
 import PercentIcon from '@/components/icons/PercentIcon.vue'
 import PhoneCallIcon from '@/components/icons/PhoneCallIcon.vue'
+import PlusCircleIcon from '@/components/icons/PlusCircleIcon.vue'
 import PlusIcon from '@/components/icons/PlusIcon.vue'
 import SearchIcon from '@/components/icons/SearchIcon.vue'
 import StarIcon from '@/components/icons/StarIcon.vue'
@@ -35,6 +36,7 @@ export default [
     { component: MailIcon, name: 'MailIcon' },
     { component: PercentIcon, name: 'PercentIcon' },
     { component: PhoneCallIcon, name: 'PhoneCallIcon' },
+    { component: PlusCircleIcon, name: 'PlusCircleIcon' },
     { component: PlusIcon, name: 'PlusIcon' },
     { component: SearchIcon, name: 'SearchIcon' },
     { component: StarIcon, name: 'StarIcon' },
