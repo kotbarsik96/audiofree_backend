@@ -34,6 +34,7 @@ class Product extends FilterableModel
             'products.name',
             'products.price',
             'products.discount_price',
+            DB::raw('IF(products.discount_price, products.discount_price, products.price) AS current_price'),
             'products.description',
             'images.path AS image_path',
             DB::raw('avg(ratings.value) as rating_value'),
