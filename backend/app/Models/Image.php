@@ -13,7 +13,8 @@ class Image extends Model
         'path',
         'size_kb',
         'width',
-        'height'  
+        'height',
+        'user_id',
     ];
 
     // вернет список названий таблиц, у которых есть колонка "image_id"

@@ -10,7 +10,8 @@ class Role extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name'
+        'name',
+        'priority'
     ];
     public static $superRole = 'SUPER_ADMINISTRATOR';
     public static $rolesRights = [
