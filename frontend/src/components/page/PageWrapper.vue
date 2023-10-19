@@ -10,9 +10,9 @@
 </template>
 
 <script>
-import PageHeader from "@/components/page/PageHeader.vue";
-import PageFooter from "@/components/page/PageFooter.vue";
-import LoadingScreen from "@/components/page/LoadingScreen.vue";
+import PageHeader from "@/components/page/PageHeader.vue"
+import PageFooter from "@/components/page/PageFooter.vue"
+import LoadingScreen from "@/components/page/LoadingScreen.vue"
 
 export default {
     name: "PageWrapper",
@@ -30,12 +30,10 @@ export default {
 
     },
     created() {
-        this.isAppLoading = true;
+        this.isAppLoading = true
     },
     mounted() {
-        setTimeout(() => {
-            this.isAppLoading = false;
-        }, 1000);
+        this.isAppLoading = false
     },
 };
 </script>

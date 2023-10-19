@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import '@/assets/scss/admin.scss'
 import AdminPanelExpandable from '@/components/admin-panel/AdminPanelExpandable.vue'
 import SpoilerElem from '@/components/misc/SpoilerElem.vue';
 

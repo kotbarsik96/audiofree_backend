@@ -190,7 +190,7 @@ class AuthController extends Controller
 
     public function checkAuth(Request $request)
     {
-        if(!User::authenticate($request))
+        if (!User::authenticate($request))
             return response(['success' => false, 'error' => 'Вы не авторизованы']);
 
         return response(['success' => true, 'error' => false]);
