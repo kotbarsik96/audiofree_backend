@@ -62,7 +62,7 @@
                 </div>
                 <div class="header__search-container">
                     <DynamicAdaptive destinationSelector="#header-search-mobile" :query="mobileMediaQuery">
-                        <HeaderSearchInput inputName="search-products" placeholder="Поиск товара"></HeaderSearchInput>
+                        <HeaderSearchInput name="search-products" placeholder="Поиск товара"></HeaderSearchInput>
                     </DynamicAdaptive>
                 </div>
                 <nav class="header__body-nav">

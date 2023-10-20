@@ -1,20 +1,20 @@
 <template>
-    <TextInput class="text-input--round" v-model="value" :placeholder="placeholder" :type="type" :inputName="inputName" :id="id"
+    <TextInputWrapper class="text-input--round" v-model="value" :placeholder="placeholder" :type="type" :name="name" :id="id"
         containerClass="search-input" wrapperClass="search-input__wrapper" inputClass="search-input__input" ref="rootComp">
         <template v-slot:icon>
             <SearchIcon @click="focus"></SearchIcon>
         </template>
-    </TextInput>
+    </TextInputWrapper>
 </template>
 
 <script>
-import TextInput from '@/components/inputs/TextInput.vue'
+import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
 import SearchIcon from '@/components/icons/SearchIcon.vue'
 
 export default {
     name: 'HeaderSearchInput',
     components: {
-        TextInput,
+        TextInputWrapper,
         SearchIcon
     },
     emits: ['update:modelValue'],
@@ -24,7 +24,7 @@ export default {
             type: String,
             default: 'text'
         },
-        inputName: {
+        name: {
             type: String,
             required: true
         },

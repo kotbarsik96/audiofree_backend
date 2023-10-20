@@ -5,15 +5,15 @@
                 {{ errorMessage }}
             </div>
         </Transition>
-        <TextInput v-model="email" inputName="email" placeholder="Email">
+        <TextInputWrapper v-model="email" name="email" placeholder="Email">
             <template v-slot:icon>
                 <MailIcon></MailIcon>
             </template>
             <template v-slot:error v-if="errors.email">
                 {{ errors.email[0] }}
             </template>
-        </TextInput>
-        <PasswordInput inputName="password" placeholder="Пароль" autocomplete="password" :passwordError="passwordError"
+        </TextInputWrapper>
+        <PasswordInput name="password" placeholder="Пароль" autocomplete="password" :passwordError="passwordError"
             v-model="password">
         </PasswordInput>
         <div class="modal__buttons">
@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import TextInput from '@/components/inputs/TextInput.vue'
+import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
 import PasswordInput from '@/components/inputs/PasswordInput.vue'
 import { useIndexStore } from '@/stores/'
 import { removeErrorsOnInput } from '@/assets/js/scripts'
@@ -37,7 +37,7 @@ export default {
     name: 'LoginModalBody',
     emits: ['load-start', 'load-end', 'greet'],
     components: {
-        TextInput,
+        TextInputWrapper,
         PasswordInput
     },
     data() {
