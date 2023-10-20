@@ -47,6 +47,7 @@ svg {
 label {
     cursor: pointer;
 }
+
 /* <GENERAL>==================================================================================== */
 
 /* <TRANSITION-NAMES>=========================================================================== */
@@ -263,9 +264,16 @@ label {
 
 // link
 .link {
-    transition: color .2s;
+    --transition_dur: .2s;
 
-    &:hover {
+    transition: color var(--transition_dur);
+
+    svg {
+        transition: color var(--transition_dur);
+    }
+
+    &:hover,
+    &:hover svg {
         color: var(--hover_color);
     }
 }
@@ -768,4 +776,5 @@ label {
     margin-bottom: 5px;
     margin-left: 5px;
 }
+
 /* <INPUT>====================================================================================== */

@@ -18,6 +18,7 @@ import PlusIcon from '@/components/icons/PlusIcon.vue'
 import SearchIcon from '@/components/icons/SearchIcon.vue'
 import StarIcon from '@/components/icons/StarIcon.vue'
 import TelegramIcon from '@/components/icons/TelegramIcon.vue'
+import TrashCanCircleIcon from '@/components/icons/TrashCanCircleIcon.vue'
 import UserIcon from '@/components/icons/UserIcon.vue'
 
 export default [
@@ -41,5 +42,6 @@ export default [
     { component: SearchIcon, name: 'SearchIcon' },
     { component: StarIcon, name: 'StarIcon' },
     { component: TelegramIcon, name: 'TelegramIcon' },
+    { component: TrashCanCircleIcon, name: 'TrashCanCircleIcon' },
     { component: UserIcon, name: 'UserIcon' },
 ]

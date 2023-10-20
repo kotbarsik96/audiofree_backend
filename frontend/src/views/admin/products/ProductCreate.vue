@@ -21,8 +21,8 @@
                     {{ errors.price }}
                 </template>
             </TextInputWrapper>
-            <TextInputWrapper name="discount_price" id="discount_price" width="160px" placeholder="Цена по скидке" numberonly
-                modifiers="toLocaleString" max="1000000">
+            <TextInputWrapper name="discount_price" id="discount_price" width="160px" placeholder="Цена по скидке"
+                numberonly modifiers="toLocaleString" max="1000000">
                 <template v-slot:label>Цена по скидке</template>
                 <template v-if="errors.discount_price">
                     {{ errors.discount_price }}
@@ -56,19 +56,26 @@
                 </template>
             </SelectValue>
         </div>
-        
+        <div class="admin-page__creation-table">
+            <AdminTable :headers="['Характеристика', 'Значение']" v-model="input.info"></AdminTable>
+        </div>
+        <div class="admin-page__creation-table">
+            <AdminTable multivalues :headers="['Вариация', 'Значения']" v-model="input.variations"></AdminTable>
+        </div>
     </div>
 </template>
 
 <script>
 import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
 import SelectValue from '@/components/inputs/SelectValue.vue'
+import AdminTable from '@/components/tables/AdminTable.vue'
 
 export default {
     name: 'ProductCreate',
     components: {
         TextInputWrapper,
-        SelectValue
+        SelectValue,
+        AdminTable
     },
     data() {
         return {
@@ -79,7 +86,9 @@ export default {
                     brand: '',
                     category: '',
                     type: ''
-                }
+                },
+                info: [],
+                variations: []
             },
         }
     },
