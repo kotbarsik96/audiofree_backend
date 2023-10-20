@@ -1,0 +1,23 @@
+.admin-page {
+    &__container {
+        min-width: var(--container_width);
+    }
+
+    &__creation {
+        padding: 60px 0;
+        width: 100%;
+    }
+}
+
+/* <INPUTS-GRID>================================================================================ */
+.inputs-flex {
+    width: 100%;
+    display: flex;
+    
+    .text-input,
+    .select {
+        margin: 0 30px 30px 0;
+    }
+}
+
+/* <INPUTS-GRID>================================================================================ */

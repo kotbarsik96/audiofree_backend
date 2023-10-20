@@ -6,8 +6,12 @@
 
     --theme_color: #8B75C8;
     --theme_color_darker: #251C41;
+    --theme_color_2: #00197f;
+    --theme_color_3: #00667f;
     --hover_color: #97d413;
     --error_color: #b81c1c;
+
+    --container_width: 1200px;
 
     font-family: 'Roboto';
     font-size: 14px;
@@ -30,7 +34,7 @@
 }
 
 .container {
-    max-width: 1200px;
+    max-width: var(--container_width);
     box-sizing: border-box;
     padding: 0 10px;
     margin: 0 auto;
@@ -754,3 +758,14 @@ label {
 
 // product card —— end
 /* <CARDS>====================================================================================== */
+
+/* <INPUT>====================================================================================== */
+.input-label {
+    color: #bababa;
+    font-size: 13px;
+    line-height: 15px;
+    display: block;
+    margin-bottom: 5px;
+    margin-left: 5px;
+}
+/* <INPUT>====================================================================================== */
