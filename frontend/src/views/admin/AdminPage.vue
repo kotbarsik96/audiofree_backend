@@ -29,7 +29,7 @@
                 </ul>
             </nav>
         </aside>
-        <div class="container">
+        <div class="container admin-page__container">
             <RouterView></RouterView>
         </div>
     </div>
@@ -51,33 +51,34 @@ export default {
 
 <style lang="scss">
 .admin-page {
-    --admin_panel_color: #00197f;
-    --admin_panel_color_2: #00667f;
+    --admin_panel_color: var(--theme_color_2);
+    --admin_panel_color_2: var(--theme_color_3);
     --admin_panel_button_hover_color: #990101;
 
-    color: #bababa;
     font-weight: 500;
     flex: 1 1 auto;
     display: flex;
-
-    button,
-    .link {
-        color: inherit;
-        width: 100%;
-        text-align: left;
-        transition-property: color, background-color;
-        transition-duration: .3s;
-
-        &:hover {
-            background-color: var(--admin_panel_button_hover_color);
-            color: #e9e9e9;
-        }
-    }
+    position: relative;
 
     &__sidebar {
-        flex: 0 0 320px;
+        flex: 0 0 270px;
         background-color: var(--admin_panel_color);
         box-shadow: 1px 0px 10px 0px rgba(0, 0, 0, .4);
+        color: #bababa;
+
+        button,
+        .link {
+            color: inherit;
+            width: 100%;
+            text-align: left;
+            transition-property: color, background-color;
+            transition-duration: .3s;
+
+            &:hover {
+                background-color: var(--admin_panel_button_hover_color);
+                color: #e9e9e9;
+            }
+        }
     }
 
     &__nav-item {
