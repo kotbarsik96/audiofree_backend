@@ -14,7 +14,8 @@
                 'padding-left': `${iconWidth}px` || null,
                 'padding-right': `${modsButtonWidth}px` || null,
             }" v-model="value" :placeholder="placeholder" :type="type" :name="inputName" :id="id"
-                :autocomplete="autocomplete" ref="input" @input="onInput" @keyup.enter="onEnterKeyup">
+                :autocomplete="autocomplete" :maxlength="maxlength" ref="input" @focus="onFocus" @blur="onBlur"
+                @input="onInput" @keyup.enter="onEnterKeyup">
             <div v-if="$slots.modsButton" class="text-input__mods" ref="modsButton">
                 <slot name="modsButton"></slot>
             </div>
@@ -28,6 +29,8 @@
 </template>
 
 <script>
+import { nextTick } from 'vue'
+
 export default {
     name: 'TextInput',
     emits: ['update:modelValue', 'input', 'keyup-enter'],
@@ -69,6 +72,10 @@ export default {
         },
         width: String,
         height: String,
+        // если numberonly, max === максимальное число; иначе === максимальная длина строки
+        max: [Number, String],
+        /* представляют собой методы String, например, toLocaleString. Можно передать массив, можно передать строку вида "toLocaleString|trim" */
+        modifiers: [String, Array]
     },
     data() {
         return {
@@ -79,9 +86,6 @@ export default {
         }
     },
     mounted() {
-        this.$refs.input.addEventListener('focus', this.onFocus)
-        this.$refs.input.addEventListener('blur', this.onBlur)
-
         if (this.$slots.icon || this.$slots.modsButton) {
             this.onResize()
             window.addEventListener('resize', this.onResize)
@@ -129,6 +133,17 @@ export default {
                 height += 'px'
 
             return height
+        },
+        maxlength() {
+            if (!this.max)
+                return null
+
+            if (this.numberonly) {
+                const length = this.max.toString().length
+                return length + Math.floor(length / 3)
+            }
+            else
+                return this.max
         }
     },
     methods: {
@@ -138,9 +153,11 @@ export default {
         },
         onFocus() {
             this.isFocused = true
+            this.doApplyModifiers()
         },
         onBlur() {
             this.isFocused = false
+            this.doApplyModifiers()
         },
         focus() {
             this.$refs.input.focus()
@@ -172,11 +189,51 @@ export default {
             event.stopPropagation()
         },
         onInput(event) {
-            console.log(this.scopeSymbolsRegexp);
-            if (this.scopeSymbolsRegexp) {
-                event.target.value = event.target.value.replace(this.scopeSymbolsRegexp, '')
+            const input = event.target
+
+            if (this.maxlength) {
+                const value = input.value.replace(/\D/g, '')
+                if (this.numberonly && parseInt(value) > parseInt(this.max))
+                    input.value = this.max
             }
+
+            this.doScopeSymbols(input)
+            this.doApplyModifiers(input)
+
             this.$emit('input')
+        },
+        doScopeSymbols(input = this.$refs.input) {
+            if (!this.scopeSymbolsRegexp)
+                return
+
+            nextTick().then(() => input.value = input.value.replace(this.scopeSymbolsRegexp, ''))
+        },
+        doApplyModifiers(input = this.$refs.input) {
+            if (!this.modifiers)
+                return
+
+            if (this.modifiers.length < 0)
+                return
+
+            const array = Array.isArray(this.modifiers)
+                ? this.modifiers
+                : this.modifiers.split('|')
+
+            array.forEach(modifier => {
+                let value = input.value
+                const method = value[modifier]
+                if (typeof method !== 'function')
+                    return
+
+                if (modifier === 'toLocaleString') {
+                    value = parseInt(value.replace(/\s/g, ''))
+                    if (isNaN(value))
+                        return
+                }
+
+                // без nextTick input.value как будто откатывается назад на один шаг
+                nextTick().then(() => input.value = value[modifier]())
+            })
         }
     },
     watch: {
@@ -189,6 +246,16 @@ export default {
 
 <style lang="scss">
 .text-input {
+    max-width: 300px;
+
+    &__label {
+        display: inline-block;
+        margin-bottom: 5px;
+        margin-left: 5px;
+        font-size: 13px;
+        line-height: 15px;
+    }
+
     &__wrapper {
         position: relative;
         display: flex;
@@ -197,7 +264,7 @@ export default {
 
     &__input {
         border: 1px solid #d9d9d9;
-        border-radius: 23px;
+        border-radius: var(--border_radius);
         padding: 10px 15px 10px 50px;
         font-size: 15px;
         width: 100%;
@@ -206,6 +273,10 @@ export default {
         &::placeholder {
             color: #b3b3b3;
         }
+    }
+
+    &--round &__input {
+        border-radius: 23px;
     }
 
     &__icon {

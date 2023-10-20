@@ -1,5 +1,5 @@
 <template>
-    <TextInput v-model="value" :placeholder="placeholder" :type="type" :inputName="inputName" :id="id"
+    <TextInput class="text-input--round" v-model="value" :placeholder="placeholder" :type="type" :inputName="inputName" :id="id"
         containerClass="search-input" wrapperClass="search-input__wrapper" inputClass="search-input__input" ref="rootComp">
         <template v-slot:icon>
             <SearchIcon @click="focus"></SearchIcon>
