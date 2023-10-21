@@ -30,7 +30,7 @@
             </TextInputWrapper>
         </div>
         <div class="inputs-flex">
-            <SelectValue v-model="input.taxonomies.brand" name="brand" :values="[
+            <ValueSelect v-model="input.taxonomies.brand" name="brand" :values="[
                 'Xiaomi',
                 'Honor',
                 'Apple',
@@ -39,22 +39,22 @@
                 <template v-slot:label>
                     Бренд
                 </template>
-            </SelectValue>
-            <SelectValue v-model="input.taxonomies.category" name="category" :values="[
+            </ValueSelect>
+            <ValueSelect v-model="input.taxonomies.category" name="category" :values="[
                 'Проводные',
                 'Беспроводные',
             ]">
                 <template v-slot:label>
                     Категория
                 </template>
-            </SelectValue>
-            <SelectValue v-model="input.taxonomies.type" name="type" :values="[
+            </ValueSelect>
+            <ValueSelect v-model="input.taxonomies.type" name="type" :values="[
                 'Наушники'
             ]">
                 <template v-slot:label>
                     Тип
                 </template>
-            </SelectValue>
+            </ValueSelect>
         </div>
         <div class="admin-page__creation-table">
             <AdminTable :headers="['Характеристика', 'Значение']" v-model="input.info"></AdminTable>
@@ -73,14 +73,14 @@
 
 <script>
 import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
-import SelectValue from '@/components/inputs/SelectValue.vue'
+import ValueSelect from '@/components/inputs/ValueSelect.vue'
 import AdminTable from '@/components/tables/AdminTable.vue'
 
 export default {
     name: 'ProductCreate',
     components: {
         TextInputWrapper,
-        SelectValue,
+        ValueSelect,
         AdminTable
     },
     data() {

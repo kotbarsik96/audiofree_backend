@@ -16,7 +16,7 @@
                 <ul v-show="isShown" class="select__list">
                     <li v-for="itemValue in values" class="select__item">
                         <label class="select__item-label">
-                            <input type="radio" :name="name" :value="itemValue" v-model="value">
+                            <input type="radio" :name="name" :value="itemValue" v-model="value" ref="input">
                             <span>
                                 {{ itemValue }}
                             </span>
@@ -31,6 +31,7 @@
 <script>
 import { gsap } from 'gsap'
 import { getHeight } from '@/assets/js/scripts.js'
+import { nextTick } from 'vue'
 
 export default {
     name: 'SelectValue',
@@ -100,6 +101,13 @@ export default {
         value() {
             this.$emit('update:modelValue', this.value)
             this.isShown = false
+        },
+        isShown() {
+            if (this.isShown) {
+                const input = this.$refs.input.find(i => i.value === this.value)
+                if (input)
+                    nextTick().then(() => input.checked = true)
+            }
         }
     }
 }
