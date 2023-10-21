@@ -35,10 +35,14 @@ import axios from 'axios'
 
 export default {
     name: 'ImageLoad',
-    emits: ['update:modelValue'],
+    emits: ['update:modelValue', 'update:id'],
     props: {
         modelValue: {
             type: String,
+            required: true
+        },
+        id: {
+            type: Number,
             required: true
         },
         alt: {
@@ -69,6 +73,7 @@ export default {
                 const res = await axios.post(import.meta.env.VITE_IMAGE_LOAD_LINK, data)
                 if (res.data.path) {
                     this.$emit('update:modelValue', `${import.meta.env.VITE_LINK}${res.data.path}`)
+                    this.$emit('update:id', res.data.id)
                 }
             } catch (err) {
                 const errorsList = err.response.data.errors
@@ -86,6 +91,7 @@ export default {
                 })
                 if (res.data.success)
                     this.$emit('update:modelValue', '')
+                this.$emit('update:id', 0)
             } catch (err) {
                 this.error = err.response.data.error
             }
@@ -95,7 +101,7 @@ export default {
         nullifyFileList() {
             const dt = new DataTransfer()
             this.$refs.input.files = dt.files
-        }
+        },
     }
 }
 </script>

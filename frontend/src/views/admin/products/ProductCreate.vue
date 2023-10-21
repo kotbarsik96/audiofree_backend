@@ -63,7 +63,7 @@
             <AdminTable multivalues :headers="['Вариация', 'Значения']" v-model="input.variations"></AdminTable>
         </div>
         <div class="admin-page__creation-image">
-            <ImageLoad v-model="image"></ImageLoad>
+            <ImageLoad v-model="mainImage.path" v-model:id="mainImage.id"></ImageLoad>
         </div>
         <div class="admin-page__creation-image admin-page__creation-image--gallery">
             
@@ -100,7 +100,10 @@ export default {
                 ],
                 variations: []
             },
-            image: '',
+            mainImage: {
+                path: '',
+                id: 0
+            }
         }
     },
 }
