@@ -67,6 +67,21 @@ label {
     opacity: 1;
 }
 
+.scale-up-enter-active,
+.scale-up-leave-active {
+    transition: all .2s;
+}
+
+.scale-up-enter-from,
+.scale-up-leave-to {
+    transform: scale(0);
+}
+
+.scale-up-enter-to,
+.scale-up-leave-from {
+    transform: scale(1);
+}
+
 .slide-above-parent {
     overflow: hidden;
 }
@@ -778,3 +793,12 @@ label {
 }
 
 /* <INPUT>====================================================================================== */
+
+/* <ERROR>====================================================================================== */
+.error {
+    font-size: 16px;
+    line-height: 18px;
+    color: var(--error_color);
+    display: block;
+}
+/* <ERROR>====================================================================================== */

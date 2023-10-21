@@ -62,12 +62,12 @@
         <div class="admin-page__creation-table">
             <AdminTable multivalues :headers="['Вариация', 'Значения']" v-model="input.variations"></AdminTable>
         </div>
-        <!-- <div class="admin-page__creation-image">
-
+        <div class="admin-page__creation-image">
+            <ImageLoad v-model="image"></ImageLoad>
         </div>
         <div class="admin-page__creation-image admin-page__creation-image--gallery">
             
-        </div> -->
+        </div>
     </div>
 </template>
 
@@ -75,13 +75,15 @@
 import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
 import ValueSelect from '@/components/inputs/ValueSelect.vue'
 import AdminTable from '@/components/tables/AdminTable.vue'
+import ImageLoad from '@/components/inputs/images/ImageLoad.vue'
 
 export default {
     name: 'ProductCreate',
     components: {
         TextInputWrapper,
         ValueSelect,
-        AdminTable
+        AdminTable,
+        ImageLoad
     },
     data() {
         return {
@@ -98,6 +100,7 @@ export default {
                 ],
                 variations: []
             },
+            image: '',
         }
     },
 }
