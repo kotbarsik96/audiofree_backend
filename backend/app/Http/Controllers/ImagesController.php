@@ -73,7 +73,7 @@ class ImagesController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!User::hasRight($request->cookie('user'), 'update_role', $request))
+        if (!User::hasRight($request->cookie('user'), 'update_image', $request))
             return RolesExceptions::noRightsResponse();
 
         $validator = $this->imageValidator($request);
@@ -94,12 +94,20 @@ class ImagesController extends Controller
         return $image;
     }
 
-    public function delete(Request $request, $id)
+    public function delete(Request $request, $id = null)
     {
-        if (!User::hasRight($request->cookie('user'), 'update_role', $request))
+        if (!User::hasRight($request->cookie('user'), 'delete_image', $request))
             return RolesExceptions::noRightsResponse();
 
-        $image = Image::find($id);
+        $image = null;
+        if ($id) {
+            $image = Image::find($id);
+        } else {
+            $requestQueries = $request->all();
+            if (array_key_exists('path', $requestQueries))
+                $image = Image::where('path', $requestQueries['path'])->first();
+        }
+
         if (empty($image))
             return response(['error' => ImagesExceptions::noImage()->getMessage()], 400);
 
