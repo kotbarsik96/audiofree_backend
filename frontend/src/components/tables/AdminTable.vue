@@ -113,6 +113,9 @@ export default {
     },
     computed: {
         tableHeight() {
+            if(this.rows.length <= this.limitRows)
+                return 'none'
+
             if (this.isAllShown)
                 return this.fullTableHeight
 
