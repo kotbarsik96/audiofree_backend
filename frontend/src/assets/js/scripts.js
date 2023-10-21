@@ -89,10 +89,12 @@ export function getHeight(el, opts = {}) {
         top: 0; 
         left: 0;
         z-index: -999;
+        opacity: 0;
+        pointer-events: none;
         font-size: ${origStyles.fontSize};
         line-height: ${origStyles.lineHeight};
     `
-    document.body.append(clone)
+    el.after(clone)
     const height = clone.offsetHeight
     clone.remove()
     clone = null

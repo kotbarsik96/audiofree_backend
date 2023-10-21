@@ -1,12 +1,12 @@
 <template>
-    <div class="table-container">
-        <div class="admin-table" ref="table">
+    <div class="admin-table">
+        <div class="admin-table__wrapper" :style="{ 'max-height': tableHeight }" ref="table">
             <div class="admin-table__header" v-if="headers.length === 1">
                 <div class="admin-table__header-value admin-table__header-value--single">
                     {{ headers[0] }}
                 </div>
             </div>
-            <div v-else class="admin-table__header">
+            <div v-else class="admin-table__header" ref="tableHeader">
                 <div class="admin-table__header-value">
                     {{ headers[0] }}
                 </div>
@@ -14,27 +14,27 @@
                     {{ headers[1] }}
                 </div>
             </div>
-            <div v-for="(obj, objIndex) in values" class="admin-table__row">
+            <div v-for="(obj, rowIndex) in rows" class="admin-table__row" ref="tableRow">
                 <div class="admin-table__name" :class="{ '__empty': !obj.name }">
-                    <span @click="setContentEditable" @input="onContentEditableInput('name', objIndex, $event)">
+                    <span @click="setContentEditable" @input="onContentEditableInput('name', rowIndex, $event)">
                         {{ obj.name }}
                     </span>
-                    <button class="admin-table__remove" type="button" @click="removeRow(objIndex)">
+                    <button class="admin-table__remove" type="button" @click="removeRow(rowIndex)">
                         <TrashCanCircleIcon></TrashCanCircleIcon>
                     </button>
                 </div>
                 <div class="admin-table__values">
                     <div class="admin-table__value" v-for="(value, valueIndex) in obj.values">
                         <span @click="setContentEditable"
-                            @input="onContentEditableInput('value', [objIndex, valueIndex], $event)">
+                            @input="onContentEditableInput('value', [rowIndex, valueIndex], $event)">
                             {{ value }}
                         </span>
-                        <button class="admin-table__remove" type="button" @click="removeValueSubrow(objIndex, valueIndex)">
+                        <button class="admin-table__remove" type="button" @click="removeValueSubrow(rowIndex, valueIndex)">
                             <TrashCanCircleIcon></TrashCanCircleIcon>
                         </button>
                     </div>
                     <div class="admin-table__value" v-if="multivalues">
-                        <button class="admin-table__add-new link" type="button" @click="addValueRow(objIndex)">
+                        <button class="admin-table__add-new link" type="button" @click="addValueRow(rowIndex)">
                             <PlusCircleIcon></PlusCircleIcon>
                             <span>Добавить</span>
                         </button>
@@ -48,20 +48,24 @@
                 </button>
             </div>
         </div>
+        <button v-if="rows.length > limitRows" class="button button--colored" type="button"
+            @click="isAllShown = !isAllShown">
+            {{ isAllShown ? showAllText.shown : showAllText.hidden }}
+        </button>
     </div>
 </template>
 
 <script>
-import { delay } from '@/assets/js/scripts.js'
+import { delay, getHeight } from '@/assets/js/scripts.js'
 import { useModalsStore } from '@/stores/modals.js'
 import ConfirmModal from '@/components/modals/ConfirmModal.vue'
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 
 export default {
     name: 'AdminTable',
     emits: ['update:modelValue'],
     props: {
-        /* modelValue[i]: { name: '', value: ''|[] }. Через v-model передаются дефолтные значения для таблицы, которые прокидываются в this.values */
+        /* modelValue[i]: { name: '', value: ''|[] }. Через v-model передаются дефолтные значения для таблицы, которые прокидываются в this.rows */
         modelValue: {
             type: Array,
             validator(arr) {
@@ -84,20 +88,78 @@ export default {
             type: Array,
             default: []
         },
-        multivalues: Boolean
+        multivalues: Boolean,
+        limitRows: {
+            type: Number,
+            default: 3
+        },
+        showAllText: {
+            type: Object,
+            default: {
+                shown: 'Свернуть',
+                hidden: 'Показать все'
+            }
+        }
     },
     data() {
         return {
             /* формат: values[i]: { name: '', values: [] } */
-            values: []
+            rows: [],
+            isAllShown: false,
+            limitedTableHeight: 'none',
+            fullTableHeight: '',
+            resizeTimeout: null
+        }
+    },
+    computed: {
+        tableHeight() {
+            if (this.isAllShown)
+                return this.fullTableHeight
+
+            return this.limitedTableHeight
         }
     },
     methods: {
-        addRow() {
-            this.values.push({ name: '', values: [''] })
+        async onResize() {
+            if (this.resizeTimeout)
+                clearTimeout(this.resizeTimeout)
+
+            this.resizeTimeout = setTimeout(() => {
+                this.calcTableHeights()
+            }, 500);
         },
-        addValueRow(objIndex) {
-            this.values[objIndex].values.push('')
+        calcTableHeights() {
+            const header = this.$refs.tableHeader
+            const rows = this.$refs.tableRow
+
+            this.fullTableHeight = `${getHeight(this.$refs.table)}px`
+
+            if (!Array.isArray(rows)) {
+                this.limitedTableHeight = 'none'
+                this.fullTableHeight = 'none'
+                return
+            }
+
+            if (rows.length <= this.limit) {
+                this.limitedTableHeight = 'none'
+                this.fullTableHeight = 'none'
+                return
+            }
+
+            let limitedHeight = header ? header.offsetHeight : 0
+            rows.slice(0, this.limitRows)
+                .forEach(row => limitedHeight += row.offsetHeight)
+            this.limitedTableHeight = `${limitedHeight}px`
+        },
+        addRow() {
+            this.rows.push({ name: '', values: [''] })
+            this.isAllShown = true
+            nextTick().then(() => this.calcTableHeights())
+        },
+        addValueRow(rowIndex) {
+            this.rows[rowIndex].values.push('')
+            this.isAllShown = true
+            nextTick().then(() => this.calcTableHeights())
         },
         async setContentEditable(event) {
             // сначала пройдет this.unsetContentEditable()
@@ -106,7 +168,7 @@ export default {
             event.target.addEventListener('blur', this.unsetContentEditable)
             event.target.focus()
         },
-        unsetContentEditable(event = null) {
+        unsetContentEditable() {
             this.$refs.table.querySelectorAll('[contenteditable]')
                 .forEach(el => {
                     el.removeEventListener('blur', this.unsetContentEditable)
@@ -117,18 +179,18 @@ export default {
             const value = event.target.textContent.replace(/\s{2,}/g, ' ')
             if (key === 'name') {
                 const index = indexOrIndexes
-                this.values[index].name = value
+                this.rows[index].name = value
             }
             if (key === 'value') {
-                const objIndex = indexOrIndexes[0]
+                const rowIndex = indexOrIndexes[0]
                 const valueIndex = indexOrIndexes[1]
-                this.values[objIndex].values[valueIndex] = value
+                this.rows[rowIndex].values[valueIndex] = value
             }
         },
-        removeRow(objIndex) {
+        removeRow(rowIndex) {
             let title = 'Удалить всю строку?';
             if (this.headers.length > 1)
-                title += ` (${this.headers[0]}: ${this.values[objIndex].name || '<не заполнено>'})`
+                title += ` (${this.headers[0]}: ${this.rows[rowIndex].name || '<не заполнено>'})`
 
             useModalsStore().addModal({
                 component: h(ConfirmModal, {
@@ -136,7 +198,7 @@ export default {
                     confirmProps: {
                         text: 'Удалить',
                         callback: () => {
-                            this.values.splice(objIndex, 1)
+                            this.rows.splice(rowIndex, 1)
                         }
                     },
                     declineProps: {
@@ -145,25 +207,28 @@ export default {
                 })
             })
         },
-        removeValueSubrow(objIndex, valueIndex) {
+        removeValueSubrow(rowIndex, valueIndex) {
             // если осталась только одна подстрока, удаляет всю строку вместе со значением
-            const arr = this.values[objIndex].values
+            const arr = this.rows[rowIndex].values
             if (arr.length > 1)
                 arr.splice(valueIndex, 1)
             else
-                this.removeRow(objIndex)
+                this.removeRow(rowIndex)
         }
     },
     watch: {
         values: {
             deep: true,
-            handler(){
-                this.$emit('update:modelValue', this.values)
+            handler() {
+                this.$emit('update:modelValue', this.rows)
             }
         }
     },
     mounted() {
-        this.values = this.modelValue.map(obj => {
+        nextTick().then(() => this.onResize())
+        window.addEventListener('resize', this.onResize)
+
+        this.rows = this.modelValue.map(obj => {
             let values = Array.isArray(obj.values)
                 ? obj.values : []
 
@@ -177,8 +242,10 @@ export default {
         })
     },
     beforeUnmount() {
-        this.unsetContentEditable()
-    }
+        this.unsetContentEditable() // убирает blur-обработчики
+        window.removeEventListener('resize', this.onResize)
+    },
+
 }
 </script>
 
@@ -186,7 +253,19 @@ export default {
 .admin-table {
     --min_height: 30px;
 
-    border: 1px solid #bababa;
+    >.button {
+        display: block;
+        margin: 15px auto 0 auto;
+        min-width: 175px;
+        font-size: 16px;
+    }
+
+    &__wrapper {
+        border: 1px solid #bababa;
+        overflow: hidden;
+        transition-property: max-height;
+        transition-duration: .3s;
+    }
 
     &__header,
     &__row {

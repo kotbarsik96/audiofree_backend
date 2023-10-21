@@ -62,6 +62,12 @@
         <div class="admin-page__creation-table">
             <AdminTable multivalues :headers="['Вариация', 'Значения']" v-model="input.variations"></AdminTable>
         </div>
+        <!-- <div class="admin-page__creation-image">
+
+        </div>
+        <div class="admin-page__creation-image admin-page__creation-image--gallery">
+            
+        </div> -->
     </div>
 </template>
 
@@ -87,7 +93,19 @@ export default {
                     category: '',
                     type: ''
                 },
-                info: [],
+                info: [
+                    { name: 'Тест', values: ['Тест'] },
+                    { name: 'Тест', values: ['Тест'] },
+                    { name: 'Тест', values: ['Тест'] },
+                    { name: 'Тест', values: ['Тест'] },
+                    { name: 'Тест', values: ['Тест'] },
+                    { name: 'Тест', values: ['Тест'] },
+                    { name: 'Тест', values: ['Тест'] },
+                    { name: 'Тест', values: ['Тест'] },
+                    { name: 'Тест', values: ['Тест'] },
+                    { name: 'Тест', values: ['Тест'] },
+                    { name: 'Тест', values: ['Тест'] }
+                ],
                 variations: []
             },
         }
