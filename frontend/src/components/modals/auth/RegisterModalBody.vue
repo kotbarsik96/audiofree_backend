@@ -5,12 +5,12 @@
                 {{ errorMessage }}
             </div>
         </Transition>
-        <TextInputWrapper v-model="name" name="name" placeholder="Имя">
+        <TextInputWrapper class="text-input--full" v-model="name" name="name" placeholder="Имя">
             <template v-slot:error v-if="errors.name">
                 {{ errors.name[0] }}
             </template>
         </TextInputWrapper>
-        <TextInputWrapper v-model="email" name="email" placeholder="Email">
+        <TextInputWrapper class="text-input--full" v-model="email" name="email" placeholder="Email">
             <template v-slot:icon>
                 <MailIcon></MailIcon>
             </template>
@@ -18,10 +18,10 @@
                 {{ errors.email[0] }}
             </template>
         </TextInputWrapper>
-        <PasswordInput name="password" placeholder="Пароль" autocomplete="new-password" :passwordError="passwordError"
+        <PasswordInput class="text-input--full" name="password" placeholder="Пароль" autocomplete="new-password" :passwordError="passwordError"
             v-model="password">
         </PasswordInput>
-        <PasswordInput name="password_confirmation" placeholder="Подтверждение пароля" autocomplete="new-password"
+        <PasswordInput class="text-input--full" name="password_confirmation" placeholder="Подтверждение пароля" autocomplete="new-password"
             :passwordError="passwordConfirmationError" v-model="password_confirmation">
         </PasswordInput>
         <div class="modal__buttons">

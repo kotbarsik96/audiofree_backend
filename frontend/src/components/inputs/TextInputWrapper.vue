@@ -148,6 +148,10 @@ export default {
 .text-input {
     max-width: 300px;
 
+    &--full {
+        max-width: none;
+    }
+
     &__wrapper {
         position: relative;
         display: flex;

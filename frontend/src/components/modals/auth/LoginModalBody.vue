@@ -5,7 +5,7 @@
                 {{ errorMessage }}
             </div>
         </Transition>
-        <TextInputWrapper v-model="email" name="email" placeholder="Email">
+        <TextInputWrapper class="text-input--full" v-model="email" name="email" placeholder="Email">
             <template v-slot:icon>
                 <MailIcon></MailIcon>
             </template>
@@ -13,7 +13,7 @@
                 {{ errors.email[0] }}
             </template>
         </TextInputWrapper>
-        <PasswordInput name="password" placeholder="Пароль" autocomplete="password" :passwordError="passwordError"
+        <PasswordInput class="text-input--full" name="password" placeholder="Пароль" autocomplete="password" :passwordError="passwordError"
             v-model="password">
         </PasswordInput>
         <div class="modal__buttons">

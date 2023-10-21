@@ -8,6 +8,7 @@ import { nextTick } from 'vue'
 
 export default {
     name: 'TextInput',
+    emits: ['update:modelValue'],
     props: {
         name: {
             type: String,
@@ -102,8 +103,6 @@ export default {
 
             this.doScopeSymbols(input)
             this.doApplyModifiers(input)
-
-            this.$emit('input')
         },
         doScopeSymbols(input = this.$refs.input) {
             if (!this.scopeSymbolsRegexp)
@@ -137,6 +136,11 @@ export default {
                 // без nextTick input.value как будто откатывается назад на один шаг
                 nextTick().then(() => input.value = value[modifier]())
             })
+        }
+    },
+    watch: {
+        value(){
+            this.$emit('update:modelValue', this.value)
         }
     }
 }

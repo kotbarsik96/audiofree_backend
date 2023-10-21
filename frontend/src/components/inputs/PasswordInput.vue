@@ -1,6 +1,6 @@
 <!-- Это просто TextInput, но со слотами, нужными для функционала поля пароля -->
 <template>
-    <TextInput v-model="value" :inputName="inputName" :placeholder="placeholder" :type="passwordInputType"
+    <TextInputWrapper v-model="value" :name="name" :placeholder="placeholder" :type="passwordInputType"
         :autocomplete="autocomplete">
         <template v-slot:icon>
             <KeyIcon></KeyIcon>
@@ -16,24 +16,26 @@
         <template v-if="passwordError" v-slot:error>
             {{ passwordError }}
         </template>
-    </TextInput>
+    </TextInputWrapper>
 </template>
 
 <script>
+import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
+
 export default {
     name: 'PasswordInput',
     emits: ['update:modalValue'],
+    components: {
+        TextInputWrapper
+    },
     props: {
         modalValue: [String, Number],
         autocomplete: String,
-        inputName: {
-            type: String,
-            required: true
-        },
+        name: String,
         placeholder: String,
         passwordError: String
     },
-    data(){
+    data() {
         return {
             value: '',
             passwordVisible: false,
@@ -44,14 +46,14 @@ export default {
             return this.passwordVisible
                 ? 'text' : 'password'
         },
-    },  
+    },
     watch: {
-        value(){
+        value() {
             this.$emit('update:modalValue', this.value)
         }
     },
     methods: {
-        onPasswordClick(){
+        onPasswordClick() {
             this.passwordVisible = !this.passwordVisible
         }
     }

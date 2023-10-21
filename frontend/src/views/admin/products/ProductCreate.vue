@@ -95,16 +95,6 @@ export default {
                 },
                 info: [
                     { name: 'Тест', values: ['Тест'] },
-                    { name: 'Тест', values: ['Тест'] },
-                    { name: 'Тест', values: ['Тест'] },
-                    { name: 'Тест', values: ['Тест'] },
-                    { name: 'Тест', values: ['Тест'] },
-                    { name: 'Тест', values: ['Тест'] },
-                    { name: 'Тест', values: ['Тест'] },
-                    { name: 'Тест', values: ['Тест'] },
-                    { name: 'Тест', values: ['Тест'] },
-                    { name: 'Тест', values: ['Тест'] },
-                    { name: 'Тест', values: ['Тест'] }
                 ],
                 variations: []
             },
