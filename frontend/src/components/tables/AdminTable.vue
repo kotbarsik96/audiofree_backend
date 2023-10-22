@@ -14,7 +14,7 @@
                     {{ headers[1] }}
                 </div>
             </div>
-            <div v-for="(obj, rowIndex) in rows" class="admin-table__row" ref="tableRow">
+            <div v-for="(obj, rowIndex) in rows" :key="obj.name" class="admin-table__row" ref="tableRow">
                 <div class="admin-table__name" :class="{ '__empty': !obj.name }">
                     <span @click="setContentEditable" @input="onContentEditableInput('name', rowIndex, $event)">
                         {{ obj.name }}
@@ -24,7 +24,7 @@
                     </button>
                 </div>
                 <div class="admin-table__values">
-                    <div class="admin-table__value" v-for="(value, valueIndex) in obj.values">
+                    <div class="admin-table__value" v-for="(value, valueIndex) in obj.values" :key="value">
                         <span @click="setContentEditable"
                             @input="onContentEditableInput('value', [rowIndex, valueIndex], $event)">
                             {{ value }}
@@ -103,7 +103,7 @@ export default {
     },
     data() {
         return {
-            /* формат: values[i]: { name: '', values: [] } */
+            /* формат: rows[i]: { name: '', values: [] } */
             rows: [],
             isAllShown: false,
             limitedTableHeight: 'none',
