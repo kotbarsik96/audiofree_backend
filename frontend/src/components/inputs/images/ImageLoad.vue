@@ -9,6 +9,7 @@
             </div>
         </Transition>
         <div class="image-load__wrapper" @click="openExplorer">
+            <LoadingScreen v-if="isLoading"></LoadingScreen>
             <Transition name="scale-up" mode="out-in">
                 <div v-if="modelValue" class="image-load__container">
                     <button class="image-load__remove" type="button" @click.stop="removeImage">
@@ -32,6 +33,7 @@
 
 <script>
 import axios from 'axios'
+import LoadingScreen from '@/components/page/LoadingScreen.vue'
 
 export default {
     name: 'ImageLoad',
@@ -50,19 +52,30 @@ export default {
             default: 'Загруженное изображение'
         }
     },
+    components: {
+        LoadingScreen
+    },
     data() {
         return {
+            error: '',
             errors: {
                 image: ''
             },
-            error: ''
+            isLoading: false
         }
     },
     methods: {
         openExplorer() {
             this.$refs.input.click()
         },
+        nullifyErrors() {
+            this.errors = []
+            this.error = ''
+        },
         async onChange() {
+            this.isLoading = true
+
+            this.nullifyErrors()
             const file = this.$refs.input.files[0]
             if (!file)
                 return
@@ -79,11 +92,17 @@ export default {
                 const errorsList = err.response.data.errors
                 if (errorsList && typeof errorsList === 'object')
                     this.errors = errorsList
+                else 
+                    this.error = 'Произошла ошибка'
             }
 
+            this.isLoading = false
             this.nullifyFileList()
         },
         async removeImage() {
+            this.isLoading = true
+            this.nullifyErrors()
+
             const path = this.modelValue.replace(import.meta.env.VITE_LINK, '')
             try {
                 const res = await axios.delete(import.meta.env.VITE_IMAGE_DELETE_LINK, {
@@ -97,6 +116,7 @@ export default {
             }
 
             this.nullifyFileList()
+            this.isLoading = false
         },
         nullifyFileList() {
             const dt = new DataTransfer()
