@@ -63,10 +63,14 @@
             <AdminTable multivalues :headers="['Вариация', 'Значения']" v-model="input.variations"></AdminTable>
         </div>
         <div class="admin-page__creation-image">
-            <ImageLoad v-model="mainImage.path" v-model:id="mainImage.id"></ImageLoad>
+            <ImageLoad v-model="mainImage.path" v-model:id="mainImage.id">
+                <template v-slot:title>
+                    Главное изображение
+                </template>
+            </ImageLoad>
         </div>
         <div class="admin-page__creation-image admin-page__creation-image--gallery">
-            
+            <ImagesGallery v-model="gallery"></ImagesGallery>
         </div>
     </div>
 </template>
@@ -76,6 +80,7 @@ import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
 import ValueSelect from '@/components/inputs/ValueSelect.vue'
 import AdminTable from '@/components/tables/AdminTable.vue'
 import ImageLoad from '@/components/inputs/images/ImageLoad.vue'
+import ImagesGallery from '@/components/inputs/images/ImagesGallery.vue'
 
 export default {
     name: 'ProductCreate',
@@ -83,7 +88,8 @@ export default {
         TextInputWrapper,
         ValueSelect,
         AdminTable,
-        ImageLoad
+        ImageLoad,
+        ImagesGallery
     },
     data() {
         return {
@@ -103,7 +109,8 @@ export default {
             mainImage: {
                 path: '',
                 id: 0
-            }
+            },
+            gallery: []
         }
     },
 }

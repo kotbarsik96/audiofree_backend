@@ -33,7 +33,7 @@ Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/rating/set/{productId}/{ratingValue}', [RatingsController::class, 'store']);
     Route::delete('/rating/delete/{productId}', [RatingsController::class, 'delete']);
 
-    Route::post('/image/load', [ImagesController::class, 'store']);
+    Route::post('/image/load', [ImagesController::class, 'handleStoreRequest']);
     Route::post('/image/update/{id}', [ImagesController::class, 'update']);
     Route::delete('/image/delete/{id}', [ImagesController::class, 'delete']);
     Route::delete('/image/delete', [ImagesController::class, 'delete']);
