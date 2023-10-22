@@ -9,9 +9,12 @@ use App\Exceptions\RolesExceptions;
 use Intervention\Image\ImageManagerStatic as ImageManager;
 use App\Models\Image;
 use App\Models\User;
+use Illuminate\Http\Client\Response;
 
 class ImagesController extends Controller
 {
+    public $maxSimultaneousLoads = 2;
+
     public function imageValidator(Request $request)
     {
         return Validator::make(
@@ -56,13 +59,44 @@ class ImagesController extends Controller
         ];
     }
 
-    /* можно указать subpath в $request, чтобы поместить в public/images/<subpath>/<image>. subpath = name или subpath = name/othername. Это же касается и update()
-     */
-    public function store(Request $request)
+    public function handleStoreRequest(Request $request)
     {
         if (!User::hasRight($request->cookie('user'), 'load_image', $request))
             return RolesExceptions::noRightsResponse();
 
+        $arr = $request->images;
+        // если пришел массив изображений
+        if (is_array($arr)) {
+            if (count($arr) > $this->maxSimultaneousLoads)
+                return ImagesExceptions::uploadsLimitExceededResponse($this->maxSimultaneousLoads);
+
+            $stored = [];
+            $errors = [];
+            foreach ($arr as $image) {
+                $subRequestData = array_merge($request->all(), ['image' => $image]);
+                $subRequest = Request::create('/api/image/load', 'POST', $subRequestData, $request->cookie());
+                $store = $this->store($subRequest);
+
+                if ($store instanceof Response) {
+                    array_push($errors, $store);
+                    continue;
+                } else
+                    array_push($stored, $store);
+            }
+            return [
+                'images' => $stored,
+                'errors' => $errors
+            ];
+        }
+        // если пришло одно изображение
+        else
+            return $this->store($request);
+    }
+
+    /* можно указать subpath в $request, чтобы поместить в public/images/<subpath>/<image>. subpath = name или subpath = name/othername. Это же касается и update()
+     */
+    public function store(Request $request)
+    {
         $validator = $this->imageValidator($request);
         if ($validator->fails())
             return response(['errors' => $validator->errors()], 400);
