@@ -13,7 +13,7 @@ use Illuminate\Http\Client\Response;
 
 class ImagesController extends Controller
 {
-    public $maxSimultaneousLoads = 2;
+    public $maxSimultaneousLoads = 10;
 
     public function imageValidator(Request $request)
     {
@@ -71,21 +71,26 @@ class ImagesController extends Controller
                 return ImagesExceptions::uploadsLimitExceededResponse($this->maxSimultaneousLoads);
 
             $stored = [];
-            $errors = [];
+            $firstError = null;
             foreach ($arr as $image) {
                 $subRequestData = array_merge($request->all(), ['image' => $image]);
                 $subRequest = Request::create('/api/image/load', 'POST', $subRequestData, $request->cookie());
-                $store = $this->store($subRequest);
+                $storeOrError = $this->store($subRequest);
 
-                if ($store instanceof Response) {
-                    array_push($errors, $store);
-                    continue;
-                } else
-                    array_push($stored, $store);
+                if ($storeOrError instanceof Image)
+                    array_push($stored, $storeOrError);
+                // отправить в ответ только первую возникшую ошибку
+                elseif (empty($firstError)) {
+                    $decodedResponse = json_decode($storeOrError->getContent());
+                    if (property_exists($decodedResponse, 'error'))
+                        $firstError = $decodedResponse->error;
+                    elseif (property_exists($decodedResponse, 'errors'))
+                        $firstError = $decodedResponse->errors;
+                }
             }
             return [
                 'images' => $stored,
-                'errors' => $errors
+                'error' => $firstError
             ];
         }
         // если пришло одно изображение
