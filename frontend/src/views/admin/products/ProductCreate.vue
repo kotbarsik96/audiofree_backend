@@ -82,6 +82,7 @@ import axios from 'axios'
 
 export default {
     name: 'ProductCreate',
+    emits: ['updateRouteKey'],
     components: {
         TextInputWrapper,
         ValueSelect,
@@ -257,12 +258,15 @@ export default {
             handler() {
                 this.onLoadedProductData()
             }
+        },
+        $route(){
+            this.$emit('updateRouteKey')
         }
     },
     mounted() {
         this.loadTaxonomies()
         this.loadProductData()
-    }
+    },
 }
 </script>
 

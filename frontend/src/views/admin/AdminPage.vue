@@ -30,7 +30,7 @@
             </nav>
         </aside>
         <div class="container admin-page__container">
-            <RouterView></RouterView>
+            <RouterView :key="routeKey" @updateRouteKey="routeKey++"></RouterView>
         </div>
     </div>
 </template>
@@ -45,6 +45,11 @@ export default {
     components: {
         AdminPanelExpandable,
         SpoilerElem
+    },
+    data(){
+        return {
+            routeKey: 1
+        }
     }
 }
 </script>
