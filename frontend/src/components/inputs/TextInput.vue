@@ -14,7 +14,7 @@ export default {
             type: String,
             required: true
         },
-        modelValue: String,
+        modelValue: [String, Number],
         placeholder: String,
         type: {
             type: String,
@@ -140,7 +140,10 @@ export default {
     },
     watch: {
         value(){
-            this.$emit('update:modelValue', this.value)
+            let value = this.value
+            if(this.numberonly)
+                value = parseInt(this.value.replace(/\D/g, '')) || 0
+            this.$emit('update:modelValue', value)
         }
     }
 }

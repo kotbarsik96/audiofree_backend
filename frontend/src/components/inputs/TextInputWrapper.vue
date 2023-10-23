@@ -33,7 +33,7 @@ export default {
     emits: ['update:modelValue', 'input', 'keyup-enter'],
     props: {
         name: String,
-        modelValue: String,
+        modelValue: [String, Number],
         placeholder: String,
         type: String,
         id: String,
