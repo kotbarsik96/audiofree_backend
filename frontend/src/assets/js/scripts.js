@@ -101,3 +101,20 @@ export function getHeight(el, opts = {}) {
 
     return height
 }
+
+export function createElement(tagName = 'div', optionsOrClassname = null, content = null) {
+    const element = document.createElement(tagName)
+    if (optionsOrClassname) {
+        if (typeof optionsOrClassname === 'string')
+            element.className = optionsOrClassname
+        else {
+            for (let key in optionsOrClassname) {
+                element.setAttribute(key, optionsOrClassname[key])
+            }
+        }
+    }
+    if (content) {
+        element.innerHTML = content
+    }
+    return element
+}

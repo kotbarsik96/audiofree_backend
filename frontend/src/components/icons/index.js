@@ -11,6 +11,7 @@ import HeartIcon from '@/components/icons/HeartIcon.vue'
 import KeyIcon from '@/components/icons/KeyIcon.vue'
 import LocationIcon from '@/components/icons/LocationIcon.vue'
 import MailIcon from '@/components/icons/MailIcon.vue'
+import PencilIcon from '@/components/icons/PencilIcon.vue'
 import PercentIcon from '@/components/icons/PercentIcon.vue'
 import PhoneCallIcon from '@/components/icons/PhoneCallIcon.vue'
 import PlusCircleIcon from '@/components/icons/PlusCircleIcon.vue'
@@ -35,6 +36,7 @@ export default [
     { component: KeyIcon, name: 'KeyIcon' },
     { component: LocationIcon, name: 'LocationIcon' },
     { component: MailIcon, name: 'MailIcon' },
+    { component: PencilIcon, name: 'PencilIcon' },
     { component: PercentIcon, name: 'PercentIcon' },
     { component: PhoneCallIcon, name: 'PhoneCallIcon' },
     { component: PlusCircleIcon, name: 'PlusCircleIcon' },
