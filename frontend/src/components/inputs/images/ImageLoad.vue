@@ -15,7 +15,7 @@
                     <button class="image-load__remove" type="button" @click.stop="removeImage">
                         <TrashCanCircleIcon></TrashCanCircleIcon>
                     </button>
-                    <img class="image-load__image" :src="modelValue" :alt="alt">
+                    <img class="image-load__image" :src="src" :alt="alt">
                 </div>
                 <div v-else class="image-load__icon">
                     <PlusCircleIcon></PlusCircleIcon>
@@ -50,7 +50,7 @@ export default {
         alt: {
             type: String,
             default: 'Загруженное изображение'
-        }
+        },
     },
     components: {
         LoadingScreen
@@ -62,6 +62,11 @@ export default {
                 image: ''
             },
             isLoading: false
+        }
+    },
+    computed: {
+        src(){
+            return `${import.meta.env.VITE_LINK}${this.modelValue}`
         }
     },
     methods: {
@@ -92,7 +97,7 @@ export default {
                 const errorsList = err.response.data.errors
                 if (errorsList && typeof errorsList === 'object')
                     this.errors = errorsList
-                else 
+                else
                     this.error = 'Произошла ошибка'
             }
 

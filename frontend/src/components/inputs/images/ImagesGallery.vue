@@ -57,7 +57,7 @@ export default {
                 }
                 return true
             }
-        }
+        },
     },
     components: {
         LoadingScreen
@@ -187,6 +187,7 @@ export default {
             const image = this.$refs.input.files[0]
             const data = new FormData()
             data.append('image', image)
+
             const link = `${import.meta.env.VITE_IMAGE_UPDATE_LINK}${this.updatingImage.id}`
             try {
                 const res = await axios.post(link, data)

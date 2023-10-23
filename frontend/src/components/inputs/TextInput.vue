@@ -140,10 +140,13 @@ export default {
     },
     watch: {
         value(){
-            let value = this.value
+            let value = this.value || ''
             if(this.numberonly)
-                value = parseInt(this.value.replace(/\D/g, '')) || 0
+                value = parseInt(value.toString().replace(/\D/g, '')) || 0
             this.$emit('update:modelValue', value)
+        },
+        modelValue(){
+            this.value = this.modelValue
         }
     }
 }

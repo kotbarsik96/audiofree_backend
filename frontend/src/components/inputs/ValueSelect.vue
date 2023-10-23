@@ -102,6 +102,9 @@ export default {
             this.$emit('update:modelValue', this.value)
             this.isShown = false
         },
+        modelValue(){
+            this.value = this.modelValue
+        },
         isShown() {
             if (this.isShown) {
                 const input = this.$refs.input.find(i => i.value === this.value)
