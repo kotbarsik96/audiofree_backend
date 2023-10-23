@@ -14,6 +14,9 @@ class VariationsController extends Controller
 {
     public function storeArray($variationsToStore, $product)
     {
+        if(is_string($variationsToStore))
+            $variationsToStore = json_decode($variationsToStore);
+
         $stored = [];
         $errors = [];
         foreach ($variationsToStore as $variationData) {

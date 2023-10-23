@@ -12,6 +12,7 @@ use App\Http\Controllers\Products\Variations\VariationsController;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use App\Models\User;
+use App\Http\Controllers\TaxonomiesController;
 
 class ProductsController extends Controller
 {
@@ -42,9 +43,9 @@ class ProductsController extends Controller
             'price' => 'numeric|required',
             'discount_price' => 'nullable|numeric',
             'description' => 'string',
-            'brand_id' => 'exists:brands,id|required',
-            'category_id' => 'exists:categories,id|required',
-            'type_id' => 'exists:types,id|required',
+            'brand' => 'exists:brands,name|required',
+            'category' => 'exists:categories,name|required',
+            'type' => 'exists:types,name|required',
             'image_id' => 'nullable|numeric|exists:images,id'
         ];
         return Validator::make(
@@ -54,7 +55,9 @@ class ProductsController extends Controller
             [
                 'brand' => 'Бренд',
                 'category' => 'Категория',
-                'type' => 'Тип'
+                'type' => 'Тип',
+                'image_id' => 'Изображение',
+                'name' => 'Название'
             ]
         );
     }
@@ -68,12 +71,15 @@ class ProductsController extends Controller
         if ($validator->fails())
             return response(['errors' => $validator->errors()], 400);
 
+
         $variationsController = new VariationsController();
         $productImagesController = new ProductImagesController();
         $productInfoController = new ProductInfoController();
 
         // создать товар
-        $product = Product::create($validator->validated());
+        $taxonomiesController = new TaxonomiesController();
+        $fields = $taxonomiesController->translateTaxonomiesToIds($validator->validated());
+        $product = Product::create($fields);
         // создать вариации товара и добавить для каждого из них значения
         $storedVariations = $variationsController->storeArray($request->variations, $product);
         // создать характеристики
@@ -121,6 +127,9 @@ class ProductsController extends Controller
         $variationsController = new VariationsController();
         $productImagesController = new ProductImagesController();
         $productInfoController = new ProductInfoController();
+
+        $taxonomiesController = new TaxonomiesController();
+        $fields = $taxonomiesController->translateTaxonomiesToIds($fields);
 
         $product->update($fields);
         // создать/обновить вариации товара и их значения

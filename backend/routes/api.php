@@ -13,8 +13,10 @@ use App\Http\Controllers\Products\ProductsController;
 Route::post('/user-entities/create/cart', [UserEntitiesController::class, 'storeCart']);
 Route::post('/user-entities/create/favorite', [UserEntitiesController::class, 'storeFavorite']);
 
-Route::get('/products/{id}', [ProductsController::class, 'index']);
+Route::get('/product/{id}', [ProductsController::class, 'index']);
 Route::get('/products', [ProductsController::class, 'filter']);
+
+Route::get('/taxonomies', [TaxonomiesController::class, 'all']);
 
 Route::get('/roles/check/page-access', [RolesController::class, 'checkPageAccess']);
 
@@ -49,7 +51,7 @@ Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/taxonomy/update/{taxName}/{id}', [TaxonomiesController::class, 'storeOrUpdate']);
     Route::delete('/taxonomy/delete/{taxName}/{id}', [TaxonomiesController::class, 'delete']);
 
-    Route::post('/products/create', [ProductsController::class, 'store']);
-    Route::post('/products/update/{id}', [ProductsController::class, 'update']);
-    Route::delete('/products/delete/{id}', [ProductsController::class, 'delete']);
+    Route::post('/product/create', [ProductsController::class, 'store']);
+    Route::post('/product/update/{id}', [ProductsController::class, 'update']);
+    Route::delete('/product/delete/{id}', [ProductsController::class, 'delete']);
 // });

@@ -105,7 +105,8 @@ label {
 }
 
 .grow-enter-active,
-.grow-leave-active {
+.grow-leave-active,
+.grow-move {
     transition: all .3s;
     overflow: hidden;
 }

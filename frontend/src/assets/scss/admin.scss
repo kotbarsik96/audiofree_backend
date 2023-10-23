@@ -15,6 +15,16 @@
     &__creation-image {
         margin-bottom: 30px;
     }
+
+    &__creation-save {
+        display: flex;
+        justify-content: center;
+    
+        .button {
+            font-size: 19px;
+            line-height: 21px;
+        }
+    }
 }
 
 /* <INPUTS-GRID>================================================================================ */

@@ -31,6 +31,11 @@ const router = createRouter({
                     component: () => import('@/views/admin/products/ProductCreate.vue')
                 },
                 {
+                    path: 'product/update/:productId',
+                    name: 'ProductUpdate',
+                    component: () => import('@/views/admin/products/ProductCreate.vue')
+                },
+                {
                     path: 'taxonomy/create/:taxonomyName',
                     name: 'TaxonomyCreate',
                     component: () => import('@/views/admin/taxonomies/TaxonomyCreate.vue')

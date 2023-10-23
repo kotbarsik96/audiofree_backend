@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Models\Taxonomies\Brand;
 use App\Models\Taxonomies\Category;
 use App\Models\Taxonomies\Type;
-use App\Http\Controllers\AuthController;
 use App\Exceptions\RolesExceptions;
 use Illuminate\Validation\Rule;
 use App\Models\User;
@@ -23,6 +22,43 @@ class TaxonomiesController extends Controller
             'name.required' => 'Не указано название для таксономии "' . $title . '"',
             'name.unique' => $title . ' с таким названием уже существует'
         ]);
+    }
+
+    /* применяется после того, как прошла проверка через Validator::make(). Принимает названия под ключами в $taxs, возвращает id в поля 'brand_id' и т.д. */
+    public function translateTaxonomiesToIds($fields)
+    {
+        $taxs = [
+            'brand' => Brand::class,
+            'category' => Category::class,
+            'type' => Type::class
+        ];
+
+        foreach ($taxs as $name => $model) {
+            if (!array_key_exists($name, $fields))
+                continue;
+
+            $fieldTaxName = $fields[$name];
+
+            if (empty($fieldTaxName))
+                continue;
+
+            $taxonomyData = $model::where('name', $fieldTaxName)->first();
+            if (empty($taxonomyData))
+                continue;
+
+            $fields[$name . '_id'] = $taxonomyData->id;
+        }
+
+        return $fields;
+    }
+
+    public function all()
+    {
+        return [
+            'brands' => Brand::all(['id', 'name']),
+            'categories' => Category::all(['id', 'name']),
+            'types' => Type::all(['id', 'name'])
+        ];
     }
 
     public function getTaxData($taxName)

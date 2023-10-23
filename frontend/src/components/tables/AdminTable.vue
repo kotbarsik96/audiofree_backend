@@ -113,7 +113,7 @@ export default {
     },
     computed: {
         tableHeight() {
-            if(this.rows.length <= this.limitRows)
+            if (this.rows.length <= this.limitRows)
                 return 'none'
 
             if (this.isAllShown)
@@ -224,6 +224,12 @@ export default {
             deep: true,
             handler() {
                 this.$emit('update:modelValue', this.rows)
+            }
+        },
+        modelValue: {
+            deep: true,
+            handler(){
+                this.rows = this.modelValue
             }
         }
     },
