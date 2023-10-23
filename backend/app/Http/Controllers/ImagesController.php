@@ -9,7 +9,6 @@ use App\Exceptions\RolesExceptions;
 use Intervention\Image\ImageManagerStatic as ImageManager;
 use App\Models\Image;
 use App\Models\User;
-use Illuminate\Http\Client\Response;
 
 class ImagesController extends Controller
 {
@@ -33,10 +32,7 @@ class ImagesController extends Controller
 
     public function uploadImage(Request $request)
     {
-        $subpath = $request->subpath ?? '';
-        $movePath = $subpath
-            ? public_path('images') . '/' . $subpath
-            : public_path('images');
+        $movePath = public_path('images');
 
         $uploaded = $request->image;
         $imageName = substr(md5(time()), -8) . '_' . $uploaded->getClientOriginalName();
@@ -46,8 +42,6 @@ class ImagesController extends Controller
         $filesizeKb = (int) ($image->filesize() / 1024);
 
         $path = 'images/';
-        if ($subpath)
-            $path .= $subpath . '/';
         $path .= $imageName;
 
         return [
@@ -98,8 +92,6 @@ class ImagesController extends Controller
             return $this->store($request);
     }
 
-    /* можно указать subpath в $request, чтобы поместить в public/images/<subpath>/<image>. subpath = name или subpath = name/othername. Это же касается и update()
-     */
     public function store(Request $request)
     {
         $validator = $this->imageValidator($request);

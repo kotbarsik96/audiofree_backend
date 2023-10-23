@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Products;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Products\ProductImage;
+use App\Models\Image;
+use App\Models\Products\Product;
+use App\Filesystem\FilesystemActions;
 
 class ProductImagesController extends Controller
 {
@@ -12,6 +15,8 @@ class ProductImagesController extends Controller
     {
         $stored = [];
         $errors = [];
+
+        $this->moveToProductsFolder(Image::find($product->image_id), $product->id);
 
         foreach ($idsToStore as $id) {
             $storedId = $this->store($id, $product->id);
@@ -25,6 +30,43 @@ class ProductImagesController extends Controller
             'stored' => $stored,
             'errors' => $errors
         ];
+    }
+
+    /* переместить изображение в папку images/products/[$product->name]/ */
+    public function moveToProductsFolder($imageModel, $productId)
+    {
+        if (empty($imageModel))
+            return;
+
+        $productModel = Product::find($productId);
+        if (empty($productModel))
+            return;
+
+        $pathToProductFolder = FilesystemActions::strToPathAcceptable(
+            'images/products/' . $productModel->name
+        );
+        $fullpathToProductFolder = public_path() . '/' . $pathToProductFolder;
+        // создать папку с названием товара, если ее нет
+        if (!file_exists($fullpathToProductFolder))
+            mkdir($fullpathToProductFolder, 0777, true);
+
+        $oldPathToImage = public_path() . '/' . $imageModel->path;
+        $imageName = basename($oldPathToImage);
+
+        // если изображение уже в нужной папке, отменить выполнение
+        if ($fullpathToProductFolder . '/' . $imageName === $oldPathToImage)
+            return;
+
+        // переместить товар в папку с названием этого товара
+        rename($oldPathToImage, $fullpathToProductFolder . '/' . $imageName);
+
+        if (count(scandir(dirname($oldPathToImage))) < 3)
+            rmdir(dirname($oldPathToImage));
+
+        // обновить запись в бд в соответствии с новым путем к файлу
+        $imageModel->update([
+            'path' => $pathToProductFolder . '/' . $imageName
+        ]);
     }
 
     public function store($imageId, $productId)
@@ -41,6 +83,10 @@ class ProductImagesController extends Controller
 
         if ($validator->fails())
             return ['stored' => false, 'errors' => $validator->errors()->messages()];
+
+        $imageModel = Image::find($imageId);
+        if ($imageModel)
+            $this->moveToProductsFolder($imageModel, $productId);
 
         $productImage = ProductImage::where('image_id', $imageId)
             ->where('product_id', $productId)
