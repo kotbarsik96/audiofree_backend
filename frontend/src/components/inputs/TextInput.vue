@@ -1,6 +1,7 @@
 <template>
-    <input class="text-input__input" v-model="value" :placeholder="placeholder" :type="type" :name="name" :id="id" :autocomplete="autocomplete"
-        :maxlength="maxlength" ref="input" @focus="onFocus" @blur="onBlur" @input="onInput" @keyup.enter="onEnterKeyup">
+    <input class="text-input__input" v-model="value" :placeholder="placeholder" :type="type" :name="name" :id="id"
+        :autocomplete="autocomplete" :maxlength="maxlength" ref="input" @focus="onFocus" @blur="onBlur" @input="onInput"
+        @keyup.enter="onEnterKeyup">
 </template>
 
 <script>
@@ -139,14 +140,15 @@ export default {
         }
     },
     watch: {
-        value(){
+        value() {
             let value = this.value || ''
-            if(this.numberonly)
+            if (this.numberonly)
                 value = parseInt(value.toString().replace(/\D/g, '')) || 0
             this.$emit('update:modelValue', value)
         },
-        modelValue(){
-            this.value = this.modelValue
+        modelValue() {
+            if (this.modelValue)
+                this.value = this.modelValue
         }
     }
 }
