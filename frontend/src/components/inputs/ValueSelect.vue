@@ -145,7 +145,7 @@ export default {
     }
 
     &.__shown &__value {
-        border-bottom-width: 0px;
+        border-bottom-color: transparent;
         border-radius: var(--border_radius) var(--border_radius) 0 0;
         transition-duration: var(--transition_dur);
     }
@@ -191,12 +191,12 @@ export default {
         border-bottom-left-radius: var(--border_radius);
         border-bottom-right-radius: var(--border_radius);
         border: 1px solid var(--border_color);
-        border-top-width: 0px;
+        border-top-color: transparent;
         background-color: #fff;
     }
 
     &.__shown &__list {
-        border-top-width: 1px;
+        border-top-color: var(--border_color);
     }
 
     &__item {
