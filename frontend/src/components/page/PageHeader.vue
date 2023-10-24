@@ -544,8 +544,6 @@ export default {
 
 @media (max-width: 949px) {
     .header {
-        --header_height: 51px;
-
         position: relative;
         height: var(--header_height);
 
@@ -630,7 +628,7 @@ export default {
             border-radius: 0 0 var(--border_radius) var(--border_radius);
             width: 100%;
             max-width: 300px;
-            height: calc(100vh - var(--header_height));
+            height: calc(100% - var(--header_height));
             overflow: auto;
             transition: left .3s;
         }

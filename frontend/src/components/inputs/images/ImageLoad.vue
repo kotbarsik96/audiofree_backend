@@ -198,5 +198,14 @@ export default {
     input {
         display: none;
     }
+
+    @media (max-width: 767px){
+        width: 100%;
+
+        &__remove {
+            right: 5px;
+            top: 5px;
+        }
+    }
 }
 </style>

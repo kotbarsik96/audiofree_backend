@@ -1,5 +1,9 @@
 <template>
     <div class="admin-page">
+        <button class="admin-page__sidebar-button" :class="{ '__shown': sidebarShownMobile }" type="button"
+            @click="sidebarShownMobile = !sidebarShownMobile">
+            <ChevronIcon></ChevronIcon>
+        </button>
         <aside class="admin-page__sidebar">
             <nav class="admin-page__nav">
                 <ul class="admin-page__nav-list">
@@ -46,9 +50,10 @@ export default {
         AdminPanelExpandable,
         SpoilerElem
     },
-    data(){
+    data() {
         return {
-            routeKey: 1
+            routeKey: 1,
+            sidebarShownMobile: false
         }
     }
 }
@@ -59,17 +64,24 @@ export default {
     --admin_panel_color: var(--theme_color_2);
     --admin_panel_color_2: var(--theme_color_3);
     --admin_panel_button_hover_color: #990101;
+    --sidebar_trans_dur: .3s;
 
     font-weight: 500;
     flex: 1 1 auto;
     display: flex;
     position: relative;
 
+    &__sidebar-button {
+        display: none;
+    }
+
     &__sidebar {
-        flex: 0 0 270px;
+        flex: 0 0 220px;
         background-color: var(--admin_panel_color);
         box-shadow: 1px 0px 10px 0px rgba(0, 0, 0, .4);
         color: #bababa;
+        position: relative;
+        z-index: 100;
 
         button,
         .link {
@@ -88,8 +100,8 @@ export default {
 
     &__nav-item {
         position: relative;
-        font-size: 21px;
-        line-height: 24px;
+        font-size: 19px;
+        line-height: 21px;
         border-bottom: 1px solid #bababa;
     }
 
@@ -108,7 +120,9 @@ export default {
         background-color: var(--admin_panel_color);
         opacity: 0;
         border-left: 1px solid #bababa;
-        z-index: 0;
+        border-right: 1px solid #bababa;
+        z-index: 15;
+        pointer-events: none;
         visibility: hidden;
         transition-property: opacity, visibility;
         transition-duration: .3s;
@@ -119,7 +133,7 @@ export default {
         opacity: 1;
         visibility: visible;
         transition-delay: 0s;
-        z-index: 15;
+        pointer-events: all;
     }
 
     &__nav-expanded-item {
@@ -147,6 +161,71 @@ export default {
 
     &__nav-subitem &__nav-expanded {
         background: var(--admin_panel_color_2);
+    }
+
+    @media (max-width: 1599px) {
+        &__container.container {
+            max-width: unset;
+            min-width: unset;
+            flex: 1 1 auto;
+            margin-left: 25px;
+        }
+    }
+
+    @media (max-width: 767px) {
+        &__container.container {
+            margin-left: 0;
+        }
+
+        &__sidebar {
+            position: fixed;
+            top: var(--header_height);
+            left: -100%;
+            z-index: 150;
+            flex: 0 0 auto;
+            width: 250px;
+            height: calc(100% - var(--header_height));
+            overflow-y: scroll;
+            transition: left var(--sidebar_trans_dur);
+        }
+
+        &__sidebar-button.__shown {
+            transform: translateX(250px) rotate(180deg);
+        }
+
+        &__sidebar-button.__shown+&__sidebar {
+            left: 0;
+        }
+
+        &__sidebar-button {
+            display: block;
+            position: fixed;
+            top: 60px;
+            left: 15px;
+            width: 25px;
+            height: 25px;
+            transform: rotate(0deg);
+            z-index: 50;
+            transition: transform var(--sidebar_trans_dur);
+
+            svg {
+                width: 100%;
+                height: 100%;
+            }
+        }
+
+        &__nav-expanded {
+            transform: none;
+            top: 100%;
+            border-left: 0;
+            border-right: 0;
+            background-color: var(--theme_color);
+            color: #fff;
+        }
+
+        &__nav-expanded>&__nav-expanded-item {
+            border-color: #fff;
+        }
     }
 }
 </style>

@@ -262,6 +262,9 @@ export default {
 .admin-table {
     --min_height: 30px;
 
+    overflow: auto;
+    max-width: calc(100vw - 20px);
+
     >.button {
         display: block;
         margin: 15px auto 0 auto;
@@ -271,6 +274,7 @@ export default {
 
     &__wrapper {
         border: 1px solid #bababa;
+        min-width: 500px;
         overflow: hidden;
         transition-property: max-height;
         transition-duration: .3s;

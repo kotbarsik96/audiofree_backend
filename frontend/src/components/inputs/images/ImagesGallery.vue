@@ -247,7 +247,6 @@ export default {
 
     &__item {
         cursor: default;
-        touch-action: none;
 
         &.__selected {
             background-color: rgba(0, 84, 180, 0.4);
@@ -315,6 +314,20 @@ export default {
 
     input {
         display: none;
+    }
+
+    @media (max-width: 499px) {
+        &__list {
+            padding: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(0, 125px));
+            grid-gap: 15px;
+            min-height: 170px;
+        }
+
+        &__image-container {
+            width: 125px;
+            height: 125px;
+        }
     }
 }
 </style>
