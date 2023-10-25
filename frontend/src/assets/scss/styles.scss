@@ -49,6 +49,11 @@ label {
     cursor: pointer;
 }
 
+button:disabled {
+    cursor: default;
+    color: #dadada;
+}
+
 /* <GENERAL>==================================================================================== */
 
 /* <TRANSITION-NAMES>=========================================================================== */
@@ -796,6 +801,45 @@ label {
 
 /* <INPUT>====================================================================================== */
 
+/* <CHECKBOX>=================================================================================== */
+.checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &__box {
+        width: 20px;
+        height: 20px;
+        border-radius: 2px;
+        border: 1px solid rgba(0, 0, 0, .35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+    }
+
+    input {
+        display: none;
+    }
+
+    input:checked+&__box {
+        background-color: var(--theme_color);
+
+        &::before {
+            content: "";
+            background-image: url('/img/icons/checkmark.svg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: absolute;
+            width: 15px;
+            height: 15px;
+        }
+    }
+}
+
+/* <CHECKBOX>=================================================================================== */
+
 /* <ERROR>====================================================================================== */
 .error {
     font-size: 16px;
@@ -803,4 +847,103 @@ label {
     color: var(--error_color);
     display: block;
 }
+
 /* <ERROR>====================================================================================== */
+
+/* <PRICES>===================================================================================== */
+
+.price-current,
+.price-old {
+    font-size: 18px;
+    line-height: 24px;
+    display: block;
+}
+
+.price-old {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: rgba(0, 0, 0, .5);
+
+    &::after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 1px;
+        background-color: var(--error_color);
+        border-radius: 2px;
+        transform: rotate(5deg);
+    }
+}
+
+/* <PRICES>===================================================================================== */
+
+/* <PAGINATION>================================================================================= */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    &__button {
+        width: 12px;
+        height: 20px;
+        display: block;
+        color: #494949;
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    &__button--prev {
+        transform: rotate(180deg);
+        margin-right: 15px;
+    }
+
+    &__numbers {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__number {
+        font-size: 17px;
+        line-height: 20px;
+        color: #646464;
+        padding: 10px 14px;
+        border-radius: 7px;
+        border: 1px solid #646464;
+        transition-property: color, background-color, border-color;
+        transition-duration: .3s;
+
+        &:hover {
+            color: #fff;
+            background-color: var(--theme_color_3);
+        }
+
+        &:last-child {
+            margin-right: 0;
+        }
+
+        &.__active {
+            background-color: var(--theme_color);
+            color: #fff;
+            border-color: var(--theme_color);
+        }
+    }
+
+    &__number,
+    &__ellipsis {
+        margin-right: 11px;
+    }
+
+    &__button--next {
+        margin-left: 15px;
+    }
+}
+
+
+/* <PAGINATION>================================================================================= */

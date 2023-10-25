@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Http\Controllers\TaxonomiesController;
+use Illuminate\Support\Facades\DB;
 
 class ProductsController extends Controller
 {
@@ -24,16 +25,24 @@ class ProductsController extends Controller
         return Product::singleFullData($id, $selectTimestamps);
     }
 
-    public function filter(QueryFilter $request)
+    public function filter(QueryFilter $queryFilter)
     {
-        $queries = $request->queries();
-        $limit = array_key_exists('limit', $queries) ? $queries['limit'] : null;
-        $offset = array_key_exists('offset', $queries) ? $queries['offset'] : null;
+        $request = $queryFilter->request;
+        $limit = $request->query('limit') ?? null;
+        $offset = $request->query('offset') ?? null;
 
-        return Product::filter($request)
+        $productQuery = Product::filter($queryFilter)
             ->offsetLimit($limit, $offset)
-            ->mainData()
-            ->get();
+            ->mainData();
+        if ($request->query('allData') === 'true' || $request->query('allData') === true)
+            $productQuery->taxonomies()->timestamps();
+
+        return $productQuery->get();
+    }
+
+    public function count()
+    {
+        return response(['count' => Product::all()->count()]);
     }
 
     public function storeValidationReq(Request $request, $ignoreId = null)

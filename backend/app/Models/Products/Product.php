@@ -5,7 +5,6 @@ namespace App\Models\Products;
 use App\Exceptions\ProductsExceptions;
 use App\Models\FilterableModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Rating;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 

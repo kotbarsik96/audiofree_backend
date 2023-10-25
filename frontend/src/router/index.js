@@ -21,9 +21,12 @@ const router = createRouter({
             },
             children: [
                 {
-                    path: 'products',
+                    path: 'products/:pageNumber?',
                     name: 'ProductsControl',
-                    component: () => import('@/views/admin/products/ProductsControl.vue')
+                    component: () => import('@/views/admin/products/ProductsControl.vue'),
+                    meta: {
+                        hasPageNumber: true
+                    }
                 },
                 {
                     path: 'product/create',
@@ -75,6 +78,13 @@ router.beforeEach(async (to, from) => {
         const hasRight = await store.checkPageAccess(parentName)
         if (!hasRight)
             return { name: 'NotFound' }
+    }
+
+    if (to.meta.hasPageNumber) {
+        if (!to.params.pageNumber) {
+            to.params.pageNumber = 1
+            return { name: to.name, params: to.params, meta: to.meta }
+        }
     }
 })
 

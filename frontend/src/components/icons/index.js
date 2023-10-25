@@ -9,6 +9,7 @@ import EyeIcon from '@/components/icons/EyeIcon.vue'
 import HeadphonesIcon from '@/components/icons/HeadphonesIcon.vue'
 import HeartIcon from '@/components/icons/HeartIcon.vue'
 import KeyIcon from '@/components/icons/KeyIcon.vue'
+import ListIcon from '@/components/icons/ListIcon.vue'
 import LocationIcon from '@/components/icons/LocationIcon.vue'
 import MailIcon from '@/components/icons/MailIcon.vue'
 import PencilIcon from '@/components/icons/PencilIcon.vue'
@@ -34,6 +35,7 @@ export default [
     { component: HeadphonesIcon, name: 'HeadphonesIcon' },
     { component: HeartIcon, name: 'HeartIcon' },
     { component: KeyIcon, name: 'KeyIcon' },
+    { component: ListIcon, name: 'ListIcon' },
     { component: LocationIcon, name: 'LocationIcon' },
     { component: MailIcon, name: 'MailIcon' },
     { component: PencilIcon, name: 'PencilIcon' },
