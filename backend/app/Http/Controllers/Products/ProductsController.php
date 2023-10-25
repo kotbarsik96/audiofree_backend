@@ -162,22 +162,73 @@ class ProductsController extends Controller
         ];
     }
 
-    public function delete(Request $request, $id)
+    public function handleDelete(Request $request, $id = null)
     {
         if (!User::hasRight($request->cookie('user'), 'delete_product', $request))
             return RolesExceptions::noRightsResponse();
 
-        $product = Product::find($id);
+        $res = $this->delete($request, $id);
+        $hasCode = array_key_exists('code', $res);
+        $code = $hasCode ? $res['code'] : null;
+        if(!is_numeric($code))
+            $code = 200;
+        if ($hasCode)
+            unset($res['code']);
 
-        if (empty($product))
-            return response(['error' => ProductsExceptions::noProduct()->getMessage()], 400);
+        return response($res, $code);
+    }
 
-        $prodName = $product->name;
-        $product->delete();
-        return response([
-            'success' => true,
-            'error' => false,
-            'message' => 'Успешно удалено: товар ' . $prodName
-        ]);
+    public function delete(Request $request, $id = null)
+    {
+        // удалить один товар, переданный по $id в route
+        if (is_numeric($id)) {
+            $product = Product::find($id);
+
+            if (empty($product))
+                return ['error' => ProductsExceptions::noProduct()->getMessage(), 'code' => 400];
+
+            $prodName = $product->name;
+            $product->delete();
+            return [
+                'success' => true,
+                'error' => false,
+                'message' => 'Успешно удалено: товар ' . $prodName,
+                'name' => $prodName,
+            ];
+        }
+        // удалить несколько товаров, id которых переданы в массиве idsList
+        else {
+            $requestData = $request->all();
+            if (!array_key_exists('idsList', $requestData))
+                return ['error' => 'Переданы некорректные данные', 'code' => 400];
+
+            $ids = $requestData['idsList'];
+            if (!is_array($ids))
+                return ['error' => 'Переданы некорректные данные', 'code' => 400];
+
+            $deleted = [];
+            $errors = [];
+            foreach ($ids as $idFromList) {
+                $subRequest = Request::create(
+                    '/api/product/delete',
+                    'DELETE',
+                    $request->all(),
+                    $request->cookie()
+                );
+                $res = $this->delete($subRequest, $idFromList);
+                if (array_key_exists('name', $res))
+                    array_push($deleted, $res['name']);
+                if($res['error']) 
+                    array_push($errors, $res['error']);
+            }
+
+            $message = 'Было удалено товаров: ' . count($deleted) . ' из ' . count($ids);
+
+            return [
+                'deleted' => $deleted,
+                'message' => $message,
+                'errors' => $errors
+            ];
+        }
     }
 }

@@ -26,7 +26,7 @@ Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-// Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('/email/verify', [AuthController::class, 'sendEmailVerification']);
     Route::get('/email/verify/{code}', [AuthController::class, 'verifyEmail']);
 
@@ -54,5 +54,6 @@ Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     Route::post('/product/create', [ProductsController::class, 'store']);
     Route::post('/product/update/{id}', [ProductsController::class, 'update']);
-    Route::delete('/product/delete/{id}', [ProductsController::class, 'delete']);
-// });
+    Route::delete('/product/delete/{id}', [ProductsController::class, 'handleDelete']);
+    Route::delete('/product/delete', [ProductsController::class, 'handleDelete']);
+});
