@@ -7,7 +7,7 @@
         </button>
         <div class="pagination__numbers">
             <button class="pagination__number" v-if="showPaginationEllipsis('start')"
-                :class="{ '__active': currentPageNumber === currentPageNumber }" @click="setPage(pagesCount)">
+                :class="{ '__active': currentPageNumber === 1 }" @click="setPage(1)">
                 1
             </button>
             <span class="pagination__ellipsis" v-if="showPaginationEllipsis('start')">
@@ -21,7 +21,7 @@
                 ...
             </span>
             <button class="pagination__number" v-if="showPaginationEllipsis('end')"
-                :class="{ '__active': currentPageNumber === currentPageNumber }" @click="setPage(pagesCount)">
+                :class="{ '__active': currentPageNumber === pagesCount }" @click="setPage(pagesCount)">
                 {{ pagesCount }}
             </button>
         </div>
