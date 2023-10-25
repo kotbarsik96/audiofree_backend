@@ -6,14 +6,21 @@
             <ChevronIcon></ChevronIcon>
         </button>
         <div class="pagination__numbers">
+            <button class="pagination__number" v-if="showPaginationEllipsis('start')"
+                :class="{ '__active': currentPageNumber === currentPageNumber }" @click="setPage(pagesCount)">
+                1
+            </button>
+            <span class="pagination__ellipsis" v-if="showPaginationEllipsis('start')">
+                ...
+            </span>
             <button v-for="pageNumber in visiblePages" :key="pageNumber" class="pagination__number"
                 :class="{ '__active': currentPageNumber === pageNumber }" @click="setPage(pageNumber)">
                 {{ pageNumber }}
             </button>
-            <span class="pagination__ellipsis" v-if="showPaginationEllipsis()">
+            <span class="pagination__ellipsis" v-if="showPaginationEllipsis('end')">
                 ...
             </span>
-            <button class="pagination__number" v-if="showPaginationEllipsis()"
+            <button class="pagination__number" v-if="showPaginationEllipsis('end')"
                 :class="{ '__active': currentPageNumber === currentPageNumber }" @click="setPage(pagesCount)">
                 {{ pagesCount }}
             </button>
@@ -78,12 +85,12 @@ export default {
         visiblePages() {
             const array = []
             const half = Math.floor(this.pagesLimit / 2)
-            if (this.currentPageNumber < half) {
+            if (this.currentPageNumber <= half) {
                 for (let num = 1; num <= this.pagesLimit && num <= this.pagesCount; num++) {
                     array.push(num)
                 }
             } else {
-                let num = this.currentPageNumber - half
+                let num = this.currentPageNumber - (half - 1)
                 const until = num + this.pagesLimit
                 for (num; num <= until; num++) {
                     if (num > 0 && num <= this.pagesCount)
@@ -119,7 +126,7 @@ export default {
         async loadList() {
             // важно: использовать переменную offset, вместо использования this.offset, иначе после await offset может смениться и запишется this.list[this.offset] уже не туда
             const offset = this.offset
-            if (Array.isArray(this.list[offset]))
+            if (Array.isArray(this.list[offset]) && this.list[offset].length > 0)
                 return
 
             this.$emit('update:isLoading', true)
@@ -184,9 +191,16 @@ export default {
                 }
             }
         },
-        showPaginationEllipsis() {
-            return this.pagesCount > this.pagesLimit
-                && this.visiblePages[this.visiblePages.length - 1] !== this.pagesCount
+        showPaginationEllipsis(side) {
+            switch (side) {
+                case 'start':
+                    return this.visiblePages[0] > 1
+                case 'end':
+                    return this.pagesCount > this.pagesLimit
+                        && this.visiblePages[this.visiblePages.length - 1] !== this.pagesCount
+            }
+
+            return false
         }
     },
     watch: {
