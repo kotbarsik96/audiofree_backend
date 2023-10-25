@@ -1,33 +1,37 @@
 <template>
     <div class="admin-page__control">
         <LoadingScreen v-if="isLoading"></LoadingScreen>
-        <div class="admin-page__control-searching inputs-flex">
-            <TextInputWrapper name="name" id="name" v-model="search.name">
+        <div class="admin-page__control-filtering inputs-flex">
+            <TextInputWrapper name="name" id="name" v-model="filters.name">
                 <template v-slot:label>
                     Название товара
                 </template>
             </TextInputWrapper>
-            <TextInputWrapper name="price" id="price" numberonly modifiers="toLocaleString" v-model="search.price">
+            <TextInputWrapper name="price" id="price" numberonly modifiers="toLocaleString" v-model="filters.price">
                 <template v-slot:label>
                     Текущая цена
                 </template>
             </TextInputWrapper>
-            <ValueSelect name="has_discount" :values="['Да', 'Нет', 'Неважно']" v-model="search.has_discount">
+            <ValueSelect name="has_discount" :values="[
+                { string: 'Да', value: 'yes' },
+                { string: 'Нет', value: 'no' },
+                { string: 'Неважно', value: 'no_matter' }
+            ]" v-model="filters.has_discount">
                 <template v-slot:label>
                     Есть скидка
                 </template>
             </ValueSelect>
-            <TextInputWrapper name="brand" id="brand" v-model="search.brand">
+            <TextInputWrapper name="brand" id="brand" v-model="filters.brand">
                 <template v-slot:label>
                     Бренд
                 </template>
             </TextInputWrapper>
-            <TextInputWrapper name="category" id="category" v-model="search.category">
+            <TextInputWrapper name="category" id="category" v-model="filters.category">
                 <template v-slot:label>
                     Категория
                 </template>
             </TextInputWrapper>
-            <TextInputWrapper name="type" id="type" v-model="search.type">
+            <TextInputWrapper name="type" id="type" v-model="filters.type">
                 <template v-slot:label>
                     Тип
                 </template>
@@ -73,7 +77,7 @@
                             <td>
                                 <label class="checkbox">
                                     <input type="checkbox" name="product-control-selection" ref="allItemsCheckboxTop"
-                                        @change="selectAllItems">
+                                        :checked="isAllChecked" @change="selectAllItems">
                                     <div class="checkbox__box"></div>
                                 </label>
                             </td>
@@ -92,8 +96,8 @@
                         <tr v-for="product in products" :key="product.id" :data-id="product.id">
                             <td>
                                 <label class="checkbox">
-                                    <input ref="itemCheckbox" type="checkbox" name="product-control-selection"
-                                        :value="product.id" v-model="selectedItems">
+                                    <input type="checkbox" :checked="selectedItems.includes(product.id)"
+                                        name="product-control-selection" :value="product.id" v-model="selectedItems">
                                     <div class="checkbox__box"></div>
                                 </label>
                             </td>
@@ -132,7 +136,7 @@
                             <td>
                                 <label class="checkbox">
                                     <input type="checkbox" name="product-control-selection" ref="allItemsCheckboxBottom"
-                                        @change="selectAllItems">
+                                        :checked="isAllChecked" @change="selectAllItems">
                                     <div class="checkbox__box"></div>
                                 </label>
                             </td>
@@ -153,7 +157,7 @@
                 <div class="admin-list-table__pagination">
                     <ListPagination ref="paginationComponent" v-model="products" v-model:error="error"
                         v-model:isLoading="isLoading" v-model:count="productsCount" :loadLink="loadLink"
-                        :countLink="countLink" :pagesLimit="8" :limit="10" forAdminPage></ListPagination>
+                        :countLink="countLink" :pagesLimit="8" :limit="10" :filters="filters" forAdminPage></ListPagination>
                 </div>
             </div>
         </div>
@@ -187,10 +191,10 @@ export default {
             productsCount: 0,
             selectedItems: [],
             isLoading: false,
-            search: {
+            filters: {
                 name: '',
                 price: '',
-                has_discount: '',
+                has_discount: null,
                 brand: '',
                 category: '',
                 type: '',
@@ -204,6 +208,10 @@ export default {
         countLink() {
             return import.meta.env.VITE_PRODUCTS_COUNT_LINK
         },
+        isAllChecked() {
+            return this.selectedItems.length === this.products.length
+                && this.selectedItems.length !== 0
+        }
     },
     methods: {
         updateProducts() {
@@ -211,11 +219,8 @@ export default {
         },
         selectAllItems(event) {
             this.selectedItems = []
-            this.$refs.itemCheckbox.forEach(cb => {
-                cb.checked = event.target.checked
-                if (event.target.checked)
-                    this.selectedItems.push(cb.value)
-            })
+            if (event.target.checked)
+                this.selectedItems = this.products.map(obj => obj.id)
         },
         translateStatus(statusString) {
             switch (statusString) {
@@ -309,21 +314,9 @@ export default {
                 }
             })
             useModalsStore().addModal({ component: modalComponent })
-        }
+        },
     },
     watch: {
-        selectedItems() {
-            const refCheckboxes = [
-                this.$refs.allItemsCheckboxTop,
-                this.$refs.allItemsCheckboxBottom
-            ]
-            if (this.selectedItems.length === this.products.length) {
-                refCheckboxes.forEach(cb => cb.checked = true)
-            }
-            else {
-                refCheckboxes.forEach(cb => cb.checked = false)
-            }
-        },
         products() {
             this.selectedItems = []
         }
