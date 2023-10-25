@@ -900,13 +900,14 @@ button:disabled {
 
     &__button--prev {
         transform: rotate(180deg);
-        margin-right: 15px;
     }
 
     &__numbers {
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-wrap: wrap;
+        margin: 10px 15px 0 15px;
     }
 
     &__number {
@@ -938,10 +939,7 @@ button:disabled {
     &__number,
     &__ellipsis {
         margin-right: 11px;
-    }
-
-    &__button--next {
-        margin-left: 15px;
+        margin-bottom: 11px;
     }
 }
 
