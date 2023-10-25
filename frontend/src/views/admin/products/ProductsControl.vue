@@ -72,7 +72,8 @@
                         <tr>
                             <td>
                                 <label class="checkbox">
-                                    <input type="checkbox" name="product-control-selection" @change="selectAllItems">
+                                    <input type="checkbox" name="product-control-selection" ref="allItemsCheckboxTop"
+                                        @change="selectAllItems">
                                     <div class="checkbox__box"></div>
                                 </label>
                             </td>
@@ -83,7 +84,7 @@
                             <td></td>
                             <td>
                                 <button class="admin-list-table__control-button admin-list-table__control-button--delete"
-                                    :disabled="selectedItems.length < 1" type="button">
+                                    :disabled="selectedItems.length < 1" type="button" @click="deleteAllSelected">
                                     <TrashCanCircleIcon></TrashCanCircleIcon>
                                 </button>
                             </td>
@@ -117,12 +118,32 @@
                                 {{ translateStatus(product.status) }}
                             </td>
                             <td>
-                                <button class="admin-list-table__control-button admin-list-table__control-button--edit"
-                                    type="button">
+                                <RouterLink class="admin-list-table__control-button admin-list-table__control-button--edit"
+                                    :to="{ name: 'ProductUpdate', params: { productId: product.id } }" type="button">
                                     <PencilIcon></PencilIcon>
-                                </button>
+                                </RouterLink>
                                 <button class="admin-list-table__control-button admin-list-table__control-button--delete"
-                                    type="button">
+                                    type="button" @click="deleteProduct(product.id)">
+                                    <TrashCanCircleIcon></TrashCanCircleIcon>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="checkbox">
+                                    <input type="checkbox" name="product-control-selection" ref="allItemsCheckboxBottom"
+                                        @change="selectAllItems">
+                                    <div class="checkbox__box"></div>
+                                </label>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <button class="admin-list-table__control-button admin-list-table__control-button--delete"
+                                    :disabled="selectedItems.length < 1" type="button" @click="deleteAllSelected">
                                     <TrashCanCircleIcon></TrashCanCircleIcon>
                                 </button>
                             </td>
@@ -130,7 +151,9 @@
                     </table>
                 </div>
                 <div class="admin-list-table__pagination">
-                    <ListPagination v-model="products" v-model:error="error" v-model:isLoading="isLoading" v-model:count="productsCount" :loadLink="loadLink" :countLink="countLink" :pagesLimit="8" :limit="10" forAdminPage></ListPagination>
+                    <ListPagination ref="paginationComponent" v-model="products" v-model:error="error"
+                        v-model:isLoading="isLoading" v-model:count="productsCount" :loadLink="loadLink"
+                        :countLink="countLink" :pagesLimit="8" :limit="10" forAdminPage></ListPagination>
                 </div>
             </div>
         </div>
@@ -142,6 +165,11 @@ import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
 import ValueSelect from '@/components/inputs/ValueSelect.vue'
 import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import ListPagination from '@/components/pagination/ListPagination.vue'
+import ConfirmModal from '@/components/modals/ConfirmModal.vue'
+import { useModalsStore } from '@/stores/modals.js'
+import { useNotificationsStore } from '@/stores/notifications.js'
+import { h } from 'vue'
+import axios from 'axios'
 
 export default {
     name: 'ProductsControl',
@@ -149,7 +177,8 @@ export default {
         TextInputWrapper,
         ValueSelect,
         LoadingScreen,
-        ListPagination
+        ListPagination,
+        ConfirmModal
     },
     data() {
         return {
@@ -177,10 +206,15 @@ export default {
         },
     },
     methods: {
+        updateProducts() {
+            this.$refs.paginationComponent.load()
+        },
         selectAllItems(event) {
+            this.selectedItems = []
             this.$refs.itemCheckbox.forEach(cb => {
                 cb.checked = event.target.checked
-                setTimeout(() => cb.dispatchEvent(new Event('change')), 0);
+                if (event.target.checked)
+                    this.selectedItems.push(cb.value)
             })
         },
         translateStatus(statusString) {
@@ -195,6 +229,104 @@ export default {
         getImageSrc(imagePath) {
             return `${import.meta.env.VITE_LINK}${imagePath}`
         },
+        deleteProduct(id) {
+            const callback = async () => {
+                this.isLoading = true
+
+                try {
+                    const link = `${import.meta.env.VITE_PRODUCT_DELETE_LINK}${id}`
+                    const res = await axios.delete(link)
+                    if (res.data.success) {
+                        this.updateProducts()
+                    }
+                    if (res.data.message) {
+                        useNotificationsStore().addNotification({
+                            timeout: 5000,
+                            message: res.data.message
+                        })
+                    }
+                } catch (err) {
+                    const data = err.response.data
+                    if (data.error)
+                        this.error = data.error
+                }
+
+                this.isLoading = false
+            }
+            const product = this.products.find(obj => obj.id === id)
+            if (!product)
+                return
+
+            const modalComponent = h(ConfirmModal, {
+                title: `Удалить товар "${product.name}"?`,
+                confirmProps: {
+                    text: 'Удалить',
+                    callback
+                },
+                declineProps: {
+                    text: 'Не удалять'
+                }
+            })
+            useModalsStore().addModal({ component: modalComponent })
+        },
+        deleteAllSelected() {
+            const callback = async () => {
+                this.isLoading = true
+
+                try {
+                    const link = import.meta.env.VITE_PRODUCT_DELETE_LINK
+                    const res = await axios.delete(link, {
+                        data: {
+                            idsList: this.selectedItems
+                        }
+                    })
+
+                    this.updateProducts()
+
+                    if (res.data.message) {
+                        useNotificationsStore().addNotification({
+                            timeout: 5000,
+                            message: res.data.message
+                        })
+                    }
+                } catch (err) {
+                    const data = err.response.data
+                    if (data.error)
+                        this.error = data.error
+                }
+
+                this.isLoading = false
+            }
+
+            const modalComponent = h(ConfirmModal, {
+                title: `Удалить отмеченные товары (${this.selectedItems.length} шт.)?`,
+                confirmProps: {
+                    text: 'Удалить',
+                    callback
+                },
+                declineProps: {
+                    text: 'Не удалять'
+                }
+            })
+            useModalsStore().addModal({ component: modalComponent })
+        }
     },
+    watch: {
+        selectedItems() {
+            const refCheckboxes = [
+                this.$refs.allItemsCheckboxTop,
+                this.$refs.allItemsCheckboxBottom
+            ]
+            if (this.selectedItems.length === this.products.length) {
+                refCheckboxes.forEach(cb => cb.checked = true)
+            }
+            else {
+                refCheckboxes.forEach(cb => cb.checked = false)
+            }
+        },
+        products() {
+            this.selectedItems = []
+        }
+    }
 }
 </script>
