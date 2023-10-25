@@ -34,10 +34,16 @@
 <script>
 import axios from 'axios'
 import { isNumeric } from '@/assets/js/scripts.js'
+import { setMatchMedia } from '@/assets/js/methods.js'
 
 export default {
     name: 'ListPagination',
-    emits: ['update:modelValue', 'update:error', 'update:isLoading', 'update:count'],
+    emits: [
+        'update:modelValue',
+        'update:error',
+        'update:isLoading',
+        'update:count'
+    ],
     props: {
         /* массив, который содержит в себе элементы с текущей страницы */
         modelValue: {
@@ -72,26 +78,37 @@ export default {
     data() {
         return {
             totalCount: 0,
-            list: {}
+            list: {},
+            matchMediaMatches: {
+                max: {
+                    '992': false
+                }
+            }
         }
     },
     computed: {
         pagesCount() {
             return Math.floor(this.totalCount / this.limit)
         },
+        pagesLimitComputed() {
+            if (this.matchMediaMatches.max['992'])
+                return 4
+
+            return this.pagesLimit
+        },
         currentPageNumber() {
             return parseInt(this.$route.params.pageNumber) || 1
         },
         visiblePages() {
             const array = []
-            const half = Math.floor(this.pagesLimit / 2)
+            const half = Math.floor(this.pagesLimitComputed / 2)
             if (this.currentPageNumber <= half) {
-                for (let num = 1; num <= this.pagesLimit && num <= this.pagesCount; num++) {
+                for (let num = 1; num <= this.pagesLimitComputed && num <= this.pagesCount; num++) {
                     array.push(num)
                 }
             } else {
                 let num = this.currentPageNumber - (half - 1)
-                const until = num + this.pagesLimit
+                const until = num + this.pagesLimitComputed
                 for (num; num <= until; num++) {
                     if (num > 0 && num <= this.pagesCount)
                         array.push(num)
@@ -153,6 +170,7 @@ export default {
 
             this.$emit('update:isLoading', false)
         },
+        setMatchMedia,
         setPage(value) {
             const name = this.$route.name
 
@@ -196,7 +214,7 @@ export default {
                 case 'start':
                     return this.visiblePages[0] > 1
                 case 'end':
-                    return this.pagesCount > this.pagesLimit
+                    return this.pagesCount > this.pagesLimitComputed
                         && this.visiblePages[this.visiblePages.length - 1] !== this.pagesCount
             }
 
@@ -218,6 +236,7 @@ export default {
     mounted() {
         this.loadCount()
         this.loadList()
+        this.setMatchMedia()
     }
 }
 </script>
