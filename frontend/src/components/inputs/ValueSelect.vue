@@ -6,7 +6,7 @@
         <div class="select__wrapper">
             <button class="select__value" type="button" @click="toggleSelect">
                 <span class="select__value-text" :class="{ 'select__value-text--empty': !value }">
-                    {{ value || 'Выберите значение' }}
+                    {{ valueString || 'Выберите значение' }}
                 </span>
                 <span class="select__value-icon">
                     <ChevronIcon></ChevronIcon>
@@ -14,11 +14,11 @@
             </button>
             <Transition :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
                 <ul v-show="isShown" class="select__list">
-                    <li v-for="itemValue in values" class="select__item">
+                    <li v-for="obj in valuesComputed" class="select__item">
                         <label class="select__item-label">
-                            <input type="radio" :name="name" :value="itemValue" v-model="value" ref="input">
+                            <input type="radio" :name="name" :value="obj.value" v-model="value" ref="input">
                             <span>
-                                {{ itemValue }}
+                                {{ obj.string }}
                             </span>
                         </label>
                     </li>
@@ -34,13 +34,14 @@ import { getHeight } from '@/assets/js/scripts.js'
 import { nextTick } from 'vue'
 
 export default {
-    name: 'SelectValue',
+    name: 'ValueSelect',
     emits: ['update:modelValue'],
     props: {
         name: {
             type: String,
             required: true
         },
+        /* values: ['value', { string: 'value', value: true }]. Возвращается obj.value, а obj.string - нужна только для показа в селекте  */
         values: {
             type: Array,
             required: true
@@ -50,8 +51,37 @@ export default {
     data() {
         return {
             value: '',
+            returnValue: null,
             isShown: false,
             duration: 0.3
+        }
+    },
+    computed: {
+        valuesComputed() {
+            return this.values
+                .map(valueObjOrString => {
+                    if (!valueObjOrString && typeof valueObjOrString !== 'string')
+                        return null
+
+                    const obj = typeof valueObjOrString === 'string'
+                        ? { string: valueObjOrString, value: valueObjOrString }
+                        : valueObjOrString
+                    if (!obj.value && !obj.string)
+                        return null
+                    if (!obj.value && obj.string)
+                        obj.value = obj.string
+                    if (obj.value && !obj.string)
+                        obj.string = obj.value
+
+                    return obj
+                })
+                .filter(obj => obj)
+        },
+        valueString() {
+            const obj = this.valuesComputed.find(obj => obj.value === this.value)
+            if(obj)
+                return obj.string
+            return 'Выберите значение'
         }
     },
     mounted() {
@@ -102,7 +132,7 @@ export default {
             this.$emit('update:modelValue', this.value)
             this.isShown = false
         },
-        modelValue(){
+        modelValue() {
             this.value = this.modelValue
         },
         isShown() {
