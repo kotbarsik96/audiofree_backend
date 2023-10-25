@@ -78,6 +78,7 @@ export default {
     data() {
         return {
             totalCount: 0,
+            totalCountLast: 0,
             list: {},
             matchMediaMatches: {
                 max: {
@@ -126,6 +127,10 @@ export default {
         }
     },
     methods: {
+        load() {
+            this.loadCount()
+            this.loadList()
+        },
         async loadCount() {
             try {
                 const res = await axios.get(this.countLink)
@@ -143,8 +148,13 @@ export default {
         async loadList() {
             // важно: использовать переменную offset, вместо использования this.offset, иначе после await offset может смениться и запишется this.list[this.offset] уже не туда
             const offset = this.offset
-            if (Array.isArray(this.list[offset]) && this.list[offset].length > 0)
+            const isAlreadyLoaded = this.totalCountLast === this.totalCount
+                && Array.isArray(this.list[offset])
+                && this.list[offset].length > 0
+            if (isAlreadyLoaded) {
+                this.updateModelValue()
                 return
+            }
 
             this.$emit('update:isLoading', true)
 
@@ -219,23 +229,28 @@ export default {
             }
 
             return false
+        },
+        updateModelValue() {
+            this.trimList()
+            this.$emit('update:modelValue', this.shownElems)
         }
     },
     watch: {
         list: {
             deep: true,
             handler() {
-                this.trimList()
-                this.$emit('update:modelValue', this.shownElems)
+                this.updateModelValue()
             }
         },
         currentPageNumber() {
             this.loadList()
+        },
+        totalCount(newValue, oldValue) {
+            this.totalCountLast = oldValue
         }
     },
     mounted() {
-        this.loadCount()
-        this.loadList()
+        this.load()
         this.setMatchMedia()
     }
 }
