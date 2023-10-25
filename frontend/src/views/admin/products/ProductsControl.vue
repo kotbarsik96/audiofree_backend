@@ -38,7 +38,7 @@
                 <div class="admin-list-table__heading">
                     <ListIcon></ListIcon>
                     <span>
-                        Список товаров (всего: {{ totalCount }})
+                        Список товаров (всего: {{ productsCount }})
                     </span>
                     <Transition name="grow">
                         <span v-if="error" class="error">
@@ -88,7 +88,7 @@
                                 </button>
                             </td>
                         </tr>
-                        <tr v-for="product in shownProducts" :key="product.id" :data-id="product.id">
+                        <tr v-for="product in products" :key="product.id" :data-id="product.id">
                             <td>
                                 <label class="checkbox">
                                     <input ref="itemCheckbox" type="checkbox" name="product-control-selection"
@@ -130,7 +130,7 @@
                     </table>
                 </div>
                 <div class="admin-list-table__pagination">
-                    <!-- <ListPagintaion v-model="" :link="loadLink" :countLink="countLink"></ListPagintaion> -->
+                    <ListPagination v-model="products" v-model:error="error" v-model:isLoading="isLoading" v-model:count="productsCount" :loadLink="loadLink" :countLink="countLink" :pagesLimit="8" :limit="10" forAdminPage></ListPagination>
                 </div>
             </div>
         </div>
@@ -142,8 +142,6 @@ import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
 import ValueSelect from '@/components/inputs/ValueSelect.vue'
 import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import ListPagination from '@/components/pagination/ListPagination.vue'
-import axios from 'axios'
-import { isNumeric } from '@/assets/js/scripts.js'
 
 export default {
     name: 'ProductsControl',
@@ -155,11 +153,9 @@ export default {
     },
     data() {
         return {
-            pagesLimit: 8,
-            products: {},
-            totalCount: 0,
-            limit: 10,
+            products: [],
             error: '',
+            productsCount: 0,
             selectedItems: [],
             isLoading: false,
             search: {
@@ -173,84 +169,14 @@ export default {
         }
     },
     computed: {
-        isAllLoaded() {
-            return this.products.length >= this.totalCount
+        loadLink() {
+            return import.meta.env.VITE_PRODUCTS_GET_LINK
         },
-        pagesCount() {
-            return Math.floor(this.totalCount / this.limit)
+        countLink() {
+            return import.meta.env.VITE_PRODUCTS_COUNT_LINK
         },
-        currentPageNumber() {
-            return parseInt(this.$route.params.pageNumber) || 1
-        },
-        visiblePages() {
-            const array = []
-            const half = Math.floor(this.pagesLimit / 2)
-            if (this.currentPageNumber < half) {
-                for (let num = 1; num <= this.pagesLimit && num <= this.pagesCount; num++) {
-                    array.push(num)
-                }
-            } else {
-                let num = this.currentPageNumber - half
-                const until = num + this.pagesLimit
-                for (num; num <= until; num++) {
-                    if (num <= this.pagesCount)
-                        array.push(num)
-                }
-            }
-
-            return array
-        },
-        offset() {
-            return this.currentPageNumber * this.limit
-        },
-        shownProducts() {
-            return this.products[this.offset]
-                || []
-        }
     },
     methods: {
-        async loadCount() {
-            try {
-                const res = await axios.get(import.meta.env.VITE_PRODUCTS_COUNT_LINK)
-                const count = parseInt(res.data.count)
-                if (!isNaN(count)) {
-                    this.totalCount = count
-                }
-            } catch (err) {
-                const data = err.response.data
-                if (data.error)
-                    this.error = data.error
-            }
-        },
-        async loadProducts() {
-            // важно: использовать переменную offset, вместо использования this.offset, иначе после await offset может смениться и запишется this.products[this.offset] уже не туда
-            const offset = this.offset
-            if (Array.isArray(this.products[offset]))
-                return
-
-            this.isLoading = true
-
-            try {
-                const res = await axios.get(import.meta.env.VITE_PRODUCTS_GET_LINK, {
-                    params: {
-                        forAdminPage: true,
-                        limit: this.limit,
-                        offset
-                    }
-                })
-                if (Array.isArray(res.data)) {
-                    this.products[offset] = res.data
-                } else {
-                    this.error = 'Произошла ошибка'
-                }
-            } catch (err) {
-                const data = err.response.data
-                if (data.error)
-                    this.error = data.error
-            }
-
-            this.isLoading = false
-        },
         selectAllItems(event) {
             this.$refs.itemCheckbox.forEach(cb => {
                 cb.checked = event.target.checked
@@ -269,63 +195,6 @@ export default {
         getImageSrc(imagePath) {
             return `${import.meta.env.VITE_LINK}${imagePath}`
         },
-        setPage(value) {
-            const name = this.$route.name
-
-            if (isNumeric(value)) {
-                value = parseInt(value)
-                if (value < 1)
-                    value = 1
-                if (value > this.pagesCount)
-                    value = this.pagesCount
-                this.$router.push({ name, params: { pageNumber: value } })
-            }
-            else {
-                let newNumber = this.currentPageNumber
-                switch (value) {
-                    case 'prev':
-                        newNumber = newNumber - 1
-                        if (newNumber <= 0)
-                            newNumber = 1
-                        break
-                    case 'next':
-                        newNumber = newNumber + 1
-                        if (newNumber > this.pagesCount)
-                            newNumber = this.pagesCount
-                        break
-                }
-                this.$router.push({ name, params: { pageNumber: newNumber } })
-            }
-        },
-        clearProductsArray() {
-            const keys = Object.keys(this.products)
-            if (keys.length > 10) {
-                const diff = keys.length - 9
-                for (let i = 0; i < diff; i++) {
-                    const key = keys[i]
-                    delete this.products[key]
-                }
-            }
-        },
-        showPaginationEllipsis() {
-            return this.pagesCount > this.pagesLimit
-                && this.visiblePages[this.visiblePages.length - 1] !== this.pagesCount
-        }
     },
-    watch: {
-        products: {
-            deep: true,
-            handler() {
-                this.clearProductsArray()
-            }
-        },
-        currentPageNumber() {
-            this.loadProducts()
-        }
-    },
-    mounted() {
-        this.loadCount()
-        this.loadProducts()
-    }
 }
 </script>
