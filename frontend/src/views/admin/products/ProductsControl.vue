@@ -93,7 +93,7 @@
                                 </button>
                             </td>
                         </tr>
-                        <tr v-for="product in products" :key="product.id" :data-id="product.id">
+                        <tr v-for="product in products" :key="product.id">
                             <td>
                                 <label class="checkbox">
                                     <input type="checkbox" :checked="selectedItems.includes(product.id)"
@@ -156,8 +156,8 @@
                 </div>
                 <div class="admin-list-table__pagination">
                     <ListPagination ref="paginationComponent" v-model="products" v-model:error="error"
-                        v-model:isLoading="isLoading" v-model:count="productsCount" :loadLink="loadLink"
-                        :countLink="countLink" :pagesLimit="8" :limit="10" :filters="filters" allData></ListPagination>
+                        v-model:isLoading="isLoading" v-model:count="productsCount" :loadLink="loadLink" :pagesLimit="8"
+                        :limit="10" :filters="filters" allData></ListPagination>
                 </div>
             </div>
         </div>
@@ -174,6 +174,7 @@ import { useModalsStore } from '@/stores/modals.js'
 import { useNotificationsStore } from '@/stores/notifications.js'
 import { h } from 'vue'
 import axios from 'axios'
+import { selectAllItems } from '@/assets/js/methods.js'
 
 export default {
     name: 'ProductsControl',
@@ -205,9 +206,6 @@ export default {
         loadLink() {
             return import.meta.env.VITE_PRODUCTS_GET_LINK
         },
-        countLink() {
-            return import.meta.env.VITE_PRODUCTS_COUNT_LINK
-        },
         isAllChecked() {
             return this.selectedItems.length === this.products.length
                 && this.selectedItems.length !== 0
@@ -215,13 +213,9 @@ export default {
     },
     methods: {
         updateProducts() {
-            this.$refs.paginationComponent.loadList()
+            this.$refs.paginationComponent.loadList(true)
         },
-        selectAllItems(event) {
-            this.selectedItems = []
-            if (event.target.checked)
-                this.selectedItems = this.products.map(obj => obj.id)
-        },
+        selectAllItems,
         getImageSrc(imagePath) {
             return `${import.meta.env.VITE_LINK}${imagePath}`
         },

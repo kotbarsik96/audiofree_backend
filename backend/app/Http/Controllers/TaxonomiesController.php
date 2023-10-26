@@ -12,6 +12,7 @@ use App\Models\Taxonomies\ProductStatus;
 use App\Exceptions\RolesExceptions;
 use Illuminate\Validation\Rule;
 use App\Models\User;
+use App\Filters\TaxonomiesFilter;
 
 class TaxonomiesController extends Controller
 {
@@ -61,6 +62,37 @@ class TaxonomiesController extends Controller
             'categories' => Category::all(['id', 'name']),
             'types' => Type::all(['id', 'name']),
             'product_statuses' => ProductStatus::all(['id', 'name'])
+        ];
+    }
+
+    public function filter(TaxonomiesFilter $queryFilter, $taxonomyTitle)
+    {
+        $model = null;
+        switch ($taxonomyTitle) {
+            case 'brand':
+                $model = Brand::class;
+                break;
+            case 'category':
+                $model = Category::class;
+                break;
+            case 'type':
+                $model = Type::class;
+                break;
+            case 'product_status':
+                $model = ProductStatus::class;
+                break;
+        }
+
+        $request = $queryFilter->request;
+        $limit = $request->query('limit') ?? null;
+        $offset = $request->query('offset') ?? null;
+
+        $filtered = $model::filter($queryFilter)
+            ->select(['id', 'name']);
+        $count = $filtered->count();
+        return [
+            'result' => $filtered->offsetLimit($limit, $offset)->get(),
+            'total_count' => $count
         ];
     }
 
@@ -133,24 +165,53 @@ class TaxonomiesController extends Controller
         return $taxData['model']::create($validator->validated());
     }
 
-    public function delete(Request $request, $taxName, $id)
+    public function handleDelete(Request $request, $taxName, $id = null)
     {
         if (!User::hasRight($request->cookie('user'), 'delete_taxonomy', $request))
             return RolesExceptions::noRightsResponse();
 
+        // удалить одну
+        if ($id) {
+            $res = $this->delete($taxName, $id);
+            $code = array_key_exists('code', $res) ? $res['code'] : 200;
+            return response($res, $code);
+        }
+        // удалить несколько
+        else {
+            $deleted = [];
+            $errors = [];
+            $queries = $request->all();
+            $list = array_key_exists('idsList', $queries) ? $queries['idsList'] : [];
+            foreach ($list as $id) {
+                $res = $this->delete($taxName, $id);
+                if ($res['error'])
+                    array_push($errors, $res['error']);
+                else
+                    array_push($deleted, $res['message']);
+            }
+            return response([
+                'deleted' => $deleted,
+                'errors' => $errors,
+                'message' => 'Было удалено таксономий: ' . count($deleted) . ' из ' . count($list)
+            ]);
+        }
+    }
+
+    public function delete($taxName, $id)
+    {
         $taxData = null;
         try {
             $taxData = $this->getTaxData($taxName);
         } catch (TaxonomiesExceptions $err) {
-            return ['error' => $err->getMessage()];
+            return ['error' => $err->getMessage(), 'code' => 400];
         }
 
         $taxonomy = $taxData['model']::find($id);
         if (empty($taxonomy))
-            return response(['error' => TaxonomiesExceptions::notExists()]);
+            return ['error' => TaxonomiesExceptions::notExists(), 'code' => 400];
 
         $taxDeletedMessage = 'Успешно удалено: ' . $taxData['title'] . ' "' . $taxonomy->name . '"';
         $taxonomy->delete();
-        return response(['success' => true, 'message' => $taxDeletedMessage]);
+        return ['success' => true, 'message' => $taxDeletedMessage, 'error' => false];
     }
 }

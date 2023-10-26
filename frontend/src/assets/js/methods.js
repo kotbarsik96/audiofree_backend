@@ -33,3 +33,9 @@ export function setMatchMedia() {
             .forEach(mediaValue => forEachCallback(mediaValue, 'min'))
     }
 }
+
+export function selectAllItems(event) {
+    this.selectedItems = []
+    if (event.target.checked)
+        this.selectedItems = this.list.map(obj => obj.id)
+}

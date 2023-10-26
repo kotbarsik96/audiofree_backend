@@ -39,14 +39,12 @@ const router = createRouter({
                     component: () => import('@/views/admin/products/ProductCreate.vue')
                 },
                 {
-                    path: 'taxonomy/create/:taxonomyName',
-                    name: 'TaxonomyCreate',
-                    component: () => import('@/views/admin/taxonomies/TaxonomyCreate.vue')
-                },
-                {
-                    path: 'taxonomies-control/:taxonomyName',
+                    path: 'taxonomies-control/:taxonomyName/:pageNumber?',
                     name: 'TaxonomiesControl',
-                    component: () => import('@/views/admin/taxonomies/TaxonomiesControl.vue')
+                    component: () => import('@/views/admin/taxonomies/TaxonomiesControl.vue'),
+                    meta: {
+                        hasPageNumber: true
+                    }
                 }
             ]
         },
@@ -85,6 +83,17 @@ router.beforeEach(async (to, from) => {
             to.params.pageNumber = 1
             return { name: to.name, params: to.params, meta: to.meta }
         }
+    }
+
+    if(to.name === 'TaxonomiesControl') {
+        const taxonomies = [
+            'brand',
+            'type',
+            'category',
+            'product_status'
+        ]
+        if(!taxonomies.includes(to.params.taxonomyName))
+            return { name: 'NotFound' }
     }
 })
 

@@ -17,6 +17,7 @@ import PercentIcon from '@/components/icons/PercentIcon.vue'
 import PhoneCallIcon from '@/components/icons/PhoneCallIcon.vue'
 import PlusCircleIcon from '@/components/icons/PlusCircleIcon.vue'
 import PlusIcon from '@/components/icons/PlusIcon.vue'
+import SaveIcon from '@/components/icons/SaveIcon.vue'
 import SearchIcon from '@/components/icons/SearchIcon.vue'
 import StarIcon from '@/components/icons/StarIcon.vue'
 import TelegramIcon from '@/components/icons/TelegramIcon.vue'
@@ -43,6 +44,7 @@ export default [
     { component: PhoneCallIcon, name: 'PhoneCallIcon' },
     { component: PlusCircleIcon, name: 'PlusCircleIcon' },
     { component: PlusIcon, name: 'PlusIcon' },
+    { component: SaveIcon, name: 'SaveIcon' },
     { component: SearchIcon, name: 'SearchIcon' },
     { component: StarIcon, name: 'StarIcon' },
     { component: TelegramIcon, name: 'TelegramIcon' },

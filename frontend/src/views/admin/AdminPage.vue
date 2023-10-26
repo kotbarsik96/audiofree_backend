@@ -14,21 +14,26 @@
                         <template v-slot:buttonContent>
                             Таксономии
                         </template>
-                        <AdminPanelExpandable class="admin-page__nav-subitem" name="Бренды" :createTo="{
-                            name: 'TaxonomyCreate',
-                            params: { taxonomyName: 'brand' }
-                        }" :controlTo="{ name: 'TaxonomiesControl', params: { taxonomyName: 'brand' } }">
-                        </AdminPanelExpandable>
-                        <AdminPanelExpandable class="admin-page__nav-subitem" name="Категории" :createTo="{
-                            name: 'TaxonomyCreate',
-                            params: { taxonomyName: 'category' }
-                        }" :controlTo="{ name: 'TaxonomiesControl', params: { taxonomyName: 'category' } }">
-                        </AdminPanelExpandable>
-                        <AdminPanelExpandable class="admin-page__nav-subitem" name="Типы" :createTo="{
-                            name: 'TaxonomyCreate',
-                            params: { taxonomyName: 'type' }
-                        }" :controlTo="{ name: 'TaxonomiesControl', params: { taxonomyName: 'type' } }">
-                        </AdminPanelExpandable>
+                        <li class="admin-page__nav-subitem">
+                            <RouterLink class="link" :to="{ name: 'TaxonomiesControl', params: { taxonomyName: 'brand' } }">
+                                Бренды
+                            </RouterLink>
+                        </li>
+                        <li class="admin-page__nav-subitem">
+                            <RouterLink class="link" :to="{ name: 'TaxonomiesControl', params: { taxonomyName: 'category' } }">
+                                Категории
+                            </RouterLink>
+                        </li>
+                        <li class="admin-page__nav-subitem">
+                            <RouterLink class="link" :to="{ name: 'TaxonomiesControl', params: { taxonomyName: 'type' } }">
+                                Типы
+                            </RouterLink>
+                        </li>
+                        <li class="admin-page__nav-subitem">
+                            <RouterLink class="link" :to="{ name: 'TaxonomiesControl', params: { taxonomyName: 'product_status' } }">
+                                Статусы товара
+                            </RouterLink>
+                        </li>
                     </SpoilerElem>
                 </ul>
             </nav>

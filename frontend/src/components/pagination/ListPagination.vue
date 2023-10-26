@@ -58,11 +58,6 @@ export default {
             type: String,
             required: true
         },
-        /* ссылка, по которой можно загрузить число общего количества элементов (https://.../api/products/count). Ресурс должен вернуть такое: data: { count: 1 } */
-        countLink: {
-            type: String,
-            required: true
-        },
         /* ограничение на показ количества страниц в пагинации. Остальное будет скрыто "...", а после него будет номер последней страницы */
         pagesLimit: {
             type: Number,
@@ -130,13 +125,14 @@ export default {
         }
     },
     methods: {
-        async loadList() {
+        async loadList(forced = false) {
             // важно: использовать переменную offset, вместо использования this.offset, иначе после await offset может смениться и запишется this.list[this.offset] уже не туда
             const offset = this.offset
             const isAlreadyLoaded = this.totalCountLast === this.totalCount
                 && Array.isArray(this.list[offset])
                 && this.list[offset].length > 0
-            if (isAlreadyLoaded) {
+
+            if (isAlreadyLoaded && !forced) {
                 this.updateModelValue()
                 return
             }

@@ -17,6 +17,7 @@ Route::get('/product/{id}', [ProductsController::class, 'index']);
 Route::get('/products', [ProductsController::class, 'filter']);
 
 Route::get('/taxonomies', [TaxonomiesController::class, 'all']);
+Route::get('/taxonomies/{taxonomyTitle}', [TaxonomiesController::class, 'filter']);
 
 Route::get('/roles/check/page-access', [RolesController::class, 'checkPageAccess']);
 
@@ -49,7 +50,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/taxonomy/create/{taxName}', [TaxonomiesController::class, 'storeOrUpdate']);
     Route::post('/taxonomy/update/{taxName}/{id}', [TaxonomiesController::class, 'storeOrUpdate']);
-    Route::delete('/taxonomy/delete/{taxName}/{id}', [TaxonomiesController::class, 'delete']);
+    Route::delete('/taxonomy/delete/{taxName}/{id}', [TaxonomiesController::class, 'handleDelete']);
+    Route::delete('/taxonomy/delete/{taxName}/', [TaxonomiesController::class, 'handleDelete']);
 
     Route::post('/product/create', [ProductsController::class, 'store']);
     Route::post('/product/update/{id}', [ProductsController::class, 'update']);

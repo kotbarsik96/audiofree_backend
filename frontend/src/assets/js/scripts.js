@@ -118,3 +118,39 @@ export function createElement(tagName = 'div', optionsOrClassname = null, conten
     }
     return element
 }
+
+export function handleAjaxError(err, ctx) {
+    if (!err)
+        return
+    if (!err.response)
+        return
+    if (typeof ctx.error !== 'string' && !Array.isArray(ctx.errors))
+        return
+
+    const data = err.response.data
+    if (typeof ctx.error === 'string' && data.error)
+        ctx.error = data.error
+    else if (Array.isArray(ctx.errors) && data.errors)
+        ctx.errors = data.errors
+    else if (!Array.isArray(ctx.errors) && typeof ctx.error === 'string' && data.errors) {
+        const values = Object.values(data.errors)
+        if (Array.isArray(values[0]) && values[0][0])
+            ctx.error = values[0][0]
+    }
+}
+
+/* работает только в массивах вида: array: [{ id: some }, { id: some2 }] */
+export function removeFromArrayById(array, id) {
+    const index = array.findIndex(obj => {
+        if (!obj)
+            return
+
+        return obj.id === id
+    })
+
+    if (index < 0)
+        return false
+
+    array.splice(index, 1)
+    return true
+}
