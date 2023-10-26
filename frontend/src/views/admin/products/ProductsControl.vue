@@ -7,7 +7,7 @@
                     Название товара
                 </template>
             </TextInputWrapper>
-            <TextInputWrapper name="price" id="price" numberonly modifiers="toLocaleString" v-model="filters.price">
+            <TextInputWrapper name="price" id="price" numberonly modifiers="toLocaleString" v-model="filters.current_price">
                 <template v-slot:label>
                     Текущая цена
                 </template>
@@ -193,7 +193,7 @@ export default {
             isLoading: false,
             filters: {
                 name: '',
-                price: '',
+                current_price: '',
                 has_discount: null,
                 brand: '',
                 category: '',

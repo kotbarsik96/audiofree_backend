@@ -3,21 +3,67 @@
 namespace App\Filters;
 
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
-class ProductFilter extends QueryFilter
+class ProductsFilter extends QueryFilter
 {
-    public function brands($titles)
+    public function name($value = null)
     {
-        // $this->builder->;
+        if (empty($value))
+            return;
+
+        $this->builder->where('name', 'like', '%' . $value . '%');
     }
 
-    public function categories($titles)
+    public function current_price($value = null)
     {
+        if (empty($value))
+            return;
 
+        $this->builder->whereRaw('IF(discount_price IS NULL, price = ?, discount_price = ?)', [$value, $value]);
     }
 
-    public function types($titles)
+    public function has_discount($value = null)
     {
+        if (empty($value) || $value === 'no_matter')
+            return;
 
+        if ($value === 'yes')
+            $this->builder->whereNotNull('discount_price');
+        elseif ($value === 'no')
+            $this->builder->whereNull('discount_price');
+    }
+
+    public function filterByTaxonomy($titles = null, $whereIn, $select, $from, $subWhereIn)
+    {
+        $array = is_array($titles)
+            ? $titles
+            : array_filter([$titles]);
+        if (count($array) < 1)
+            return;
+
+        $this->builder->whereIn(
+            $whereIn,
+            function (Builder $subquery) use ($array, $select, $from, $subWhereIn) {
+                $subquery->select($select)
+                    ->from($from)
+                    ->whereIn($subWhereIn, $array);
+            }
+        );
+    }
+
+    public function brand($titles = null)
+    {
+        $this->filterByTaxonomy($titles, 'brand_id', 'brands.id', 'brands', 'brands.name');
+    }
+
+    public function category($titles = null)
+    {
+        $this->filterByTaxonomy($titles, 'category_id', 'categories.id', 'categories', 'categories.name');
+    }
+
+    public function type($titles = null)
+    {
+        $this->filterByTaxonomy($titles, 'type_id', 'types.id', 'types', 'types.name');
     }
 }

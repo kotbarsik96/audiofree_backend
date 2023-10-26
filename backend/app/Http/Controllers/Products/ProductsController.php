@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Products;
 use App\Exceptions\RolesExceptions;
 use App\Models\Products\Product;
 use Illuminate\Http\Request;
-use App\Filters\QueryFilter;
+use App\Filters\ProductsFilter;
 use App\Exceptions\ProductsExceptions;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Products\Variations\VariationsController;
@@ -13,7 +13,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Http\Controllers\TaxonomiesController;
-use Illuminate\Support\Facades\DB;
 
 class ProductsController extends Controller
 {
@@ -25,24 +24,24 @@ class ProductsController extends Controller
         return Product::singleFullData($id, $selectTimestamps);
     }
 
-    public function filter(QueryFilter $queryFilter)
+    public function filter(ProductsFilter $queryFilter)
     {
         $request = $queryFilter->request;
         $limit = $request->query('limit') ?? null;
         $offset = $request->query('offset') ?? null;
 
-        $productQuery = Product::filter($queryFilter)
-            ->offsetLimit($limit, $offset)
+        $productQuery = Product::filter($queryFilter);
+        $totalCount = $productQuery->count();
+
+        $productQuery->offsetLimit($limit, $offset)
             ->mainData();
         if ($request->query('allData') === 'true' || $request->query('allData') === true)
             $productQuery->taxonomies()->timestamps();
 
-        return $productQuery->get();
-    }
-
-    public function count()
-    {
-        return response(['count' => Product::all()->count()]);
+        return [
+            'result' => $productQuery->get(),
+            'total_count' => $totalCount
+        ];
     }
 
     public function storeValidationReq(Request $request, $ignoreId = null)
@@ -170,7 +169,7 @@ class ProductsController extends Controller
         $res = $this->delete($request, $id);
         $hasCode = array_key_exists('code', $res);
         $code = $hasCode ? $res['code'] : null;
-        if(!is_numeric($code))
+        if (!is_numeric($code))
             $code = 200;
         if ($hasCode)
             unset($res['code']);
@@ -218,7 +217,7 @@ class ProductsController extends Controller
                 $res = $this->delete($subRequest, $idFromList);
                 if (array_key_exists('name', $res))
                     array_push($deleted, $res['name']);
-                if($res['error']) 
+                if ($res['error'])
                     array_push($errors, $res['error']);
             }
 

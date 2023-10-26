@@ -1,7 +1,7 @@
 <!-- ВАЖНО: чтобы компонент работал, он должен находиться внутри route, у которого есть params.pageNumber 
     ({ name: '...', path: '/:pageNumber?' }) -->
 <template>
-    <div class="pagination">
+    <div class="pagination" v-if="visiblePages.length > 0">
         <button class="pagination__button pagination__button--prev" type="button" @click="setPage('prev')">
             <ChevronIcon></ChevronIcon>
         </button>
@@ -73,6 +73,8 @@ export default {
             type: Number,
             default: 10
         },
+        /* фильтры: { name: value } */
+        filters: Object,
         forAdminPage: Boolean,
     },
     data() {
@@ -80,6 +82,7 @@ export default {
             totalCount: 0,
             totalCountLast: 0,
             list: {},
+            filtersApplyTimeout: null,
             matchMediaMatches: {
                 max: {
                     '992': false
@@ -119,7 +122,7 @@ export default {
             return array
         },
         offset() {
-            return this.currentPageNumber * this.limit
+            return this.currentPageNumber - 1 * this.limit
         },
         shownElems() {
             return this.list[this.offset]
@@ -127,24 +130,6 @@ export default {
         }
     },
     methods: {
-        load() {
-            this.loadCount()
-            this.loadList()
-        },
-        async loadCount() {
-            try {
-                const res = await axios.get(this.countLink)
-                const count = parseInt(res.data.count)
-                if (!isNaN(count)) {
-                    this.totalCount = count
-                    this.$emit('update:count', this.totalCount)
-                }
-            } catch (err) {
-                const data = err.response.data
-                if (data.error)
-                    this.$emit('update:error', data.error)
-            }
-        },
         async loadList() {
             // важно: использовать переменную offset, вместо использования this.offset, иначе после await offset может смениться и запишется this.list[this.offset] уже не туда
             const offset = this.offset
@@ -159,16 +144,18 @@ export default {
             this.$emit('update:isLoading', true)
 
             try {
-                const params = {
+                const params = Object.assign(this.filters || {}, {
                     limit: this.limit,
                     offset
-                }
+                })
                 if (this.forAdminPage)
                     params.forAdminPage = true
 
                 const res = await axios.get(this.loadLink, { params })
-                if (Array.isArray(res.data)) {
-                    this.list[offset] = res.data
+                if (Array.isArray(res.data.result)) {
+                    this.list[offset] = res.data.result
+                    if (isNumeric(res.data.total_count))
+                        this.totalCount = parseInt(res.data.total_count)
                 } else {
                     this.$emit('update:error', 'Произошла ошибка')
                 }
@@ -246,11 +233,27 @@ export default {
             this.loadList()
         },
         totalCount(newValue, oldValue) {
+            if (newValue === oldValue)
+                return
+
+            this.$emit('update:count', this.totalCount)
             this.totalCountLast = oldValue
+        },
+        filters: {
+            deep: true,
+            handler() {
+                if (this.filtersApplyTimeout)
+                    clearTimeout(this.filtersApplyTimeout)
+
+                this.filtersApplyTimeout = setTimeout(() => {
+                    this.loadList()
+                    this.$router.push({ name: this.$route.name, params: { pageNumber: 1 } })
+                }, 1500)
+            }
         }
     },
     mounted() {
-        this.load()
+        this.loadList()
         this.setMatchMedia()
     }
 }

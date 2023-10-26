@@ -15,7 +15,6 @@ Route::post('/user-entities/create/favorite', [UserEntitiesController::class, 's
 
 Route::get('/product/{id}', [ProductsController::class, 'index']);
 Route::get('/products', [ProductsController::class, 'filter']);
-Route::get('/products/count', [ProductsController::class, 'count']);
 
 Route::get('/taxonomies', [TaxonomiesController::class, 'all']);
 
