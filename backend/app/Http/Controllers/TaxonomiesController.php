@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Taxonomies\Brand;
 use App\Models\Taxonomies\Category;
 use App\Models\Taxonomies\Type;
+use App\Models\Taxonomies\ProductStatus;
 use App\Exceptions\RolesExceptions;
 use Illuminate\Validation\Rule;
 use App\Models\User;
@@ -30,7 +31,8 @@ class TaxonomiesController extends Controller
         $taxs = [
             'brand' => Brand::class,
             'category' => Category::class,
-            'type' => Type::class
+            'type' => Type::class,
+            'product_status' => ProductStatus::class
         ];
 
         foreach ($taxs as $name => $model) {
@@ -57,7 +59,8 @@ class TaxonomiesController extends Controller
         return [
             'brands' => Brand::all(['id', 'name']),
             'categories' => Category::all(['id', 'name']),
-            'types' => Type::all(['id', 'name'])
+            'types' => Type::all(['id', 'name']),
+            'product_statuses' => ProductStatus::all(['id', 'name'])
         ];
     }
 
@@ -84,6 +87,12 @@ class TaxonomiesController extends Controller
                 $name = 'types';
                 $title = 'Тип';
                 $model = Type::class;
+                break;
+            case 'product_status':
+            case 'product_statuses':
+                $name = 'product_statuses';
+                $title = 'Статус товара';
+                $model = ProductStatus::class;
                 break;
         }
 

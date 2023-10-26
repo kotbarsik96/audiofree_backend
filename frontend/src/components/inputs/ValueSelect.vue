@@ -153,6 +153,12 @@ export default {
     position: relative;
     width: 270px;
     z-index: 25;
+    transition: z-index 0s ease .1s;
+
+    &.__shown {
+        z-index: 30;
+        transition: none;
+    }
 
     &__wrapper {
         position: relative;

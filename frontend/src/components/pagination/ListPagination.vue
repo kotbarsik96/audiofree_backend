@@ -75,7 +75,7 @@ export default {
         },
         /* фильтры: { name: value } */
         filters: Object,
-        forAdminPage: Boolean,
+        allData: Boolean,
     },
     data() {
         return {
@@ -148,8 +148,8 @@ export default {
                     limit: this.limit,
                     offset
                 })
-                if (this.forAdminPage)
-                    params.forAdminPage = true
+                if (this.allData)
+                    params.allData = true
 
                 const res = await axios.get(this.loadLink, { params })
                 if (Array.isArray(res.data.result)) {

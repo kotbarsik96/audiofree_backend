@@ -26,6 +26,21 @@
             </TextInputWrapper>
         </div>
         <div class="inputs-flex">
+            <TextInputWrapper name="quantity" id="quantity" width="160px" placeholder="Количество" numberonly
+                modifiers="toLocaleString" max="100000" v-model="input.quantity">
+                <template v-slot:label>Количество</template>
+                <template v-if="errors.quantity">
+                    {{ errors.quantity }}
+                </template>
+            </TextInputWrapper>
+        </div>
+        <div class="inputs-flex">
+            <ValueSelect v-model="input.taxonomies.product_status" name="product_status"
+                :values="taxonomies.product_statuses">
+                <template v-slot:label>
+                    Статус
+                </template>
+            </ValueSelect>
             <ValueSelect v-model="input.taxonomies.brand" name="brand" :values="taxonomies.brands">
                 <template v-slot:label>
                     Бренд
@@ -101,16 +116,19 @@ export default {
             taxonomies: {
                 brands: [],
                 categories: [],
-                types: []
+                types: [],
+                product_statuses: []
             },
             input: {
                 name: '',
                 price: 0,
                 discount_price: 0,
+                quantity: '',
                 taxonomies: {
                     brand: '',
                     category: '',
-                    type: ''
+                    type: '',
+                    product_status: ''
                 },
                 info: [],
                 variations: [],
@@ -178,6 +196,8 @@ export default {
             this.input.name = this.productData.name
             this.input.price = this.productData.price
             this.input.discount_price = this.productData.discount_price
+            this.input.quantity = this.productData.quantity
+            this.input.taxonomies.product_status = this.productData.product_status
             this.input.taxonomies.brand = this.productData.brand
             this.input.taxonomies.category = this.productData.category
             this.input.taxonomies.type = this.productData.type
@@ -215,6 +235,8 @@ export default {
                 name: this.input.name,
                 price: this.input.price,
                 discount_price: this.input.discount_price,
+                quantity: this.input.quantity,
+                product_status: this.input.taxonomies.product_status,
                 brand: this.input.taxonomies.brand,
                 category: this.input.taxonomies.category,
                 type: this.input.taxonomies.type,
@@ -259,7 +281,7 @@ export default {
                 this.onLoadedProductData()
             }
         },
-        $route(){
+        $route() {
             this.$emit('updateRouteKey')
         }
     },
@@ -269,5 +291,3 @@ export default {
     },
 }
 </script>
-
-<style></style>

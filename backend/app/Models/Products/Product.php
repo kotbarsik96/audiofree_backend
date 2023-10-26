@@ -17,6 +17,8 @@ class Product extends FilterableModel
         'price',
         'discount_price',
         'description',
+        'quantity',
+        'product_status_id',
         'type_id',
         'brand_id',
         'category_id',
@@ -33,6 +35,8 @@ class Product extends FilterableModel
             'products.name',
             'products.price',
             'products.discount_price',
+            'products.quantity',
+            'products.product_status_id',
             DB::raw('IF(products.discount_price, products.discount_price, products.price) AS current_price'),
             'products.description',
             'images.path AS image_path',
@@ -50,11 +54,13 @@ class Product extends FilterableModel
         $builder->addSelect(
             'types.name AS type',
             'brands.name AS brand',
-            'categories.name AS category'
+            'categories.name AS category',
+            'product_statuses.name AS product_status'
         )
             ->leftJoin('types', 'products.type_id', '=', 'types.id')
             ->leftJoin('brands', 'products.brand_id', '=', 'brands.id')
-            ->leftJoin('categories', 'products.category_id', '=', 'categories.id');
+            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->leftJoin('product_statuses', 'products.product_status_id', '=', 'product_statuses.id');
     }
 
     public static function singleFullData($id, $selectTimestamps = false)

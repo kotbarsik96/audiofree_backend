@@ -116,10 +116,10 @@
                                 </span>
                             </td>
                             <td>
-                                {{ product.amount || 1 }}
+                                {{ product.quantity || 1 }}
                             </td>
                             <td>
-                                {{ translateStatus(product.status) }}
+                                {{ product.product_status }}
                             </td>
                             <td>
                                 <RouterLink class="admin-list-table__control-button admin-list-table__control-button--edit"
@@ -157,7 +157,7 @@
                 <div class="admin-list-table__pagination">
                     <ListPagination ref="paginationComponent" v-model="products" v-model:error="error"
                         v-model:isLoading="isLoading" v-model:count="productsCount" :loadLink="loadLink"
-                        :countLink="countLink" :pagesLimit="8" :limit="10" :filters="filters" forAdminPage></ListPagination>
+                        :countLink="countLink" :pagesLimit="8" :limit="10" :filters="filters" allData></ListPagination>
                 </div>
             </div>
         </div>
@@ -221,15 +221,6 @@ export default {
             this.selectedItems = []
             if (event.target.checked)
                 this.selectedItems = this.products.map(obj => obj.id)
-        },
-        translateStatus(statusString) {
-            switch (statusString) {
-                case 'active':
-                default:
-                    return 'Активен'
-                case 'disabled':
-                    return 'Неактивен'
-            }
         },
         getImageSrc(imagePath) {
             return `${import.meta.env.VITE_LINK}${imagePath}`

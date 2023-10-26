@@ -90,7 +90,7 @@ export default {
             try {
                 const res = await axios.post(import.meta.env.VITE_IMAGE_LOAD_LINK, data)
                 if (res.data.path) {
-                    this.$emit('update:modelValue', `${import.meta.env.VITE_LINK}${res.data.path}`)
+                    this.$emit('update:modelValue', res.data.path)
                     this.$emit('update:id', res.data.id)
                 }
             } catch (err) {

@@ -15,7 +15,7 @@ use App\Models\User;
 use App\Http\Controllers\TaxonomiesController;
 
 class ProductsController extends Controller
-{
+{    
     public function index(Request $request, $id)
     {
         $timestampsQuery = $request->query('timestamps');
@@ -51,6 +51,8 @@ class ProductsController extends Controller
             'price' => 'numeric|required',
             'discount_price' => 'nullable|numeric',
             'description' => 'string',
+            'quantity' => 'numeric',
+            'product_status' => 'exists:product_statuses,name|required',
             'brand' => 'exists:brands,name|required',
             'category' => 'exists:categories,name|required',
             'type' => 'exists:types,name|required',
@@ -65,7 +67,9 @@ class ProductsController extends Controller
                 'category' => 'Категория',
                 'type' => 'Тип',
                 'image_id' => 'Изображение',
-                'name' => 'Название'
+                'name' => 'Название',
+                'quantity' => 'Количество',
+                'product_status' => 'Статус'
             ]
         );
     }

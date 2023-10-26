@@ -29,6 +29,7 @@ class Role extends Model
         'delete_role' => [],
         'add_rating' => ['ADMINISTRATOR', 'USER'],
         'load_image' => ['ADMINISTRATOR', 'USER'],
+        'update_image' => ['ADMINISTRATOR', 'USER'],
         'update_rating' => ['ADMINISTRATOR', 'USER'],
         'delete_image' => ['ADMINISTRATOR', 'USER'],
     ];
