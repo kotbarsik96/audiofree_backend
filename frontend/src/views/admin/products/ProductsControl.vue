@@ -215,7 +215,7 @@ export default {
     },
     methods: {
         updateProducts() {
-            this.$refs.paginationComponent.load()
+            this.$refs.paginationComponent.loadList()
         },
         selectAllItems(event) {
             this.selectedItems = []
