@@ -78,6 +78,7 @@ export default {
             totalCountLast: 0,
             list: {},
             filtersApplyTimeout: null,
+            initialLoadPassed: false,
             matchMediaMatches: {
                 max: {
                     '992': false
@@ -117,7 +118,7 @@ export default {
             return array
         },
         offset() {
-            return this.currentPageNumber - 1 * this.limit
+            return (this.currentPageNumber - 1) * this.limit
         },
         shownElems() {
             return this.list[this.offset]
@@ -140,7 +141,7 @@ export default {
             this.$emit('update:isLoading', true)
 
             try {
-                const params = Object.assign(this.filters || {}, {
+                const params = Object.assign({ ...this.filters } || {}, {
                     limit: this.limit,
                     offset
                 })
@@ -238,6 +239,9 @@ export default {
         filters: {
             deep: true,
             handler() {
+                if (!this.initialLoadPassed)
+                    return
+
                 if (this.filtersApplyTimeout)
                     clearTimeout(this.filtersApplyTimeout)
 
@@ -248,8 +252,9 @@ export default {
             }
         }
     },
-    mounted() {
-        this.loadList()
+    async mounted() {
+        await this.loadList()
+        this.initialLoadPassed = true
         this.setMatchMedia()
     }
 }

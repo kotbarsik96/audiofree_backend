@@ -42,7 +42,7 @@
                 <div class="admin-list-table__heading">
                     <ListIcon></ListIcon>
                     <span>
-                        Список товаров (всего: {{ productsCount }})
+                        Список товаров (всего: {{ listCount }})
                     </span>
                     <Transition name="grow">
                         <span v-if="error" class="error">
@@ -51,8 +51,8 @@
                     </Transition>
                 </div>
                 <div class="admin-list-table__container">
-                    <table class="admin-list-table__table">
-                        <tr>
+                    <AdminListTable v-model="list" v-model:selectedItems="selectedItems" :columnsCount="7" @deleteSelected="deleteAllSelected">
+                        <template v-slot:thead>
                             <th></th>
                             <th>
                                 Изображение
@@ -72,91 +72,53 @@
                             <th>
                                 Действие
                             </th>
-                        </tr>
-                        <tr>
+                        </template>
+                        <tr v-for="item in list" :key="item.id">
                             <td>
                                 <label class="checkbox">
-                                    <input type="checkbox" name="product-control-selection" ref="allItemsCheckboxTop"
-                                        :checked="isAllChecked" @change="selectAllItems">
-                                    <div class="checkbox__box"></div>
-                                </label>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <button class="admin-list-table__control-button admin-list-table__control-button--delete"
-                                    :disabled="selectedItems.length < 1" type="button" @click="deleteAllSelected">
-                                    <TrashCanCircleIcon></TrashCanCircleIcon>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr v-for="product in products" :key="product.id">
-                            <td>
-                                <label class="checkbox">
-                                    <input type="checkbox" :checked="selectedItems.includes(product.id)"
-                                        name="product-control-selection" :value="product.id" v-model="selectedItems">
+                                    <input type="checkbox" :checked="selectedItems.includes(item.id)"
+                                        name="product-control-selection" :value="item.id" v-model="selectedItems">
                                     <div class="checkbox__box"></div>
                                 </label>
                             </td>
                             <td>
-                                <img :src="getImageSrc(product.image_path)" :alt="product.image_path">
+                                <img :src="getImageSrc(item.image_path)" :alt="item.image_path">
                             </td>
                             <td>
-                                {{ product.name }}
+                                {{ item.name }}
+                                <br>
+                                {{ item.id }}
                             </td>
                             <td class="prices">
                                 <span class="price-current">
-                                    {{ product.current_price }}₽
+                                    {{ item.current_price }}₽
                                 </span>
-                                <span v-if="product.discount_price" class="price-old">
-                                    {{ product.price }}₽
+                                <span v-if="item.discount_price" class="price-old">
+                                    {{ item.price }}₽
                                 </span>
                             </td>
                             <td>
-                                {{ product.quantity || 1 }}
+                                {{ item.quantity || 1 }}
                             </td>
                             <td>
-                                {{ product.product_status }}
+                                {{ item.product_status }}
                             </td>
                             <td>
                                 <RouterLink class="admin-list-table__control-button admin-list-table__control-button--edit"
-                                    :to="{ name: 'ProductUpdate', params: { productId: product.id } }" type="button">
+                                    :to="{ name: 'ProductUpdate', params: { productId: item.id } }" type="button">
                                     <PencilIcon></PencilIcon>
                                 </RouterLink>
                                 <button class="admin-list-table__control-button admin-list-table__control-button--delete"
-                                    type="button" @click="deleteProduct(product.id)">
+                                    type="button" @click="deleteProduct(item.id)">
                                     <TrashCanCircleIcon></TrashCanCircleIcon>
                                 </button>
                             </td>
                         </tr>
-                        <tr>
-                            <td>
-                                <label class="checkbox">
-                                    <input type="checkbox" name="product-control-selection" ref="allItemsCheckboxBottom"
-                                        :checked="isAllChecked" @change="selectAllItems">
-                                    <div class="checkbox__box"></div>
-                                </label>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <button class="admin-list-table__control-button admin-list-table__control-button--delete"
-                                    :disabled="selectedItems.length < 1" type="button" @click="deleteAllSelected">
-                                    <TrashCanCircleIcon></TrashCanCircleIcon>
-                                </button>
-                            </td>
-                        </tr>
-                    </table>
+                    </AdminListTable>
                 </div>
                 <div class="admin-list-table__pagination">
-                    <ListPagination ref="paginationComponent" v-model="products" v-model:error="error"
-                        v-model:isLoading="isLoading" v-model:count="productsCount" :loadLink="loadLink" :pagesLimit="8"
+                    <ListPagination ref="paginationComponent" v-model="list" v-model:error="error"
+                        v-model:isLoading="isLoading" v-model:count="listCount" :loadLink="loadLink" :pagesLimit="8"
                         :limit="10" :filters="filters" allData></ListPagination>
                 </div>
             </div>
@@ -170,6 +132,7 @@ import ValueSelect from '@/components/inputs/ValueSelect.vue'
 import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import ListPagination from '@/components/pagination/ListPagination.vue'
 import ConfirmModal from '@/components/modals/ConfirmModal.vue'
+import AdminListTable from '@/components/tables/AdminListTable.vue'
 import { useModalsStore } from '@/stores/modals.js'
 import { useNotificationsStore } from '@/stores/notifications.js'
 import { h } from 'vue'
@@ -183,13 +146,14 @@ export default {
         ValueSelect,
         LoadingScreen,
         ListPagination,
-        ConfirmModal
+        ConfirmModal,
+        AdminListTable
     },
     data() {
         return {
-            products: [],
+            list: [],
             error: '',
-            productsCount: 0,
+            listCount: 0,
             selectedItems: [],
             isLoading: false,
             filters: {
@@ -206,10 +170,6 @@ export default {
         loadLink() {
             return import.meta.env.VITE_PRODUCTS_GET_LINK
         },
-        isAllChecked() {
-            return this.selectedItems.length === this.products.length
-                && this.selectedItems.length !== 0
-        }
     },
     methods: {
         updateProducts() {
@@ -243,12 +203,12 @@ export default {
 
                 this.isLoading = false
             }
-            const product = this.products.find(obj => obj.id === id)
-            if (!product)
+            const item = this.list.find(obj => obj.id === id)
+            if (!item)
                 return
 
             const modalComponent = h(ConfirmModal, {
-                title: `Удалить товар "${product.name}"?`,
+                title: `Удалить товар "${item.name}"?`,
                 confirmProps: {
                     text: 'Удалить',
                     callback
@@ -301,10 +261,5 @@ export default {
             useModalsStore().addModal({ component: modalComponent })
         },
     },
-    watch: {
-        products() {
-            this.selectedItems = []
-        }
-    }
 }
 </script>

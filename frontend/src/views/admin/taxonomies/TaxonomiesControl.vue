@@ -22,29 +22,15 @@
                     </Transition>
                 </div>
                 <div class="admin-list-table__container">
-                    <table class="admin-list-table__table" ref="table">
-                        <tr>
+                    <AdminListTable v-model="list" v-model:selectedItems="selectedItems" :columnsCount="3" addable
+                        ref="adminListTable" @deleteSelected="deleteAllSelected">
+                        <template v-slot:thead>
                             <th></th>
                             <th>Название</th>
                             <th>Действие</th>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label class="checkbox">
-                                    <input type="checkbox" name="taxonomy-control-selection" ref="allItemsCheckboxTop"
-                                        :checked="isAllChecked" @change="selectAllItems">
-                                    <div class="checkbox__box"></div>
-                                </label>
-                            </td>
-                            <td></td>
-                            <td>
-                                <button class="admin-list-table__control-button admin-list-table__control-button--delete"
-                                    :disabled="selectedItems.length < 1" type="button" @click="deleteAllSelected">
-                                    <TrashCanCircleIcon></TrashCanCircleIcon>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr v-for="(item, index) in list" :key="item.id" :class="{ '__not-saved': listCreated.find(o => o.id === item.id) }">
+                        </template>
+                        <tr v-for="(item, index) in list" :key="item.id" :class="{ '__not-saved': isCreated(item.id) }"
+                            ref="tr">
                             <td>
                                 <label class="checkbox">
                                     <input type="checkbox" name="taxonomy-control-selection" :value="item.id"
@@ -67,17 +53,7 @@
                                 </button>
                             </td>
                         </tr>
-                        <tr>
-                            <td></td>
-                            <td>
-                                <button class="admin-list-table__add-button" type="button" @click="addItem">
-                                    <PlusIcon></PlusIcon>
-                                    Добавить
-                                </button>
-                            </td>
-                            <td></td>
-                        </tr>
-                    </table>
+                    </AdminListTable>
                     <div class="admin-list-table__pagination">
                         <ListPagination ref="paginationComponent" v-model="list" v-model:error="error"
                             v-model:isLoading="isLoading" v-model:count="totalCount" :loadLink="loadLink" :pagesLimit="8"
@@ -94,12 +70,14 @@ import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
 import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import ListPagination from '@/components/pagination/ListPagination.vue'
 import ConfirmModal from '@/components/modals/ConfirmModal.vue'
+import AdminListTable from '@/components/tables/AdminListTable.vue'
+import { isCreated, deleteFromArrays } from '@/components/tables/admin-list-table-methods.js'
 import { useModalsStore } from '@/stores/modals.js'
 import { useNotificationsStore } from '@/stores/notifications.js'
 import { h, nextTick } from 'vue'
 import axios from 'axios'
 import { selectAllItems } from '@/assets/js/methods.js'
-import { isNumeric, generateRandom, handleAjaxError, removeFromArrayById } from '@/assets/js/scripts.js'
+import { handleAjaxError } from '@/assets/js/scripts.js'
 
 export default {
     name: 'TaxonomiesControl',
@@ -108,11 +86,11 @@ export default {
         TextInputWrapper,
         LoadingScreen,
         ListPagination,
-        ConfirmModal
+        ConfirmModal,
+        AdminListTable
     },
     data() {
         return {
-            createdPrefix: 'created_',
             isLoading: false,
             totalCount: 0,
             filters: {
@@ -121,8 +99,6 @@ export default {
             error: '',
             selectedItems: [],
             list: [],
-            listCreated: [],
-            listCreatedHidden: []
         }
     },
     computed: {
@@ -144,60 +120,26 @@ export default {
                     return { title: 'Статус товара', titleGenitive: 'статусов товра' }
             }
         },
-        isAllChecked() {
-            return this.selectedItems.length === this.list.length
-                && this.selectedItems.length !== 0
-        }
     },
     methods: {
+        isCreated,
+        deleteFromArrays,
         updateList() {
             this.$refs.paginationComponent.loadList(true)
             this.selectedItems = this.selectedItems.filter(id => list.find(o => o.id === parseInt(id)))
         },
         selectAllItems,
-        /* добавит в this.list элементы из this.listCreated и отсортирует так, чтобы элементы с listCreated были в конце */
-        sortList() {
-            this.listCreated.forEach(obj => {
-                const isInList = this.list.find(o => o.id === obj.id)
-                if (isInList)
-                    return
-                this.list.push(obj)
-            })
-
-            this.list = this.list.sort((obj1, obj2) => {
-                const firstIsCreated = obj1.name.includes(this.createdPrefix)
-                const secondIsCreated = obj2.name.includes(this.createdPrefix)
-                if (firstIsCreated && secondIsCreated)
-                    return 0
-                if (firstIsCreated && !secondIsCreated)
-                    return 1
-                if (!firstIsCreated && secondIsCreated)
-                    return -1
-            })
-        },
         adjustTextarea(eventOrAll) {
             if (eventOrAll === 'all') {
-                this.$refs.table.querySelectorAll('textarea')
-                    .forEach(textarea => this.adjustTextarea({ target: textarea }))
+                this.$refs.tr.forEach(tr => {
+                    tr.querySelectorAll('textarea')
+                        .forEach(textarea => this.adjustTextarea({ target: textarea }))
+                })
             } else {
                 const textarea = eventOrAll.target
                 textarea.style.height = '1px'
                 textarea.style.height = `${textarea.scrollHeight}px`
             }
-        },
-        addItem() {
-            const usedIds = this.listCreated.map(obj => {
-                if (isNumeric(obj.id))
-                    return null
-
-                return obj.id.toString().replace(this.createdPrefix, '')
-            }).filter(id => id)
-            const obj = {
-                id: this.createdPrefix + generateRandom(usedIds),
-                name: '',
-            }
-            this.list.push(obj)
-            this.listCreated.push(obj)
         },
         async saveItem(id) {
             this.error = ''
@@ -213,7 +155,7 @@ export default {
 
                 try {
                     await axios.post(link, { name: item.name })
-                    removeFromArrayById(this.listCreated, id)
+                    this.deleteFromArrays(id)
                     this.updateList()
                 } catch (err) {
                     handleAjaxError(err, this)
@@ -238,8 +180,7 @@ export default {
             const callback = async () => {
                 // если это добавленный элемент - просто удалить из массивов
                 if (itemId.toString().includes(this.createdPrefix)) {
-                    removeFromArrayById(this.listCreated, itemId)
-                    removeFromArrayById(this.list, itemId)
+                    this.deleteFromArrays(itemId)
                 }
                 // если это элемент из БД, удалить через бекенд
                 else {
@@ -280,34 +221,47 @@ export default {
                 })
             })
         },
-        async deleteAllSelected() {
-            this.error = ''
+        deleteAllSelected() {
+            const callback = async () => {
+                this.error = ''
 
-            const idsList = []
-            this.selectedItems.forEach(id => {
-                if (id.toString().includes(this.createdPrefix)) {
-                    removeFromArrayById(this.selectedItems, id)
-                    removeFromArrayById(this.listCreated, id)
-                } else
-                    idsList.push(id)
-            })
+                const idsList = []
+                this.selectedItems.forEach(id => {
+                    if (id.toString().includes(this.createdPrefix)) {
+                        this.deleteFromArrays(id)
+                    } else
+                        idsList.push(id)
+                })
 
-            if (idsList.length > 0) {
-                const link = `${import.meta.env.VITE_TAXONOMY_DELETE_LINK}${this.taxonomyName}`
+                if (idsList.length > 0) {
+                    const link = `${import.meta.env.VITE_TAXONOMY_DELETE_LINK}${this.taxonomyName}`
 
-                try {
-                    const res = await axios.delete(link, { data: { idsList } })
-                    if (res.data.message) {
-                        useNotificationsStore().addNotification({
-                            timeout: 5000,
-                            message: res.data.message
-                        })
+                    try {
+                        const res = await axios.delete(link, { data: { idsList } })
+                        if (res.data.message) {
+                            useNotificationsStore().addNotification({
+                                timeout: 5000,
+                                message: res.data.message
+                            })
+                        }
+                        this.updateList()
+                    } catch (err) {
+                        handleAjaxError(err, this)
                     }
-                    this.updateList()
-                } catch (err) {
-                    handleAjaxError(err, this)
                 }
             }
+
+            useModalsStore().addModal({
+                component: h(ConfirmModal,
+                    {
+                        title: `Выбрано ${this.taxonomyTitle.titleGenitive}: ${this.selectedItems.length}. Удалить их?`,
+                        confirmProps: {
+                            text: 'Удалить',
+                            callback
+                        },
+                    }
+                )
+            })
         }
     },
     watch: {
@@ -321,12 +275,9 @@ export default {
             deep: true,
             async handler() {
                 await nextTick()
-                this.sortList()
                 this.adjustTextarea('all')
             }
         },
     },
 }
 </script>
-
-<style></style>

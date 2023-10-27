@@ -91,12 +91,12 @@ class Product extends FilterableModel
             return $product;
 
         $info = ProductInfo::where('product_id', $product->id)
-            ->get(['id', 'name', 'value']);
+            ->get(['product_info.id', 'product_info.name', 'product_info.value']);
         $images = ProductImage::leftJoin('images', 'product_images.image_id', '=', 'images.id')
             ->where('product_id', $product->id)
             ->get(['product_images.id', 'images.id as image_id', 'images.path']);
         $variations = Variation::where('product_id', $product->id)
-            ->get(['id', 'name']);
+            ->get(['variation.id', 'variation.name']);
 
         $productVariations = [];
         foreach ($variations as $variationModel) {
