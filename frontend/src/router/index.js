@@ -39,6 +39,14 @@ const router = createRouter({
                     component: () => import('@/views/admin/products/ProductCreate.vue')
                 },
                 {
+                    path: 'role/:pageNumber?',
+                    name: 'RolesControl',
+                    component: () => import('@/views/admin/roles/RolesControl.vue'),
+                    meta: {
+                        hasPageNumber: true
+                    }
+                },
+                {
                     path: 'taxonomies-control/:taxonomyName/:pageNumber?',
                     name: 'TaxonomiesControl',
                     component: () => import('@/views/admin/taxonomies/TaxonomiesControl.vue'),

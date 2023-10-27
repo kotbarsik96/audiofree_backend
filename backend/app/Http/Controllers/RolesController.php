@@ -10,6 +10,7 @@ use App\Models\Role;
 use Illuminate\Validation\Rule;
 use App\Exceptions\AuthExceptions;
 use App\Models\User;
+use App\Filters\RolesFilter;
 
 class RolesController extends Controller
 {
@@ -23,6 +24,21 @@ class RolesController extends Controller
             'name.unique' => 'Роль с таким названием уже существует',
             'priority.numeric' => 'Приоритет роли должен быть числовым'
         ]);
+    }
+
+    public function filter(RolesFilter $queryFilter)
+    {
+        $request = $queryFilter->request;
+        $limit = $request->query('limit') ?? null;
+        $offset = $request->query('offset') ?? null;
+
+        $filtered = Role::filter($queryFilter)
+            ->select(['id', 'name', 'priority']);
+        $count = $filtered->count();
+        return [
+            'result' => $filtered->offsetLimit($limit, $offset)->get(),
+            'total_count' => $count
+        ];
     }
 
     public static function getNotExistingPriority()
@@ -70,19 +86,46 @@ class RolesController extends Controller
         return $role;
     }
 
-    public function delete(Request $request, $id)
+    public function handleDelete(Request $request, $id = null)
     {
         if (!User::hasRight($request->cookie('user'), 'delete_role', $request))
             return RolesExceptions::noRightsResponse();
 
+        if (is_numeric($id)) {
+            $res = $this->delete($id);
+            $code = array_key_exists('code', $res) ? $res['code'] ?? 200 : 200;
+            unset($res['code']);
+            return response($res, $code);
+        } else {
+            $deleted = [];
+            $errors = [];
+            $queries = $request->all();
+            $list = array_key_exists('idsList', $queries) ? $queries['idsList'] : [];
+            foreach ($list as $id) {
+                $res = $this->delete($id);
+                if ($res['error'])
+                    array_push($errors, $res['error']);
+                else
+                    array_push($deleted, $res['message']);
+            }
+            return response([
+                'deleted' => $deleted,
+                'errors' => $errors,
+                'message' => 'Было удалено ролей: ' . count($deleted) . ' из ' . count($list)
+            ]);
+        }
+    }
+
+    public function delete($id)
+    {
         $role = Role::find($id);
         if (empty($role))
-            return response(['error' => RolesExceptions::roleNotExists()->getMessage()], 400);
+            return ['error' => RolesExceptions::roleNotExists()->getMessage(), 'code' => 400];
 
         $roleName = $role->name;
 
         $role->delete();
-        return ['success' => true, 'message' => 'Успешно удалено: роль ' . $roleName];
+        return ['success' => true, 'message' => 'Успешно удалено: роль ' . $roleName, 'error' => false];
     }
 
     /* если указать в $request->query('noError'), будет возвращен обычный ответ, без ошибки */

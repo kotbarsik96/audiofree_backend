@@ -1,4 +1,5 @@
 import { isNumeric } from './scripts.js'
+import { adjustTextarea } from './scripts.js'
 
 /* требуется, чтобы в data был прописан объект matchMediaMatches такого вида:
     matchMediaMatches: {
@@ -32,10 +33,4 @@ export function setMatchMedia() {
         Object.keys(this.matchMediaMatches.min)
             .forEach(mediaValue => forEachCallback(mediaValue, 'min'))
     }
-}
-
-export function selectAllItems(event) {
-    this.selectedItems = []
-    if (event.target.checked)
-        this.selectedItems = this.list.map(obj => obj.id)
 }

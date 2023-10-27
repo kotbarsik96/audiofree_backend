@@ -154,3 +154,28 @@ export function removeFromArrayById(array, id) {
     array.splice(index, 1)
     return true
 }
+
+export function adjustTextarea(textareaOrEvent) {
+    if (!textareaOrEvent)
+        return
+
+    let textarea = textareaOrEvent
+    if (!textarea.tagName)
+        textarea = textareaOrEvent.target
+
+    if (!textarea)
+        return
+
+    textarea.style.height = '1px'
+    textarea.style.height = `${textarea.scrollHeight}px`
+}
+
+export function adjustTextareas(relative, selector = 'textarea') {
+    if (!relative)
+        return
+    if (typeof relative.querySelectorAll !== 'function')
+        return
+
+    const elements = relative.querySelectorAll(selector)
+    elements.forEach(textarea => adjustTextarea(textarea))
+}

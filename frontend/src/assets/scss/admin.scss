@@ -86,8 +86,8 @@
         border-bottom: 1px solid #bababa;
     }
 
-    &__nav-item>button,
-    &__nav-expanded-item>a {
+    &__nav-item button,
+    &__nav-item a{
         display: block;
         padding: 10px;
     }

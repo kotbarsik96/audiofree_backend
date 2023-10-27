@@ -7,13 +7,18 @@
                     Название
                 </template>
             </TextInputWrapper>
+            <TextInputWrapper name="priority" id="priority" v-model="filters.priority">
+                <template v-slot:label>
+                    Приоритет
+                </template>
+            </TextInputWrapper>
         </div>
         <div class="admin-page__listing">
             <div class="admin-list-table">
                 <div class="admin-list-table__heading">
                     <ListIcon></ListIcon>
                     <span>
-                        Список {{ taxonomyTitle.titleGenitive }} (всего: {{ totalCount }})
+                        Список ролей (всего: {{ totalCount }})
                     </span>
                     <Transition name="grow">
                         <span v-if="error" class="error">
@@ -22,11 +27,12 @@
                     </Transition>
                 </div>
                 <div class="admin-list-table__container" ref="tableContainer">
-                    <AdminListTable v-model="list" v-model:selectedItems="selectedItems" :columnsCount="3" addable
+                    <AdminListTable v-model="list" v-model:selectedItems="selectedItems" :columnsCount="4" addable
                         ref="adminListTable" @deleteSelected="deleteAllSelected">
                         <template v-slot:thead>
                             <th></th>
                             <th>Название</th>
+                            <th>Приоритет</th>
                             <th>Действие</th>
                         </template>
                         <tr v-for="(item, index) in list" :key="item.id" :class="{ '__not-saved': isCreated(item.id) }"
@@ -40,6 +46,10 @@
                             </td>
                             <td>
                                 <textarea placeholder="Введите значение" v-model="list[index].name"
+                                    @keyup="adjustTextarea"></textarea>
+                            </td>
+                            <td>
+                                <textarea placeholder="Введите значение" v-model="list[index].priority"
                                     @keyup="adjustTextarea"></textarea>
                             </td>
                             <td>
@@ -80,21 +90,22 @@ import axios from 'axios'
 import { handleAjaxError } from '@/assets/js/scripts.js'
 
 export default {
-    name: 'TaxonomiesControl',
-    emits: ['updateRouteKey'],
+    name: 'RolesControl',
     components: {
         TextInputWrapper,
         LoadingScreen,
         ListPagination,
         ConfirmModal,
-        AdminListTable
+        AdminListTable,
     },
+    emits: ['updateRouteKey'],
     data() {
         return {
             isLoading: false,
             totalCount: 0,
             filters: {
-                name: ''
+                name: '',
+                priority: ''
             },
             error: '',
             selectedItems: [],
@@ -103,32 +114,17 @@ export default {
     },
     computed: {
         loadLink() {
-            return `${import.meta.env.VITE_TAXONOMIES_GET_LINK}/${this.taxonomyName}`
-        },
-        taxonomyName() {
-            return this.$route.params.taxonomyName
-        },
-        taxonomyTitle() {
-            switch (this.$route.params.taxonomyName) {
-                case 'brand':
-                    return { title: 'Бренд', titleGenitive: 'брендов' }
-                case 'type':
-                    return { title: 'Тип', titleGenitive: 'типов' }
-                case 'category':
-                    return { title: 'Категория', titleGenitive: 'категорий' }
-                case 'product_status':
-                    return { title: 'Статус товара', titleGenitive: 'статусов товра' }
-            }
+            return `${import.meta.env.VITE_ROLES_GET_LINK}`
         },
     },
     methods: {
         isCreated,
+        adjustTextarea,
         deleteFromArrays,
         updateList() {
             this.$refs.paginationComponent.loadList(true)
             this.selectedItems = this.selectedItems.filter(id => list.find(o => o.id === parseInt(id)))
         },
-        adjustTextarea,
         async saveItem(id) {
             this.error = ''
 
@@ -139,7 +135,7 @@ export default {
             this.isLoading = true
             // добавить новый
             if (this.isCreated(id)) {
-                const link = `${import.meta.env.VITE_TAXONOMY_CREATE_LINK}${this.taxonomyName}`
+                const link = `${import.meta.env.VITE_ROLE_CREATE_LINK}`
 
                 try {
                     await axios.post(link, { name: item.name })
@@ -152,10 +148,10 @@ export default {
             }
             // обновить существующий
             else {
-                const link = `${import.meta.env.VITE_TAXONOMY_UPDATE_LINK}${this.taxonomyName}/${id}`
+                const link = `${import.meta.env.VITE_ROLE_UPDATE_LINK}${id}`
 
                 try {
-                    await axios.post(link, { name: item.name })
+                    await axios.post(link, { name: item.name, priority: item.priority })
                     this.updateList()
                 } catch (err) {
                     handleAjaxError(err, this)
@@ -172,7 +168,7 @@ export default {
                 }
                 // если это элемент из БД, удалить через бекенд
                 else {
-                    const link = `${import.meta.env.VITE_TAXONOMY_DELETE_LINK}${this.taxonomyName}/${itemId}`
+                    const link = `${import.meta.env.VITE_ROLE_DELETE_LINK}${itemId}`
 
                     try {
                         const res = await axios.delete(link)
@@ -201,7 +197,7 @@ export default {
 
             useModalsStore().addModal({
                 component: h(ConfirmModal, {
-                    title: `Удалить ${this.taxonomyTitle.title.toLowerCase()} "${item.name}"?`,
+                    title: `Удалить роль "${item.name}"?`,
                     confirmProps: {
                         text: 'Удалить',
                         callback
@@ -214,15 +210,15 @@ export default {
                 this.error = ''
 
                 const idsList = []
-                this.selectedItems.forEach(id => {
-                    if (id.toString().includes(this.createdPrefix)) {
+                this.selectedItems.forEach((id, index) => {
+                    if (this.isCreated(id)) {
                         setTimeout(() => this.deleteFromArrays(id), index * 50)
                     } else
                         idsList.push(id)
                 })
 
                 if (idsList.length > 0) {
-                    const link = `${import.meta.env.VITE_TAXONOMY_DELETE_LINK}${this.taxonomyName}`
+                    const link = `${import.meta.env.VITE_ROLE_DELETE_LINK}`
 
                     try {
                         const res = await axios.delete(link, { data: { idsList } })
@@ -242,7 +238,7 @@ export default {
             useModalsStore().addModal({
                 component: h(ConfirmModal,
                     {
-                        title: `Выбрано ${this.taxonomyTitle.titleGenitive}: ${this.selectedItems.length}. Удалить их?`,
+                        title: `Выбрано ролей: ${this.selectedItems.length}. Удалить их?`,
                         confirmProps: {
                             text: 'Удалить',
                             callback
@@ -268,5 +264,9 @@ export default {
             }
         },
     },
+    async mounted() {
+        await nextTick()
+        adjustTextareas(this.$refs.tr)
+    }
 }
 </script>

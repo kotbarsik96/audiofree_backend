@@ -44,9 +44,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // админские привилегии
     Route::post('/users/update/role/{roleId}', [UsersController::class, 'updateRole']);
 
+    Route::get('/roles', [RolesController::class, 'filter']);
     Route::post('/roles/create', [RolesController::class, 'store']);
     Route::post('/roles/update/{id}', [RolesController::class, 'update']);
-    Route::delete('/roles/delete/{id}', [RolesController::class, 'delete']);
+    Route::delete('/roles/delete/{id}', [RolesController::class, 'handleDelete']);
+    Route::delete('/roles/delete', [RolesController::class, 'handleDelete']);
 
     Route::post('/taxonomy/create/{taxName}', [TaxonomiesController::class, 'storeOrUpdate']);
     Route::post('/taxonomy/update/{taxName}/{id}', [TaxonomiesController::class, 'storeOrUpdate']);
