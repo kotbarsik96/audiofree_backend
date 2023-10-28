@@ -31,8 +31,6 @@ export const useModalsStore = defineStore('modals', {
             const index = this.modals.findIndex(data => data.id === modalId)
             if (index >= 0)
                 this.modals.splice(index, 1)
-            else 
-                this.modals.splice(0, 1)
         }
     }
 })
