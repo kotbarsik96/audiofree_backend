@@ -16,7 +16,7 @@
                 <ul v-show="isShown" class="select__list">
                     <li v-for="obj in valuesComputed" class="select__item">
                         <label class="select__item-label">
-                            <input type="radio" :name="name" :value="obj.value" v-model="value" ref="input">
+                            <input type="radio" :name="name" :value="obj.value" :data-checked="value === obj.value" v-model="value" ref="input">
                             <span>
                                 {{ obj.string }}
                             </span>
@@ -31,7 +31,6 @@
 <script>
 import { gsap } from 'gsap'
 import { getHeight } from '@/assets/js/scripts.js'
-import { nextTick } from 'vue'
 
 export default {
     name: 'ValueSelect',
@@ -85,6 +84,8 @@ export default {
         }
     },
     mounted() {
+        if(this.modelValue)
+            this.value = this.modelValue
         window.addEventListener('click', this.onDocumentClick)
     },
     beforeUnmount() {
@@ -135,13 +136,6 @@ export default {
         modelValue() {
             this.value = this.modelValue
         },
-        isShown() {
-            if (this.isShown) {
-                const input = this.$refs.input.find(i => i.value === this.value)
-                if (input)
-                    nextTick().then(() => input.checked = true)
-            }
-        }
     }
 }
 </script>
@@ -252,7 +246,8 @@ export default {
             display: none;
         }
 
-        input:checked+span {
+        input:checked+span,
+        input[data-checked='true']+span {
             background-color: var(--admin_panel_color);
             color: #fff;
         }
