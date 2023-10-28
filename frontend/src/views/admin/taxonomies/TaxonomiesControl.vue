@@ -8,10 +8,10 @@
                 </template>
             </TextInputWrapper>
         </div>
-        <div class="admin-page__listing">
-            <div class="admin-list-table">
-                <div class="admin-list-table__heading">
-                    <ListIcon></ListIcon>
+        <div class="admin-page__listing" ref="tableContainer">
+            <AdminListTable v-model="list" v-model:selectedItems="selectedItems" :columnsCount="3" addable
+                ref="adminListTable" @deleteSelected="deleteAllSelected">
+                <template v-slot:containerHeading>
                     <span>
                         Список {{ taxonomyTitle.titleGenitive }} (всего: {{ totalCount }})
                     </span>
@@ -20,47 +20,39 @@
                             {{ error }}
                         </span>
                     </Transition>
-                </div>
-                <div class="admin-list-table__container" ref="tableContainer">
-                    <AdminListTable v-model="list" v-model:selectedItems="selectedItems" :columnsCount="3" addable
-                        ref="adminListTable" @deleteSelected="deleteAllSelected">
-                        <template v-slot:thead>
-                            <th></th>
-                            <th>Название</th>
-                            <th>Действие</th>
-                        </template>
-                        <tr v-for="(item, index) in list" :key="item.id" :class="{ '__not-saved': isCreated(item.id) }"
-                            ref="tr">
-                            <td>
-                                <label class="checkbox">
-                                    <input type="checkbox" name="taxonomy-control-selection" :value="item.id"
-                                        v-model="selectedItems" :checked="selectedItems.includes(item.id)">
-                                    <div class="checkbox__box"></div>
-                                </label>
-                            </td>
-                            <td>
-                                <textarea placeholder="Введите значение" v-model="list[index].name"
-                                    @keyup="adjustTextarea"></textarea>
-                            </td>
-                            <td>
-                                <button class="admin-list-table__control-button admin-list-table__control-button--save"
-                                    type="button" @click="saveItem(item.id)">
-                                    <SaveIcon></SaveIcon>
-                                </button>
-                                <button class="admin-list-table__control-button admin-list-table__control-button--delete"
-                                    type="button" @click="deleteItem(item.id)">
-                                    <TrashCanCircleIcon></TrashCanCircleIcon>
-                                </button>
-                            </td>
-                        </tr>
-                    </AdminListTable>
-                    <div class="admin-list-table__pagination">
-                        <ListPagination ref="paginationComponent" v-model="list" v-model:error="error"
-                            v-model:isLoading="isLoading" v-model:count="totalCount" :loadLink="loadLink" :pagesLimit="8"
-                            :limit="10" :filters="filters" allData></ListPagination>
-                    </div>
-                </div>
-            </div>
+                </template>
+                <template v-slot:thead>
+                    <th></th>
+                    <th>Название</th>
+                    <th>Действие</th>
+                </template>
+                <tr v-for="(item, index) in list" :key="item.id" :class="{ '__not-saved': isCreated(item.id) }" ref="tr">
+                    <td>
+                        <label class="checkbox">
+                            <input type="checkbox" name="taxonomy-control-selection" :value="item.id"
+                                v-model="selectedItems" :checked="selectedItems.includes(item.id)">
+                            <div class="checkbox__box"></div>
+                        </label>
+                    </td>
+                    <td>
+                        <textarea placeholder="Введите значение" v-model="list[index].name"
+                            @keyup="adjustTextarea"></textarea>
+                    </td>
+                    <td>
+                        <button class="admin-list-table__control-button admin-list-table__control-button--save"
+                            type="button" @click="saveItem(item.id)">
+                            <SaveIcon></SaveIcon>
+                        </button>
+                        <button class="admin-list-table__control-button admin-list-table__control-button--delete"
+                            type="button" @click="deleteItem(item.id)">
+                            <TrashCanCircleIcon></TrashCanCircleIcon>
+                        </button>
+                    </td>
+                </tr>
+            </AdminListTable>
+            <ListPagination ref="paginationComponent" v-model="list" v-model:error="error" v-model:isLoading="isLoading"
+                v-model:count="totalCount" :loadLink="loadLink" :pagesLimit="8" :limit="10" :filters="filters" allData>
+            </ListPagination>
         </div>
     </div>
 </template>

@@ -38,9 +38,9 @@
             </TextInputWrapper>
         </div>
         <div class="admin-page__listing">
-            <div class="admin-list-table">
-                <div class="admin-list-table__heading">
-                    <ListIcon></ListIcon>
+            <AdminListTable v-model="list" v-model:selectedItems="selectedItems" :columnsCount="7"
+                @deleteSelected="deleteAllSelected">
+                <template v-slot:containerHeading>
                     <span>
                         Список товаров (всего: {{ listCount }})
                     </span>
@@ -49,79 +49,73 @@
                             {{ error }}
                         </span>
                     </Transition>
-                </div>
-                <div class="admin-list-table__container">
-                    <AdminListTable v-model="list" v-model:selectedItems="selectedItems" :columnsCount="7" @deleteSelected="deleteAllSelected">
-                        <template v-slot:thead>
-                            <th></th>
-                            <th>
-                                Изображение
-                            </th>
-                            <th>
-                                Наименование
-                            </th>
-                            <th>
-                                Цена
-                            </th>
-                            <th>
-                                Количество
-                            </th>
-                            <th>
-                                Статус
-                            </th>
-                            <th>
-                                Действие
-                            </th>
-                        </template>
-                        <tr v-for="item in list" :key="item.id">
-                            <td>
-                                <label class="checkbox">
-                                    <input type="checkbox" :checked="selectedItems.includes(item.id)"
-                                        name="product-control-selection" :value="item.id" v-model="selectedItems">
-                                    <div class="checkbox__box"></div>
-                                </label>
-                            </td>
-                            <td>
-                                <img :src="getImageSrc(item.image_path)" :alt="item.image_path">
-                            </td>
-                            <td>
-                                {{ item.name }}
-                                <br>
-                                {{ item.id }}
-                            </td>
-                            <td class="prices">
-                                <span class="price-current">
-                                    {{ item.current_price }}₽
-                                </span>
-                                <span v-if="item.discount_price" class="price-old">
-                                    {{ item.price }}₽
-                                </span>
-                            </td>
-                            <td>
-                                {{ item.quantity || 1 }}
-                            </td>
-                            <td>
-                                {{ item.product_status }}
-                            </td>
-                            <td>
-                                <RouterLink class="admin-list-table__control-button admin-list-table__control-button--edit"
-                                    :to="{ name: 'ProductUpdate', params: { productId: item.id } }" type="button">
-                                    <PencilIcon></PencilIcon>
-                                </RouterLink>
-                                <button class="admin-list-table__control-button admin-list-table__control-button--delete"
-                                    type="button" @click="deleteProduct(item.id)">
-                                    <TrashCanCircleIcon></TrashCanCircleIcon>
-                                </button>
-                            </td>
-                        </tr>
-                    </AdminListTable>
-                </div>
-                <div class="admin-list-table__pagination">
-                    <ListPagination ref="paginationComponent" v-model="list" v-model:error="error"
-                        v-model:isLoading="isLoading" v-model:count="listCount" :loadLink="loadLink" :pagesLimit="8"
-                        :limit="10" :filters="filters" allData></ListPagination>
-                </div>
-            </div>
+                </template>
+                <template v-slot:thead>
+                    <th></th>
+                    <th>
+                        Изображение
+                    </th>
+                    <th>
+                        Наименование
+                    </th>
+                    <th>
+                        Цена
+                    </th>
+                    <th>
+                        Количество
+                    </th>
+                    <th>
+                        Статус
+                    </th>
+                    <th>
+                        Действие
+                    </th>
+                </template>
+                <tr v-for="item in list" :key="item.id">
+                    <td>
+                        <label class="checkbox">
+                            <input type="checkbox" :checked="selectedItems.includes(item.id)"
+                                name="product-control-selection" :value="item.id" v-model="selectedItems">
+                            <div class="checkbox__box"></div>
+                        </label>
+                    </td>
+                    <td>
+                        <img :src="getImageSrc(item.image_path)" :alt="item.image_path">
+                    </td>
+                    <td>
+                        {{ item.name }}
+                        <br>
+                        {{ item.id }}
+                    </td>
+                    <td class="prices">
+                        <span class="price-current">
+                            {{ item.current_price }}₽
+                        </span>
+                        <span v-if="item.discount_price" class="price-old">
+                            {{ item.price }}₽
+                        </span>
+                    </td>
+                    <td>
+                        {{ item.quantity || 1 }}
+                    </td>
+                    <td>
+                        {{ item.product_status }}
+                    </td>
+                    <td>
+                        <RouterLink class="admin-list-table__control-button admin-list-table__control-button--edit"
+                            :to="{ name: 'ProductUpdate', params: { productId: item.id } }" type="button">
+                            <PencilIcon></PencilIcon>
+                        </RouterLink>
+                        <button class="admin-list-table__control-button admin-list-table__control-button--delete"
+                            type="button" @click="deleteProduct(item.id)">
+                            <TrashCanCircleIcon></TrashCanCircleIcon>
+                        </button>
+                    </td>
+                </tr>
+            </AdminListTable>
+            <ListPagination ref="paginationComponent" v-model="list" v-model:error="error" v-model:isLoading="isLoading"
+                v-model:count="listCount" :loadLink="loadLink" :pagesLimit="8" :limit="10" :filters="filters" allData>
+            </ListPagination>
         </div>
     </div>
 </template>
@@ -137,7 +131,6 @@ import { useModalsStore } from '@/stores/modals.js'
 import { useNotificationsStore } from '@/stores/notifications.js'
 import { h } from 'vue'
 import axios from 'axios'
-import { selectAllItems } from '@/assets/js/methods.js'
 
 export default {
     name: 'ProductsControl',
@@ -175,7 +168,6 @@ export default {
         updateProducts() {
             this.$refs.paginationComponent.loadList(true)
         },
-        selectAllItems,
         getImageSrc(imagePath) {
             return `${import.meta.env.VITE_LINK}${imagePath}`
         },

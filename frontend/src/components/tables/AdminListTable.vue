@@ -12,53 +12,63 @@
 -->
 
 <template>
-    <table class="admin-list-table__table" ref="table">
-        <tr ref="theadTr">
-            <slot name="thead"></slot>
-        </tr>
-        <tr>
-            <td>
-                <label class="checkbox">
-                    <input type="checkbox" name="taxonomy-control-selection" :checked="isAllChecked"
-                        @change="selectAllItems">
-                    <div class="checkbox__box"></div>
-                </label>
-            </td>
-            <td v-for="col in columnsCount - 2"></td>
-            <td>
-                <button class="admin-list-table__control-button admin-list-table__control-button--delete"
-                    :disabled="selectedItems.length < 1" type="button" @click="$emit('deleteSelected', selectedItems)">
-                    <TrashCanCircleIcon></TrashCanCircleIcon>
-                </button>
-            </td>
-        </tr>
-        <slot></slot>
-        <tr v-if="addable">
-            <td>
-                <button class="admin-list-table__add-button" type="button" @click="addItem">
-                    <PlusIcon></PlusIcon>
-                    Добавить
-                </button>
-            </td>
-            <td v-for="col in columnsCount - 1"></td>
-        </tr>
-        <tr v-else>
-            <td>
-                <label class="checkbox">
-                    <input type="checkbox" name="taxonomy-control-selection" :checked="isAllChecked"
-                        @change="selectAllItems">
-                    <div class="checkbox__box"></div>
-                </label>
-            </td>
-            <td v-for="col in columnsCount - 2"></td>
-            <td>
-                <button class="admin-list-table__control-button admin-list-table__control-button--delete"
-                    :disabled="selectedItems.length < 1" type="button" @click="$emit('deleteSelected', selectedItems)">
-                    <TrashCanCircleIcon></TrashCanCircleIcon>
-                </button>
-            </td>
-        </tr>
-    </table>
+    <div class="admin-list-table">
+        <div class="admin-list-table__heading">
+            <ListIcon></ListIcon>
+            <slot name="containerHeading"></slot>
+        </div>
+        <div class="admin-list-table__container">
+            <table class="admin-list-table__table" ref="table">
+                <tr ref="theadTr">
+                    <slot name="thead"></slot>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="checkbox">
+                            <input type="checkbox" name="taxonomy-control-selection" :checked="isAllChecked"
+                                @change="selectAllItems">
+                            <div class="checkbox__box"></div>
+                        </label>
+                    </td>
+                    <td v-for="col in columnsCount - 2"></td>
+                    <td>
+                        <button class="admin-list-table__control-button admin-list-table__control-button--delete"
+                            :disabled="selectedItems.length < 1" type="button"
+                            @click="$emit('deleteSelected', selectedItems)">
+                            <TrashCanCircleIcon></TrashCanCircleIcon>
+                        </button>
+                    </td>
+                </tr>
+                <slot></slot>
+                <tr v-if="addable">
+                    <td>
+                        <button class="admin-list-table__add-button" type="button" @click="addItem">
+                            <PlusIcon></PlusIcon>
+                            Добавить
+                        </button>
+                    </td>
+                    <td v-for="col in columnsCount - 1"></td>
+                </tr>
+                <tr v-else>
+                    <td>
+                        <label class="checkbox">
+                            <input type="checkbox" name="taxonomy-control-selection" :checked="isAllChecked"
+                                @change="selectAllItems">
+                            <div class="checkbox__box"></div>
+                        </label>
+                    </td>
+                    <td v-for="col in columnsCount - 2"></td>
+                    <td>
+                        <button class="admin-list-table__control-button admin-list-table__control-button--delete"
+                            :disabled="selectedItems.length < 1" type="button"
+                            @click="$emit('deleteSelected', selectedItems)">
+                            <TrashCanCircleIcon></TrashCanCircleIcon>
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </template>
 
 <script>
