@@ -1,7 +1,7 @@
 <template>
     <input class="text-input__input" v-model="value" :placeholder="placeholder" :type="type" :name="name" :id="id"
         :autocomplete="autocomplete" :maxlength="maxlength" ref="input" @focus="onFocus" @blur="onBlur" @input="onInput"
-        @keydown="onKeydown" @keyup.enter="onEnterKeyup">
+        @keyup.enter="onEnterKeyup">
 </template>
 
 <script>
@@ -47,7 +47,10 @@ export default {
         max: [Number, String],
         /* представляют собой методы String, например, toLocaleString. Можно передать массив, можно передать строку вида "toLocaleString|trim" */
         modifiers: [String, Array],
-        /* маска, в которую будет преобразовываться введенное значение. Например: '+7 (...) ... - .. - ..', где все символы точки заменятся на значения, взятые из input.value. Вместо точки можно указать другой символ/символы, тогда указать соответствующий maskSymbol */
+        /* маска, в которую будет преобразовываться введенное значение. Зарезервированные маски:
+            1. phone: '+7 (...) ... - .. - ..'
+        Зарезервированные маски работают корректнее, т.к. позволяют настроить getUnmaskedValue() правильно
+        Например: '+7 (...) ... - .. - ..', где все символы точки заменятся на значения, взятые из input.value. Вместо точки можно указать другой символ/символы, тогда указать соответствующий maskSymbol */
         mask: String,
         maskSymbol: {
             type: String,
@@ -97,43 +100,42 @@ export default {
             }
             else
                 return this.max
+        },
+        maskString() {
+            switch (this.mask) {
+                case 'phone':
+                    return '+7 (...) ... - .. - ..'
+                default: 
+                    return this.mask
+            }
         }
     },
     methods: {
         focus() {
             this.$refs.input.focus()
         },
-        // onKeydown(event) {
-        //     if (event.key.match(/delete|backspace/i))  
-        //         event.target.value = ''
-        // },
         onEnterKeyup(event) {
             event.preventDefault()
             event.stopPropagation()
         },
-        onInput(event) {
-            if (event.inputType.match(/delete/))
-                return
-
-            const input = event.target
-
+        onInput() {
             if (this.maxlength) {
-                const value = input.value.replace(/\D/g, '')
+                const value = this.value.replace(/\D/g, '')
                 if (this.numberonly && parseInt(value) > parseInt(this.max))
-                    input.value = this.max
+                    this.value = this.max
             }
 
-            this.doScopeSymbols(input)
-            this.doApplyModifiers(input)
-            this.doApplyMask(input)
+            this.doScopeSymbols()
+            this.doApplyModifiers()
+            this.doApplyMask(event)
         },
-        doScopeSymbols(input = this.$refs.input) {
+        doScopeSymbols() {
             if (!this.scopeSymbolsRegexp)
                 return
 
-            nextTick().then(() => input.value = input.value.replace(this.scopeSymbolsRegexp, ''))
+            nextTick().then(() => this.value = this.value.replace(this.scopeSymbolsRegexp, ''))
         },
-        doApplyModifiers(input = this.$refs.input) {
+        doApplyModifiers() {
             if (!this.modifiers)
                 return
 
@@ -145,7 +147,7 @@ export default {
                 : this.modifiers.split('|')
 
             array.forEach(modifier => {
-                let value = input.value
+                let value = this.value
                 const method = value[modifier]
                 if (typeof method !== 'function')
                     return
@@ -157,20 +159,17 @@ export default {
                 }
 
                 // без nextTick input.value как будто откатывается назад на один шаг
-                nextTick().then(() => input.value = value[modifier]())
+                nextTick().then(() => this.value = value[modifier]())
             })
         },
-        doApplyMask(input = this.$refs.input) {
-            if (!this.mask)
+        doApplyMask(event) {
+            if (event && event.inputType && event.inputType.match(/delete/))
+                return
+            if (!this.maskString)
                 return
 
-            let modifiedValue = this.mask
-            let clearValue = input.value
-            if (clearValue.length >= this.mask.indexOf(this.maskSymbol)) {
-                clearValue = clearValue.split('')
-                    .filter((s, index) => this.mask[index] === this.maskSymbol)
-                    .join('')
-            }
+            let modifiedValue = this.maskString
+            let clearValue = this.getUnmaskedValue()
 
             clearValue.split('')
                 .forEach(substr => modifiedValue = modifiedValue.replace(this.maskSymbol, substr))
@@ -179,7 +178,23 @@ export default {
                 modifiedValue = modifiedValue.slice(0, index)
             }
 
-            input.value = modifiedValue
+            this.value = modifiedValue
+        },
+        getUnmaskedValue() {
+            if (!this.maskString)
+                return this.value
+
+            switch (this.mask) {
+                case 'phone':
+                    return this.value.replace(/(\+7)|\(|\)|\-|\s/g, '')
+                default:
+                    if (this.value.length >= this.maskString.indexOf(this.maskSymbol)) {
+                        return this.value.split('')
+                            .filter((s, index) => this.maskString[index] === this.maskSymbol)
+                            .join('')
+                    }
+                    else return this.value
+            }
         }
     },
     watch: {
@@ -190,10 +205,12 @@ export default {
             this.$emit('update:modelValue', value)
         },
         modelValue() {
-            if (this.modelValue)
+            if (this.modelValue) {
                 this.value = this.modelValue
+                this.onInput()
+            }
         }
-    }
+    },
 }
 </script>
 
