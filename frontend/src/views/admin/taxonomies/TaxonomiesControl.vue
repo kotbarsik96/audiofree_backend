@@ -39,7 +39,7 @@
                             @keyup="adjustTextarea"></textarea>
                     </td>
                     <td>
-                        <button class="admin-list-table__control-button admin-list-table__control-button--save"
+                        <button v-if="isUnsaved(item.id)" class="admin-list-table__control-button admin-list-table__control-button--save"
                             type="button" @click="saveItem(item.id)">
                             <SaveIcon></SaveIcon>
                         </button>
@@ -50,7 +50,7 @@
                     </td>
                 </tr>
             </AdminListTable>
-            <ListPagination ref="paginationComponent" v-model="list" v-model:error="error" v-model:isLoading="isLoading"
+            <ListPagination ref="paginationComponent" @updateLoaded="getSavedList" v-model="list" v-model:error="error" v-model:isLoading="isLoading"
                 v-model:count="totalCount" :loadLink="loadLink" :pagesLimit="8" :limit="10" :filters="filters" allData>
             </ListPagination>
         </div>
@@ -63,7 +63,7 @@ import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import ListPagination from '@/components/pagination/ListPagination.vue'
 import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import AdminListTable from '@/components/tables/AdminListTable.vue'
-import { isCreated, deleteFromArrays } from '@/components/tables/admin-list-table-methods.js'
+import { isCreated, deleteFromArrays, updateList, getSavedList, isUnsaved } from '@/components/tables/admin-list-table-methods.js'
 import { adjustTextarea, adjustTextareas } from '@/assets/js/scripts.js'
 import { useModalsStore } from '@/stores/modals.js'
 import { useNotificationsStore } from '@/stores/notifications.js'
@@ -91,6 +91,7 @@ export default {
             error: '',
             selectedItems: [],
             list: [],
+            listSaved: {}
         }
     },
     computed: {
@@ -116,11 +117,10 @@ export default {
     methods: {
         isCreated,
         deleteFromArrays,
-        updateList() {
-            this.$refs.paginationComponent.loadList(true)
-            this.selectedItems = this.selectedItems.filter(id => list.find(o => o.id === parseInt(id)))
-        },
+        updateList,
         adjustTextarea,
+        getSavedList,
+        isUnsaved,
         async saveItem(id) {
             this.error = ''
 
