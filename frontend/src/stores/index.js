@@ -8,6 +8,7 @@ export const useIndexStore = defineStore('index', {
     state: () => {
         return {
             isUserLogged: false,
+            role: 999,
             products: [],
             currentRoute: null
         }
@@ -18,14 +19,17 @@ export const useIndexStore = defineStore('index', {
             return true
         },
         async checkAuth() {
-            if (this.isUserLogged)
-                return true
-
             const res = await axios(import.meta.env.VITE_AUTH_CHECK_LINK)
-            if (res.data.error || !res.data.success)
+            if (res.data.error || !res.data.success) {
+                this.role = 999
                 return false
+            }
 
             this.isUserLogged = true
+
+            if (res.data.role)
+                this.role = res.data.role
+
             return true
         },
         async checkPageAccess(page) {
@@ -51,6 +55,8 @@ export const useIndexStore = defineStore('index', {
                 const res = await axios.post(import.meta.env.VITE_AUTH_REGISTER_LINK, data)
                 if (res.data.success)
                     this.isUserLogged = true
+
+                this.checkAuth()
                 return res.data
             } catch (err) {
                 throw err
@@ -63,6 +69,9 @@ export const useIndexStore = defineStore('index', {
                 const res = await axios.post(import.meta.env.VITE_AUTH_LOGIN_LINK, data)
                 if (res.data.success)
                     this.isUserLogged = true
+
+                this.checkAuth()
+
                 return res.data
             } catch (err) {
                 throw err
@@ -75,6 +84,7 @@ export const useIndexStore = defineStore('index', {
                 useNotificationsStore().addNotification({
                     message: res.data.message
                 })
+                this.checkAuth()
                 return res
             } catch (err) {
                 throw err
@@ -92,5 +102,8 @@ export const useIndexStore = defineStore('index', {
                 throw err
             }
         }
+    },
+    getters: {
+        isAdmin: (state) => state.role <= 2
     }
 })

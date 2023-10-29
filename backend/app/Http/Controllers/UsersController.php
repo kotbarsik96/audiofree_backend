@@ -9,7 +9,8 @@ use App\Exceptions\AuthExceptions;
 use App\Exceptions\RolesExceptions;
 use App\Exceptions\UsersExceptions;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Controllers\AuthController;
+use App\Filters\UsersFilter;
+use App\Exceptions\CommonExceptions;
 
 class UsersController extends Controller
 {
@@ -67,5 +68,54 @@ class UsersController extends Controller
 
         $message = 'Роль пользователя ' . $user->email . ' успешно изменена: с ' . $oldRoleName . ' на ' . $newRole->name;
         return ['message' => $message];
+    }
+
+    public function filter(UsersFilter $queryFilter)
+    {
+        $request = $queryFilter->request;
+        $limit = $request->query('limit') ?? null;
+        $offset = $request->query('offset') ?? null;
+
+        $usersQuery = User::filter($queryFilter);
+        $totalCount = $usersQuery->count();
+
+        $usersQuery->offsetLimit($limit, $offset)
+            ->mainData();
+
+        return [
+            'result' => $usersQuery->get(),
+            'total_count' => $totalCount
+        ];
+    }
+
+    public function delete(Request $request)
+    {
+        if (!User::hasRight($request->cookie('user'), 'delete_user', $request))
+            return RolesExceptions::noRightsResponse();
+
+        $queries = $request->all();
+        if (!array_key_exists('idsList', $queries))
+            return CommonExceptions::incorrectDataResponse();
+
+        $ids = $queries['idsList'];
+
+        if (!is_array($ids))
+            return CommonExceptions::incorrectDataResponse();
+
+        $deleted = [];
+        foreach ($ids as $id) {
+            $user = User::find($id);
+            if (empty($user))
+                continue;
+
+            $email = $user->email;
+            $user->delete();
+            array_push($deleted, $email);
+        }
+
+        return response([
+            'success' => true,
+            'message' => 'Удалено: ' . count($deleted) . ' из ' . count($ids)
+        ]);
     }
 }

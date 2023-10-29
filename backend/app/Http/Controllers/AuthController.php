@@ -8,6 +8,7 @@ use App\Mail\ResetPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\AuthExceptions;
+use App\Exceptions\RolesExceptions;
 use App\Models\User;
 use App\Models\UserEntities\Cart;
 use App\Models\UserEntities\Favorite;
@@ -159,6 +160,33 @@ class AuthController extends Controller
             ->cookie(Cookie::forget('userAdd'));
     }
 
+    public function delete(Request $request, $id)
+    {
+        $isUserItself = (int) $request->cookie('id') === (int) $id;
+        if (empty($isUserItself)) {
+            $hasRight = User::hasRight($request->cookie('user'), 'delete_user', $request);
+            if (empty($hasRight))
+                return RolesExceptions::noRightsResponse();
+        }
+        // если пользователь пытается удалить свой аккаунт - удостовериться, что это он
+        else {
+            if (empty(User::authenticate($request)))
+                return RolesExceptions::noRightsResponse();
+        }
+
+        $user = User::find($id);
+        if (empty($user))
+            return response(['error' => AuthExceptions::userNotExists()->getMessage()], 400);
+
+        $email = $user->email;
+        $user->delete();
+        return [
+            'success' => true,
+            'message' => 'Пользователь ' . $email . ' удален',
+            'error' => false
+        ];
+    }
+
     public function changePassword(Request $request)
     {
         if (!User::authenticate($request))
@@ -193,7 +221,9 @@ class AuthController extends Controller
         if (!User::authenticate($request))
             return response(['success' => false, 'error' => 'Вы не авторизованы']);
 
-        return response(['success' => true, 'error' => false]);
+        $priority = User::getRolePriority($request->cookie('user'));
+
+        return response(['success' => true, 'role' => $priority, 'error' => false]);
     }
 
     public function resetPassword(Request $request)

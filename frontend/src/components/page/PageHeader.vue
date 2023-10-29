@@ -12,7 +12,7 @@
                         </RouterLink>
                     </DynamicAdaptive>
                     <div class="header__logo-description">
-                        Интернет магазин беспроводных наушников по РФ
+                        Интернет магазин наушников по РФ
                     </div>
                 </div>
                 <nav class="header__top-nav">
@@ -284,11 +284,8 @@ export default {
         this.onMediaChange()
     },
     computed: {
-        ...mapState(useIndexStore, ['isUserLogged']),
+        ...mapState(useIndexStore, ['isUserLogged', 'role', 'isAdmin']),
         isLogged() {
-            return true
-        },
-        isAdmin() {
             return true
         },
     },
