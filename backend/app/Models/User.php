@@ -8,16 +8,14 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
+use App\Models\FilterableModel;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filters\QueryFilter;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'email',
         'email_verified_at',
@@ -31,27 +29,45 @@ class User extends Authenticatable
         'role_id'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 
-    /* проверяет, авторизован ли пользователь на самом деле. В случае false можно вернуть AuthExceptions::checkAuthFailed(), это разавторизует пользователя, убрав куки 'user' и 'userAdd' */
+    public function scopeFilter(Builder $builder, QueryFilter $request)
+    {
+        $model = new FilterableModel();
+        return $model->scopeFilter($builder, $request);
+    }
+
+    public function scopeOffsetLimit(Builder $query, $limit, $offset)
+    {
+        $model = new FilterableModel();
+        return $model->scopeOffsetLimit($query, $limit, $offset);
+    }
+
+    public function scopeMainData(Builder $builder)
+    {
+        $builder->addSelect([
+            'users.id',
+            'users.email',
+            'users.email_verified_at',
+            'users.password',
+            'users.name',
+            'users.surname',
+            'users.patronymic',
+            'users.phone_number',
+            'roles.name AS role',
+            'users.role_id',
+            'users.created_at'
+        ])->leftJoin('roles', 'roles.id', '=', 'users.role_id');
+    }
+
     public static function authenticate($request)
     {
         $userId = $request->cookie('user');
@@ -94,5 +110,19 @@ class User extends Authenticatable
             return false;
 
         return is_numeric(array_search($roleName, Role::$rolesRights[$action]));
+    }
+
+    public static function getRolePriority($userId)
+    {
+        $priority = 999;
+        $user = User::find($userId);
+        if (empty($user))
+            return $priority;
+
+        $role = Role::find($user->role_id);
+        if ($role)
+            $priority = (int) $role->priority;
+
+        return $priority;
     }
 }

@@ -21,6 +21,8 @@ Route::get('/taxonomies/{taxonomyTitle}', [TaxonomiesController::class, 'filter'
 
 Route::get('/roles/check/page-access', [RolesController::class, 'checkPageAccess']);
 
+Route::get('/users', [UsersController::class, 'filter']);
+
 Route::get('/auth/check', [AuthController::class, 'checkAuth']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -29,6 +31,9 @@ Route::post('/auth/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/email/verify', [AuthController::class, 'sendEmailVerification']);
     Route::get('/email/verify/{code}', [AuthController::class, 'verifyEmail']);
+
+    Route::delete('/user/delete/{id}', [AuthController::class, 'delete']);
+    Route::delete('/users/delete', [UsersController::class, 'delete']);
 
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
     Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
@@ -42,7 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/image/delete', [ImagesController::class, 'delete']);
 
     // админские привилегии
-    Route::post('/users/update/role/{roleId}', [UsersController::class, 'updateRole']);
+    Route::post('/users/update/role/{userId}/{roleId}', [UsersController::class, 'updateRole']);
 
     Route::get('/roles', [RolesController::class, 'filter']);
     Route::post('/roles/create', [RolesController::class, 'store']);

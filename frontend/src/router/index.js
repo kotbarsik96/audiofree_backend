@@ -39,6 +39,14 @@ const router = createRouter({
                     component: () => import('@/views/admin/products/ProductCreate.vue')
                 },
                 {
+                    path: 'users/:pageNumber?',
+                    name: 'UsersControl',
+                    component: () => import('@/views/admin/users/UsersControl.vue'),
+                    meta: {
+                        hasPageNumber: true
+                    }
+                },  
+                {
                     path: 'role/:pageNumber?',
                     name: 'RolesControl',
                     component: () => import('@/views/admin/roles/RolesControl.vue'),

@@ -14,55 +14,39 @@ use App\Exceptions\CommonExceptions;
 
 class UsersController extends Controller
 {
-    public function updateRole(Request $request, $roleId)
+    public function updateRole(Request $request, $userId, $roleId)
     {
         if (!User::hasRight($request->cookie('user'), 'assign_role', $request))
             return RolesExceptions::noRightsResponse();
 
-        $validator = Validator::make($request->all(), [
-            'id' => 'numeric|exists:users,id',
-            'email' => 'exists:users,email|email:dns'
-        ]);
-
-        if ($validator->fails())
-            return response(['errors' => $validator->errors()], 400);
-
         $updaterUser = User::find($request->cookie('user'));
-        $fields = $validator->validated();
-        $userIdOrEmail = array_key_exists('id', $fields) ? $fields['id'] : null;
-        if (!$userIdOrEmail)
-            $userIdOrEmail = array_key_exists('email', $fields) ? $fields['email'] : null;
 
-        $user = User::where('id', $userIdOrEmail)
-            ->orWhere('email', $userIdOrEmail)
-            ->first();
-
+        $user = User::find($userId);
         if (empty($user))
-            return ['error' => AuthExceptions::userNotExists()->getMessage()];
+            return response(['error' => AuthExceptions::userNotExists()->getMessage()], 400);
 
         $newRole = Role::find($roleId);
         if (empty($newRole))
-            return ['error' => RolesExceptions::roleNotExists()->getMessage()];
+            return response(['error' => RolesExceptions::roleNotExists()->getMessage()], 400);
 
         $oldRole = Role::find($user->role_id);
-        $oldRoleName = '"не задано"';
+        $oldRoleName = '"роль не задана"';
         if ($oldRole)
             $oldRoleName = $oldRole->name;
 
-        // пользователь с ролью ниже, чем у того, у кого он её меняет, не может поменять ему роль
+        $updaterUserRole = Role::find($updaterUser->role_id);
+        if (!$updaterUserRole)
+            return response(['error' => RolesExceptions::noRights()->getMessage()], 401);
+        $updaterUserRolePriority = $updaterUserRole->priority;
+
+        // пользователь с ролью, приоритет у которой выражен меньшим значением, чем у того, у кого он её меняет, не может поменять ему роль
         if ($oldRole) {
-            $updaterUserRole = Role::find($updaterUser->role_id);
-            if (!$updaterUserRole)
-                return ['error' => RolesExceptions::noRights()->getMessage()];
-
-            $updaterUserRolePriority = $updaterUserRole->priority;
-
             if (!$oldRole->priority || (int) $oldRole->priority < (int) $updaterUserRolePriority)
-                return ['error' => RolesExceptions::noRights()->getMessage()];
+                return response(['error' => RolesExceptions::noRights()->getMessage()], 401);
         }
-        // нельзя задать роль, которая старше или равна своей
-        if ((int) $roleId <= (int) $updaterUser->role_id)
-            return ['error' => UsersExceptions::roleUpdateFail()->getMessage()];
+        // нельзя задать роль с приоритетом, значение которого меньше или равно своему приоритету
+        if ((int) $newRole->priority <= (int) $updaterUserRolePriority)
+            return response(['error' => UsersExceptions::roleUpdateFail()->getMessage()], 401);
 
         $user->update(['role_id' => $roleId]);
 

@@ -10,6 +10,11 @@
                     <AdminPanelExpandable class="admin-page__nav-item" name="Товары" :createTo="{ name: 'ProductCreate' }"
                         :controlTo="{ name: 'ProductsControl' }"></AdminPanelExpandable>
                     <li class="admin-page__nav-item">
+                        <RouterLink class="link" :to="{ name: 'UsersControl' }">
+                            Пользователи
+                        </RouterLink>
+                    </li>
+                    <li class="admin-page__nav-item">
                         <RouterLink class="link" :to="{ name: 'RolesControl' }">
                             Роли
                         </RouterLink>
@@ -25,7 +30,8 @@
                             </RouterLink>
                         </li>
                         <li class="admin-page__nav-subitem">
-                            <RouterLink class="link" :to="{ name: 'TaxonomiesControl', params: { taxonomyName: 'category' } }">
+                            <RouterLink class="link"
+                                :to="{ name: 'TaxonomiesControl', params: { taxonomyName: 'category' } }">
                                 Категории
                             </RouterLink>
                         </li>
@@ -35,7 +41,8 @@
                             </RouterLink>
                         </li>
                         <li class="admin-page__nav-subitem">
-                            <RouterLink class="link" :to="{ name: 'TaxonomiesControl', params: { taxonomyName: 'product_status' } }">
+                            <RouterLink class="link"
+                                :to="{ name: 'TaxonomiesControl', params: { taxonomyName: 'product_status' } }">
                                 Статусы товара
                             </RouterLink>
                         </li>

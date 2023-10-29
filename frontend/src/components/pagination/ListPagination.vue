@@ -40,6 +40,7 @@ export default {
     name: 'ListPagination',
     emits: [
         'update:modelValue',
+        'updateLoaded',
         'update:error',
         'update:isLoading',
         'update:count'
@@ -151,6 +152,7 @@ export default {
                 const res = await axios.get(this.loadLink, { params })
                 if (Array.isArray(res.data.result)) {
                     this.list[offset] = res.data.result
+                    this.$emit('updateLoaded', res.data.result)
                     if (isNumeric(res.data.total_count))
                         this.totalCount = parseInt(res.data.total_count)
                 } else {

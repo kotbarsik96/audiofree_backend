@@ -87,7 +87,7 @@
     }
 
     &__nav-item button,
-    &__nav-item a{
+    &__nav-item a {
         display: block;
         padding: 10px;
     }
@@ -278,7 +278,6 @@
 
     &__container {
         padding: 10px;
-        overflow: auto;
     }
 
     &__table {
@@ -368,8 +367,21 @@
         background-color: #dcdcdc;
     }
 
-    @media (max-width: 1099px) {
+    .select {
+        &__value {
+            padding: 5px 20px;
+        }
+
+        &__item-label {
+            >span {
+                padding: 5px 15px;
+            }
+        }
+    }
+
+    @media (max-width: 1249px) {
         &__container {
+            overflow: auto;
             max-width: calc(100vw - 270px);
         }
     }

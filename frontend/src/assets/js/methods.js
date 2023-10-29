@@ -34,3 +34,14 @@ export function setMatchMedia() {
             .forEach(mediaValue => forEachCallback(mediaValue, 'min'))
     }
 }
+
+export function getDate(dateString) {
+    if (!dateString)
+        return null
+
+    const date = new Date(dateString)
+    if (date && typeof date.toLocaleString === 'function')
+        return `${date.toLocaleString()}`
+
+    return null
+}
