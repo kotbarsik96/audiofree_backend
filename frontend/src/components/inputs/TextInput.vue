@@ -1,7 +1,7 @@
 <template>
     <input class="text-input__input" v-model="value" :placeholder="placeholder" :type="type" :name="name" :id="id"
         :autocomplete="autocomplete" :maxlength="maxlength" ref="input" @focus="onFocus" @blur="onBlur" @input="onInput"
-        @keyup.enter="onEnterKeyup">
+        @keydown="onKeydown" @keyup.enter="onEnterKeyup">
 </template>
 
 <script>
@@ -23,11 +23,11 @@ export default {
         },
         id: String,
         autocomplete: [String, Boolean],
-        /* e.g.: a,g,\+,3, не забывать экранировать спецсимволы: \-, \+ */
+        /* e.g.: a,g,+,3, спецсимволы можно не экранировать, это делается в scopeSymbolsRegexp */
         allowSymbols: {
             type: String,
             validator(value) {
-                value.match(/^(.,)+.?$/)
+                return value.match(/^(.,)+.?$/)
             }
         },
         numberonly: Boolean,
@@ -46,7 +46,13 @@ export default {
         // если numberonly, max === максимальное число; иначе === максимальная длина строки
         max: [Number, String],
         /* представляют собой методы String, например, toLocaleString. Можно передать массив, можно передать строку вида "toLocaleString|trim" */
-        modifiers: [String, Array]
+        modifiers: [String, Array],
+        /* маска, в которую будет преобразовываться введенное значение. Например: '+7 (...) ... - .. - ..', где все символы точки заменятся на значения, взятые из input.value. Вместо точки можно указать другой символ/символы, тогда указать соответствующий maskSymbol */
+        mask: String,
+        maskSymbol: {
+            type: String,
+            default: '.'
+        }
     },
     data() {
         return {
@@ -58,12 +64,20 @@ export default {
             if (!this.numberonly && !this.allowSymbols)
                 return null
 
+            const allowSymbolsShielded = this.allowSymbols
+                ? this.allowSymbols
+                    .replace('+', '\\+')
+                    .replace('-', '\\-')
+                    .replace('(', '\\(')
+                    .replace(')', '\\)')
+                : null
             let regexpStr = ''
             if (this.numberonly)
                 regexpStr += '0-9'
 
-            if (this.allowSymbols)
-                regexpStr += this.allowSymbols
+            if (allowSymbolsShielded)
+                regexpStr += allowSymbolsShielded
+
 
             if (regexpStr.length > 0)
                 regexpStr = `[^${regexpStr}]`
@@ -89,11 +103,18 @@ export default {
         focus() {
             this.$refs.input.focus()
         },
+        // onKeydown(event) {
+        //     if (event.key.match(/delete|backspace/i))  
+        //         event.target.value = ''
+        // },
         onEnterKeyup(event) {
             event.preventDefault()
             event.stopPropagation()
         },
         onInput(event) {
+            if (event.inputType.match(/delete/))
+                return
+
             const input = event.target
 
             if (this.maxlength) {
@@ -104,6 +125,7 @@ export default {
 
             this.doScopeSymbols(input)
             this.doApplyModifiers(input)
+            this.doApplyMask(input)
         },
         doScopeSymbols(input = this.$refs.input) {
             if (!this.scopeSymbolsRegexp)
@@ -137,12 +159,33 @@ export default {
                 // без nextTick input.value как будто откатывается назад на один шаг
                 nextTick().then(() => input.value = value[modifier]())
             })
+        },
+        doApplyMask(input = this.$refs.input) {
+            if (!this.mask)
+                return
+
+            let modifiedValue = this.mask
+            let clearValue = input.value
+            if (clearValue.length >= this.mask.indexOf(this.maskSymbol)) {
+                clearValue = clearValue.split('')
+                    .filter((s, index) => this.mask[index] === this.maskSymbol)
+                    .join('')
+            }
+
+            clearValue.split('')
+                .forEach(substr => modifiedValue = modifiedValue.replace(this.maskSymbol, substr))
+            if (modifiedValue.includes(this.maskSymbol)) {
+                const index = modifiedValue.indexOf(this.maskSymbol)
+                modifiedValue = modifiedValue.slice(0, index)
+            }
+
+            input.value = modifiedValue
         }
     },
     watch: {
         value() {
             let value = this.value || ''
-            if (this.numberonly)
+            if (this.numberonly && !this.scopeSymbolsRegexp)
                 value = parseInt(value.toString().replace(/\D/g, '')) || 0
             this.$emit('update:modelValue', value)
         },

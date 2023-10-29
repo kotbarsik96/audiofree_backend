@@ -10,7 +10,7 @@
             <div v-if="$slots.icon" class="text-input__icon" ref="icon">
                 <slot name="icon"></slot>
             </div>
-            <TextInput v-model="value" :class="inputClass" ref="input" :style="inputStyle" :name="name"
+            <TextInput v-model="value" :class="inputClass" ref="input" :style="inputStyle" :mask="mask" :maskSymbol="maskSymbol" :name="name"
                 :placeholder="placeholder" :type="type" :id="id" :autocomplete="autocomplete" :allowSymbols="allowSymbols"
                 :numberonly="numberonly" :regexpFlags="regexpFlags" :max="max" :modifiers="modifiers"></TextInput>
             <div v-if="$slots.modsButton" class="text-input__mods" ref="modsButton">
@@ -33,6 +33,8 @@ export default {
     emits: ['update:modelValue', 'input', 'keyup-enter'],
     props: {
         name: String,
+        mask: String,
+        maskSymbol: String,
         modelValue: [String, Number],
         placeholder: String,
         type: String,
