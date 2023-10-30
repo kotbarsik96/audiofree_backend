@@ -130,9 +130,9 @@ export function handleAjaxError(err, ctx) {
     const data = err.response.data
     if (typeof ctx.error === 'string' && data.error)
         ctx.error = data.error
-    else if (Array.isArray(ctx.errors) && data.errors)
+    else if (ctx.errors && data.errors)
         ctx.errors = data.errors
-    else if (!Array.isArray(ctx.errors) && typeof ctx.error === 'string' && data.errors) {
+    else if (!ctx.errors && typeof ctx.error === 'string' && data.errors) {
         const values = Object.values(data.errors)
         if (Array.isArray(values[0]) && values[0][0])
             ctx.error = values[0][0]
