@@ -4,7 +4,7 @@
         <div class="modal__close">
             <button class="close-button" type="button" @click="removeModal"></button>
         </div>
-        <div class="modal__tabs" v-if="!greetingMessage">
+        <div class="modal__tabs" v-if="!greetingMessage && !resetEmail">
             <button class="modal__tab" :class="{ '__active': type === 'login' }" type="button" @click="type = 'login'">
                 Вход
             </button>
@@ -18,8 +18,11 @@
         </h3>
         <div class="modal__body">
             <Transition name="modal-tabs-body" mode="out-in">
-                <AuthGreetModalBody v-if="greetingMessage" :message="greetingMessage"></AuthGreetModalBody>
-                <component v-else :is="modalBodyComponent" @load-start="startLoad" @load-end="endLoad" @greet="greetUser">
+                <AuthResetPasswordModalBody v-if="resetEmail" :email="resetEmail"
+                    @changeLoadingState="(bool) => isLoading = bool" @goBack="resetEmail = ''"></AuthResetPasswordModalBody>
+                <AuthGreetModalBody v-else-if="greetingMessage" :message="greetingMessage"></AuthGreetModalBody>
+                <component v-else :is="modalBodyComponent" @load-start="startLoad" @load-end="endLoad" @greet="greetUser"
+                    @reset-password="resetPassword">
                 </component>
             </Transition>
         </div>
@@ -29,6 +32,7 @@
 <script>
 import LoginModalBody from './LoginModalBody.vue'
 import RegisterModalBody from './RegisterModalBody.vue'
+import AuthResetPasswordModalBody from './AuthResetPasswordModalBody.vue'
 import AuthGreetModalBody from './AuthGreetModalBody.vue'
 import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import { useModalsStore } from '@/stores/modals.js'
@@ -40,7 +44,8 @@ export default {
         LoginModalBody,
         RegisterModalBody,
         AuthGreetModalBody,
-        LoadingScreen
+        AuthResetPasswordModalBody,
+        LoadingScreen,
     },
     props: {
         title: {
@@ -54,6 +59,7 @@ export default {
         return {
             type: 'register', // | 'login'
             isLoading: false,
+            resetEmail: '',
             greetingMessage: ''
         }
     },
@@ -93,6 +99,9 @@ export default {
                 if (this.modalId)
                     this.removeModal(this.modalId)
             }, 2000)
+        },
+        resetPassword(email) {
+            this.resetEmail = email || ' '
         }
     }
 }

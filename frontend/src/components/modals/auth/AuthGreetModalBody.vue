@@ -14,12 +14,12 @@ export default {
 </script>
 
 <style>
-    .auth-modal__greet {
-        font-size: 24px;
-        font-weight: 500;
-        color: var(--theme_color);
-        text-align: center;
-        margin-bottom: 20px;
-        padding: 0 15px;
-    }
+.auth-modal__greet {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--theme_color);
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 0 15px;
+}
 </style>

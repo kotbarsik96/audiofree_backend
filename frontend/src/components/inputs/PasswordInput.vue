@@ -2,6 +2,9 @@
 <template>
     <TextInputWrapper v-model="value" :name="name" :placeholder="placeholder" :type="passwordInputType"
         :autocomplete="autocomplete">
+        <template v-if="$slots.label" v-slot:label>
+            <slot name="label"></slot>
+        </template>
         <template v-slot:icon>
             <KeyIcon></KeyIcon>
         </template>
@@ -24,12 +27,12 @@ import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
 
 export default {
     name: 'PasswordInput',
-    emits: ['update:modalValue'],
+    emits: ['update:modelValue'],
     components: {
         TextInputWrapper
     },
     props: {
-        modalValue: [String, Number],
+        modelValue: [String, Number],
         autocomplete: String,
         name: String,
         placeholder: String,
@@ -49,7 +52,7 @@ export default {
     },
     watch: {
         value() {
-            this.$emit('update:modalValue', this.value)
+            this.$emit('update:modelValue', this.value)
         }
     },
     methods: {

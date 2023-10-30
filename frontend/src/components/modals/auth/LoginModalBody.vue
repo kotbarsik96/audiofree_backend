@@ -35,7 +35,7 @@ import { removeErrorsOnInput } from '@/assets/js/scripts'
 
 export default {
     name: 'LoginModalBody',
-    emits: ['load-start', 'load-end', 'greet'],
+    emits: ['load-start', 'load-end', 'greet', 'reset-password'],
     components: {
         TextInputWrapper,
         PasswordInput
@@ -84,7 +84,7 @@ export default {
             this.$emit('load-end')
         },
         resetPassword() {
-
+            this.$emit('reset-password', this.email)
         }
     }
 }
