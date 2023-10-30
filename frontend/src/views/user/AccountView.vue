@@ -22,7 +22,11 @@
             </nav>
             <div class="account__body card">
                 <div class="card__container">
-                    <RouterView :user="user"></RouterView>
+                    <RouterView v-slot="{ Component }">
+                        <Transition name="account-body" mode="out-in">
+                            <component :is="Component" :user="user"></component>
+                        </Transition>
+                    </RouterView>
                 </div>
             </div>
         </div>
@@ -130,6 +134,26 @@ export default {
             margin-right: 0;
             margin-bottom: 20px;
         }
+    }
+}
+
+.account-body {
+
+    &-enter-active,
+    &-leave-active {
+        transition: all .25s;
+    }
+
+    &-leave-to {
+        opacity: 0;
+    }
+
+    &-enter-from {
+        transform: scale(0);
+    }
+
+    &-enter-to {
+        transform: scale(1);
     }
 }
 </style>

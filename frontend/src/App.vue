@@ -67,7 +67,7 @@ export default {
 <style lang="scss">
 .page-transition {
     &-enter-active {
-        animation: appear 1s ease;
+        animation: appear .5s ease;
     }
 
     @keyframes appear {
@@ -83,7 +83,7 @@ export default {
     }
 
     &-leave-active {
-        animation: leave 1s ease-in;
+        animation: leave .5s ease-in;
     }
 
     @keyframes leave {
