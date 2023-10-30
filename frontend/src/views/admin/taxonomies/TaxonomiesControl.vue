@@ -28,19 +28,17 @@
                 </template>
                 <tr v-for="(item, index) in list" :key="item.id" :class="{ '__not-saved': isCreated(item.id) }" ref="tr">
                     <td>
-                        <label class="checkbox">
-                            <input type="checkbox" name="taxonomy-control-selection" :value="item.id"
-                                v-model="selectedItems" :checked="selectedItems.includes(item.id)">
-                            <div class="checkbox__box"></div>
-                        </label>
+                        <CheckboxLabel name="taxonomy-control-selection" :checked="selectedItems.includes(item.id)"
+                            :value="item.id" v-model="selectedItems"></CheckboxLabel>
                     </td>
                     <td>
                         <textarea placeholder="Введите значение" v-model="list[index].name"
                             @keyup="adjustTextarea"></textarea>
                     </td>
                     <td>
-                        <button v-if="isUnsaved(item.id)" class="admin-list-table__control-button admin-list-table__control-button--save"
-                            type="button" @click="saveItem(item.id)">
+                        <button v-if="isUnsaved(item.id)"
+                            class="admin-list-table__control-button admin-list-table__control-button--save" type="button"
+                            @click="saveItem(item.id)">
                             <SaveIcon></SaveIcon>
                         </button>
                         <button class="admin-list-table__control-button admin-list-table__control-button--delete"
@@ -50,8 +48,9 @@
                     </td>
                 </tr>
             </AdminListTable>
-            <ListPagination ref="paginationComponent" @updateLoaded="getSavedList" v-model="list" v-model:error="error" v-model:isLoading="isLoading"
-                v-model:count="totalCount" :loadLink="loadLink" :pagesLimit="8" :limit="10" :filters="filters" allData>
+            <ListPagination ref="paginationComponent" @updateLoaded="getSavedList" v-model="list" v-model:error="error"
+                v-model:isLoading="isLoading" v-model:count="totalCount" :loadLink="loadLink" :pagesLimit="8" :limit="10"
+                :filters="filters" allData>
             </ListPagination>
         </div>
     </div>

@@ -73,11 +73,7 @@
                 </template>
                 <tr v-for="item in list" :key="item.id">
                     <td>
-                        <label class="checkbox">
-                            <input type="checkbox" :checked="selectedItems.includes(item.id)"
-                                name="product-control-selection" :value="item.id" v-model="selectedItems">
-                            <div class="checkbox__box"></div>
-                        </label>
+                        <CheckboxLabel name="product-control-selection" :checked="selectedItems.includes(item.id)" :value="item.id" v-model="selectedItems"></CheckboxLabel>
                     </td>
                     <td>
                         <img :src="getImageSrc(item.image_path)" :alt="item.image_path">

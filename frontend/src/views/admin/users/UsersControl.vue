@@ -50,11 +50,8 @@
                 </template>
                 <tr v-for="(item, index) in list">
                     <td>
-                        <label class="checkbox">
-                            <input type="checkbox" name="taxonomy-control-selection" :value="item.id"
-                                v-model="selectedItems" :checked="selectedItems.includes(item.id)">
-                            <div class="checkbox__box"></div>
-                        </label>
+                        <CheckboxLabel name="taxonomy-control-selection" :checked="selectedItems.includes(item.id)"
+                            :value="item.id" v-model="selectedItems"></CheckboxLabel>
                     </td>
                     <td>
                         {{ item.id }}
@@ -232,9 +229,9 @@ export default {
             try {
                 const link = `${import.meta.env.VITE_USER_ROLE_UPDATE}${id}/${item.role_id}`
                 const updateRoleRes = await axios.post(link)
-                if(updateRoleRes.data.message) {
+                if (updateRoleRes.data.message) {
                     useNotificationsStore()
-                        .addNotification({ timeout: 5000, message: updateRoleRes.data.message }) 
+                        .addNotification({ timeout: 5000, message: updateRoleRes.data.message })
                 }
 
                 this.updateList()
