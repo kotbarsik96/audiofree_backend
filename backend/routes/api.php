@@ -33,6 +33,7 @@ Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/email/verify', [AuthController::class, 'sendEmailVerification']);
+    Route::get('/email/verification-sent', [AuthController::class, 'isVerificationSent']);
     Route::get('/email/verify/{code}', [AuthController::class, 'verifyEmail']);
 
     Route::delete('/user/delete/{id}', [AuthController::class, 'delete']);

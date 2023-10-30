@@ -281,7 +281,7 @@ class AuthController extends Controller
 
         $verifyModelData = [
             'user_id' => $userId,
-            'code' => $code
+            'code' => bcrypt($code)
         ];
         $verifyingCodeModel = VerifyEmail::where('user_id', $userId)->first();
         if ($verifyingCodeModel) {
@@ -304,6 +304,22 @@ class AuthController extends Controller
         ]);
     }
 
+    public function isVerificationSent(Request $request)
+    {
+        $user = User::find($request->cookie('user'));
+        if (empty($user))
+            return ['success' => false];
+
+        $sent = VerifyEmail::where('user_id', $user->id)
+            ->first();
+
+        $isSent = false;
+        if (!empty($sent))
+            $isSent = true;
+
+        return ['success' => $isSent];
+    }
+
     public function verifyEmail(Request $request, $code)
     {
         $userId = $request->cookie('user');
@@ -316,7 +332,7 @@ class AuthController extends Controller
             return response(['error' => AuthExceptions::incorrectVerifyingEmailCode()->getMessage()], 422);
 
         $verifyingCode = $verifyingCodeModel->code;
-        if ((int) $verifyingCode !== (int) $code)
+        if(!Hash::check($code, $verifyingCode))
             return response(['error' => AuthExceptions::incorrectVerifyingEmailCode()->getMessage()], 422);
 
         $user->update([

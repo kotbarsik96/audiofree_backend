@@ -57,7 +57,7 @@ button:disabled {
 
 /* <GENERAL>==================================================================================== */
 
-/* <TRANSITION-NAMES>=========================================================================== */
+/* <TRANSITION-NAMES (TRANSITIONS) ============================================================= */
 // general
 .fade-in-enter-active,
 .fade-in-leave-active {
@@ -149,7 +149,7 @@ button:disabled {
     opacity: 1;
 }
 
-/* <TRANSITION-NAMES>=========================================================================== */
+/* <TRANSITION-NAMES (TRANSITIONS) ============================================================= */
 
 /* <FONTS>====================================================================================== */
 .fw-300 {
@@ -844,6 +844,10 @@ button:disabled {
     line-height: 18px;
     color: var(--error_color);
     display: block;
+
+    &--mb-20 {
+        margin-bottom: 20px;
+    }
 }
 
 /* <ERROR>====================================================================================== */
@@ -954,6 +958,7 @@ button:disabled {
         &.card__container {
             padding: 0;
         }
+
         overflow: hidden;
     }
 
@@ -990,10 +995,6 @@ button:disabled {
     display: flex;
     flex-wrap: wrap;
 
-    &--center {
-        justify-content: center;
-    }
-
     .text-input,
     .select {
         margin: 0 30px 10px 0;
@@ -1017,6 +1018,15 @@ button:disabled {
             flex: 0 0 100%;
             max-width: 350px;
         }
+    }
+}
+
+.inputs-flex.inputs-flex--center {
+    justify-content: center;
+
+    .text-input,
+    .select {
+        margin: 0 15px 10px 15px;
     }
 }
 

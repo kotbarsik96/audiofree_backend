@@ -32,10 +32,8 @@ export const useIndexStore = defineStore('index', {
             const onTrue = () => {
                 this.isUserLogged = true
 
-                if (res.data.role)
-                    this.role = res.data.role
-                if (res.data.email_verified)
-                    this.emailVerified = true
+                this.role = res.data.role || 999
+                this.emailVerified = res.data.email_verified
 
                 this.isCheckingAuth = false
                 document.dispatchEvent(new CustomEvent('auth-checked'))
@@ -131,7 +129,7 @@ export const useIndexStore = defineStore('index', {
                 this.loadings.push(loadingName)
             else {
                 const index = this.loadings.findIndex(n => loadingName === n)
-                if(index >= 0)
+                if (index >= 0)
                     this.loadings.splice(index, 1)
             }
         }

@@ -51,7 +51,7 @@ export default {
 
             try {
                 const res = await axios.get(`${import.meta.env.VITE_USER_GET_LINK}current`)
-                if(res.data.id)
+                if (res.data.id)
                     this.user = res.data
             } catch (err) {
                 this.$router.push({ name: 'Home' })
@@ -84,6 +84,15 @@ export default {
 
         &::before {
             transform: translateY(12px) scale(0.96);
+        }
+    }
+
+    &__container {
+        &--min-height {
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
     }
 

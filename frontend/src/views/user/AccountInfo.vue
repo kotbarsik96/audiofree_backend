@@ -1,7 +1,7 @@
 <template>
     <div @keyup.enter="save">
         <Transition name="grow">
-            <div class="error" v-if="error">
+            <div v-if="error" class="error error--mb-20">
                 {{ error }}
             </div>
         </Transition>
