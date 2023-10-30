@@ -20,7 +20,7 @@
                     </li>
                 </ul>
             </nav>
-            <div class="account__actions card">
+            <div class="account__body card">
                 <div class="card__container">
                     <RouterView :user="user"></RouterView>
                 </div>
@@ -73,7 +73,7 @@ export default {
     min-height: 50vh;
     padding: 70px 0;
 
-    &__actions {
+    &__body {
         flex: 1 1 auto;
 
         .card {
@@ -83,12 +83,27 @@ export default {
         }
 
         &::before {
-            transform: translateY(8px) scale(0.96);
+            transform: translateY(12px) scale(0.96);
+        }
+    }
+
+    &__buttons {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        margin-top: -10px;
+
+        .button {
+            font-size: 16px;
+            min-width: 150px;
+            margin: 10px 5px 0 10px;
         }
     }
 
     .tile-nav {
         margin-right: 20px;
+        flex-shrink: 0;
 
         &::before {
             transform: translateY(8px) scale(0.96);
@@ -98,7 +113,7 @@ export default {
     @media (max-width: 992px) {
         flex-wrap: wrap;
 
-        &__actions {
+        &__body {
             flex: 0 0 100%;
         }
 

@@ -1,5 +1,5 @@
 <template>
-    <div class="account__info" @keyup.enter="save">
+    <div @keyup.enter="save">
         <Transition name="grow">
             <div class="error" v-if="error">
                 {{ error }}
@@ -34,7 +34,7 @@
                 <template v-slot:label>Ваше отчество</template>
             </TextInputWrapper>
         </div>
-        <div class="account__info-button">
+        <div class="account__buttons">
             <button class="button button--colored" type="button" @click="save">
                 Сохранить
             </button>
@@ -114,18 +114,3 @@ export default {
     }
 }
 </script>
-
-<style lang="scss">
-.account {
-    &__info-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        .button {
-            font-size: 16px;
-            min-width: 150px;
-        }
-    }
-}
-</style>

@@ -29,6 +29,8 @@ Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/logout', [AuthController::class, 'logout']);
 
+Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/email/verify', [AuthController::class, 'sendEmailVerification']);
     Route::get('/email/verify/{code}', [AuthController::class, 'verifyEmail']);
@@ -39,7 +41,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/update', [UsersController::class, 'update']);
 
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
-    Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 
     Route::post('/rating/set/{productId}/{ratingValue}', [RatingsController::class, 'store']);
     Route::delete('/rating/delete/{productId}', [RatingsController::class, 'delete']);

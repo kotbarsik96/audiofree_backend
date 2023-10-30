@@ -794,6 +794,7 @@ button:disabled {
     display: block;
     margin-bottom: 5px;
     margin-left: 5px;
+    text-align: left;
 }
 
 /* <INPUT>====================================================================================== */
@@ -989,9 +990,13 @@ button:disabled {
     display: flex;
     flex-wrap: wrap;
 
+    &--center {
+        justify-content: center;
+    }
+
     .text-input,
     .select {
-        margin: 0 30px 15px 0;
+        margin: 0 30px 10px 0;
     }
 
     margin-bottom: 15px;

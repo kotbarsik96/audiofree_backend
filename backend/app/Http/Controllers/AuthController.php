@@ -203,7 +203,9 @@ class AuthController extends Controller
 
         $credentials = $validator->validated();
         if (!Hash::check($credentials['password'], $user->password))
-            return response(['error' => AuthExceptions::incorrectPassword()->getMessage()], 422);
+            return response(['errors' => [
+                'password' => [AuthExceptions::incorrectPassword()->getMessage()]
+            ]], 422);
 
         $newPassword = $request->new_password;
         if ($newPassword === $credentials['password'])
@@ -240,10 +242,13 @@ class AuthController extends Controller
 
     public function resetPassword(Request $request)
     {
-        if (!User::authenticate($request))
-            return AuthExceptions::authFaildedResponse();
+        $userEmail = $request->email;
 
-        $user = User::find($request->cookie('user'));
+        $user = User::where('email', $userEmail)
+            ->first();
+        if (empty($user))
+            return response(['error' => AuthExceptions::userNotExists()->getMessage()], 400);
+
         $newPassword = generate_pass();
         $user->update([
             'password' => $newPassword
@@ -251,6 +256,8 @@ class AuthController extends Controller
 
         Mail::to($user->email)
             ->send(new ResetPassword(['user' => $user, 'newPassword' => $newPassword]));
+
+        return response(['success' => true]);
     }
 
     public function getVerificationHash($email)

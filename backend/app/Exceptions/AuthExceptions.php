@@ -54,7 +54,9 @@ class AuthExceptions extends Exception
     {
         return [
             'password.required' => 'Не указан текущий пароль',
+            'password.string' => 'Не указан текущий пароль',
             'new_password.required' => 'Не указан новый пароль',
+            'new_password.string' => 'Не указан новый пароль',
             'new_password.min' => self::$passwordMinMsg,
             'new_password_confirmation.same' => 'Новый пароль подтвержден неверно',
         ];
@@ -62,7 +64,7 @@ class AuthExceptions extends Exception
 
     public static function changePasswordSame()
     {
-        return new self('Пароли совпадают, изменение не произошло');
+        return new self('Старый и новый пароли совпадают, изменение не произошло');
     }
 
     public static function incorrectPassword()
