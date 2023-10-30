@@ -8,6 +8,7 @@ use App\Mail\ResetPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\AuthExceptions;
+use App\Exceptions\CommonExceptions;
 use App\Exceptions\RolesExceptions;
 use App\Models\User;
 use App\Models\UserEntities\Cart;
@@ -88,6 +89,8 @@ class AuthController extends Controller
         Cart::create(['user_id' => $user->id]);
         Favorite::create(['user_id' => $user->id]);
 
+        Auth::attempt(['email' => $data['email'], 'password' => $data['password']], true);
+
         return response()
             ->json([
                 'success' => true,
@@ -125,7 +128,7 @@ class AuthController extends Controller
                 422
             );
 
-        if (!Auth::attempt($credentials))
+        if (!Auth::attempt($credentials, true))
             return response(
                 ['error' => AuthExceptions::loginIncorrectData()->getMessage()],
                 422
@@ -221,9 +224,18 @@ class AuthController extends Controller
         if (!User::authenticate($request))
             return response(['success' => false, 'error' => 'Вы не авторизованы']);
 
-        $priority = User::getRolePriority($request->cookie('user'));
+        $userId = $request->cookie('user');
+        $rolePriority = User::getRolePriority($userId);
+        $emailVerified = false;
+        if (User::find($userId)->email_verified_at)
+            $emailVerified = true;
 
-        return response(['success' => true, 'role' => $priority, 'error' => false]);
+        return response([
+            'success' => true,
+            'role' => $rolePriority,
+            'error' => false,
+            'email_verified' => $emailVerified
+        ]);
     }
 
     public function resetPassword(Request $request)
