@@ -30,7 +30,7 @@ import TextInput from '@/components/inputs/TextInput.vue'
 
 export default {
     name: 'TextInputWrapper',
-    emits: ['update:modelValue', 'input', 'keyup-enter'],
+    emits: ['update:modelValue', 'input'],
     props: {
         name: String,
         mask: String,

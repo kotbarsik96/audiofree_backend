@@ -67,20 +67,26 @@ export default {
             if (!this.numberonly && !this.allowSymbols)
                 return null
 
-            const allowSymbolsShielded = this.allowSymbols
-                ? this.allowSymbols
-                    .replace('+', '\\+')
+            let allowSymbols = this.allowSymbols ?
+                this.allowSymbols.replace('+', '\\+')
                     .replace('-', '\\-')
                     .replace('(', '\\(')
                     .replace(')', '\\)')
+                    .replace('.', '\\.')
                 : null
+            if (this.mask) {
+                switch (this.mask) {
+                    case 'phone':
+                        allowSymbols = '\\+,\\(,\\), ,\\-'
+                        break
+                }
+            }
+
             let regexpStr = ''
+            if (allowSymbols)
+                regexpStr += allowSymbols
             if (this.numberonly)
                 regexpStr += '0-9'
-
-            if (allowSymbolsShielded)
-                regexpStr += allowSymbolsShielded
-
 
             if (regexpStr.length > 0)
                 regexpStr = `[^${regexpStr}]`
@@ -105,7 +111,7 @@ export default {
             switch (this.mask) {
                 case 'phone':
                     return '+7 (...) ... - .. - ..'
-                default: 
+                default:
                     return this.mask
             }
         }
@@ -113,10 +119,6 @@ export default {
     methods: {
         focus() {
             this.$refs.input.focus()
-        },
-        onEnterKeyup(event) {
-            event.preventDefault()
-            event.stopPropagation()
         },
         onInput() {
             if (this.maxlength) {
