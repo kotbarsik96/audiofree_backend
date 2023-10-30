@@ -179,3 +179,19 @@ export function adjustTextareas(relative, selector = 'textarea') {
     const elements = relative.querySelectorAll(selector)
     elements.forEach(textarea => adjustTextarea(textarea))
 }
+
+export function getExcerpt(longText, options = {}) {
+    if (!isNumeric(options.maxlength))
+        options.maxlength = 50
+    options.maxlength = parseInt(options.maxlength)
+    
+    let cut = longText.slice(0, options.maxlength)
+    const match = cut.match(/^.+(?=\s)/)
+    if(match)
+        cut = match[0]
+
+    if(options.after)
+        cut += options.after
+
+    return cut
+}

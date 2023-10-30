@@ -2,9 +2,10 @@
     <div class="card product-card product-card--discount">
         <div class="card__container product-card__container">
             <div class="product-card__circle-discount circle-text circle-text--discount">
-                -15%
+                {{ discountValue }}
             </div>
-            <button class="product-card__expand-top circle-wrapper" :class="{ '__active': isTopExpanded }" type="button" @click="expandTop">
+            <button class="product-card__expand-top circle-wrapper" :class="{ '__active': isTopExpanded }" type="button"
+                @click="expandTop">
                 <PlusIcon></PlusIcon>
             </button>
             <div class="product-card__top" :class="{ '__expanded': isTopExpanded }">
@@ -20,11 +21,12 @@
                 {{ product.name }}
             </div>
             <div v-if="product.description" class="product-card__description">
-                {{ product.description }}
+                {{ getExcerpt(product.description, { after: '...' }) }}
             </div>
             <div class="product-card__flex">
                 <div class="product-card__flex-item">
-                    <DynamicAdaptive class="product-card__buttons" destinationSelector="[data-prodcard-mobile-buttons]" query="max-width: 599px">
+                    <DynamicAdaptive class="product-card__buttons" destinationSelector="[data-prodcard-mobile-buttons]"
+                        query="max-width: 599px">
                         <button class="button button--colored" type="button">
                             Купить
                         </button>
@@ -42,6 +44,7 @@
 import injectShared from '@/components/inject-shared.js'
 import shared from './shared.js'
 import StarRating from '@/components/misc/StarRating.vue'
+import { getExcerpt } from '@/assets/js/scripts.js'
 
 export default injectShared(shared, {
     name: 'ProductCardDiscount',
@@ -52,6 +55,19 @@ export default injectShared(shared, {
         return Object.assign({
             rating: 0
         }, shared.data)
+    },
+    methods: {
+        getExcerpt
+    },
+    computed: {
+        discountValue() {
+            if (!this.product.discount_price)
+                return '-0%';
+
+            const diff = this.product.price - this.product.discount_price
+            const diffPercent = diff / (this.product.price / 100)
+            return `-${diffPercent}%`
+        }
     }
 })
 </script>
