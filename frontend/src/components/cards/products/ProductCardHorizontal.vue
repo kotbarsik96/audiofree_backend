@@ -11,7 +11,7 @@
                 <StarRating :stars="5" :rating="product.rating_value || 0" v-model="rating"></StarRating>
             </div>
             <div class="product-card__flex-item product-card__price">
-                {{ product.price.toLocaleString() }} ₽
+                {{ product.price ? product.price.toLocaleString() : '' }} ₽
             </div>
         </div>
     </div>

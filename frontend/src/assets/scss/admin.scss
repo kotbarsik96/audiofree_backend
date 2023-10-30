@@ -216,40 +216,6 @@
 
 /* <ADMIN-PAGE>================================================================================= */
 
-/* <INPUTS-GRID>================================================================================ */
-.inputs-flex {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-
-    .text-input,
-    .select {
-        margin: 0 30px 15px 0;
-    }
-
-    margin-bottom: 15px;
-
-    @media (max-width: 639px) {
-
-        .text-input,
-        .select {
-            margin: 0 15px 15px 0;
-        }
-    }
-
-    @media (max-width: 539px) {
-
-        .text-input,
-        .select {
-            margin: 0 0 15px 0;
-            flex: 0 0 100%;
-            max-width: 350px;
-        }
-    }
-}
-
-/* <INPUTS-GRID>================================================================================ */
-
 /* <ADMIN-LIST-TABLE>=========================================================================== */
 .admin-list-table {
 

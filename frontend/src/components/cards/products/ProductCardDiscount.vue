@@ -31,7 +31,7 @@
                     </DynamicAdaptive>
                 </div>
                 <div class="product-card__flex-item product-card__price">
-                    {{ product.price.toLocaleString() }} ₽
+                    {{ product.price ? product.price.toLocaleString() : '' }} ₽
                 </div>
             </div>
         </div>

@@ -8,7 +8,9 @@ export const useIndexStore = defineStore('index', {
     state: () => {
         return {
             isUserLogged: false,
+            loadings: [],
             role: 999,
+            emailVerified: false,
             products: [],
             currentRoute: null
         }
@@ -19,17 +21,35 @@ export const useIndexStore = defineStore('index', {
             return true
         },
         async checkAuth() {
+            if (this.isCheckingAuth)
+                return
+
+            const onFalse = () => {
+                this.role = 999
+                this.isCheckingAuth = false
+                document.dispatchEvent(new CustomEvent('auth-checked'))
+            }
+            const onTrue = () => {
+                this.isUserLogged = true
+
+                if (res.data.role)
+                    this.role = res.data.role
+                if (res.data.email_verified)
+                    this.emailVerified = true
+
+                this.isCheckingAuth = false
+                document.dispatchEvent(new CustomEvent('auth-checked'))
+            }
+
+            this.isCheckingAuth = true
+
             const res = await axios(import.meta.env.VITE_AUTH_CHECK_LINK)
             if (res.data.error || !res.data.success) {
-                this.role = 999
+                onFalse()
                 return false
             }
 
-            this.isUserLogged = true
-
-            if (res.data.role)
-                this.role = res.data.role
-
+            onTrue()
             return true
         },
         async checkPageAccess(page) {
@@ -94,16 +114,30 @@ export const useIndexStore = defineStore('index', {
             if (!opts.limit)
                 opts.limit = 4
 
+            this.toggleLoading('loadProducts', true)
+
             const options = Object.assign(opts.filters, { limit: opts.limit, offset: opts.offset })
             try {
                 const res = await axios.get(import.meta.env.VITE_PRODUCTS_GET_LINK, options)
+                this.toggleLoading('loadProducts', false)
                 return res.data
             } catch (err) {
+                this.toggleLoading('loadProducts', false)
                 throw err
+            }
+        },
+        toggleLoading(loadingName, adding = false) {
+            if (adding)
+                this.loadings.push(loadingName)
+            else {
+                const index = this.loadings.findIndex(n => loadingName === n)
+                if(index >= 0)
+                    this.loadings.splice(index, 1)
             }
         }
     },
     getters: {
-        isAdmin: (state) => state.role <= 2
+        isAdmin: (state) => state.role <= 2,
+        isPageLoading: (state) => state.loadings.length > 0
     }
 })

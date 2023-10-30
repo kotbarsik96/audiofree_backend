@@ -11,6 +11,7 @@ use App\Exceptions\UsersExceptions;
 use Illuminate\Support\Facades\Validator;
 use App\Filters\UsersFilter;
 use App\Exceptions\CommonExceptions;
+use Illuminate\Validation\Rule;
 
 class UsersController extends Controller
 {
@@ -23,11 +24,11 @@ class UsersController extends Controller
 
         $user = User::find($userId);
         if (empty($user))
-            return response(['error' => AuthExceptions::userNotExists()->getMessage()], 400);
+            return response(['error' => AuthExceptions::userNotExists()->getMessage()], 404);
 
         $newRole = Role::find($roleId);
         if (empty($newRole))
-            return response(['error' => RolesExceptions::roleNotExists()->getMessage()], 400);
+            return response(['error' => RolesExceptions::roleNotExists()->getMessage()], 404);
 
         $oldRole = Role::find($user->role_id);
         $oldRoleName = '"роль не задана"';
@@ -70,6 +71,49 @@ class UsersController extends Controller
             'result' => $usersQuery->get(),
             'total_count' => $totalCount
         ];
+    }
+
+    public function index(Request $request, $idOrCurrent)
+    {
+        $user = null;
+        if (is_numeric($idOrCurrent))
+            $user = User::mainData()->find($idOrCurrent);
+        else
+            $user = User::mainData()->find($request->cookie('user'));
+
+        if (empty($user))
+            return response(['error' => AuthExceptions::userNotExists()->getMessage()], 404);
+
+        return $user;
+    }
+
+    public function update(Request $request)
+    {
+        $userId = $request->cookie('user');
+        $user = User::find($userId);
+        if (empty($user))
+            return response(['error' => AuthExceptions::userNotExists()->getMessage()], 404);
+
+        if (!User::authenticate($request))
+            return AuthExceptions::authFaildedResponse();
+
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'string', Rule::unique('users', 'email')->ignore($userId), 'email:dns'],
+            'phone_number' => ['nullable', 'string', 'regex:/^\+7\d\d\d\d\d\d\d\d\d\d/'],
+            'name' => 'required|string',
+            'surname' => 'nullable|string',
+            'patronymic' => 'nullable|string'
+        ], [
+            'email' => AuthExceptions::$emailFormat,
+            'phone_number' => AuthExceptions::$phoneFormat,
+            'name' => 'Не указано имя'
+        ]);
+
+        if ($validator->fails())
+            return response(['errors' => $validator->errors()], 400);
+
+        $user->update($validator->validated());
+        return $user;
     }
 
     public function delete(Request $request)

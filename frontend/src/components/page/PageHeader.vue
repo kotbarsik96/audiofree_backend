@@ -141,9 +141,9 @@
                     <UserIcon></UserIcon>
                     <DynamicAdaptive destinationSelector="#header-mobile-auth-buttons" :query="mobileMediaQuery">
                         <span class="header__auth-text" v-if="isUserLogged">
-                            <button class="link" type="button">
+                            <RouterLink :to="{ name: 'Account' }" class="link">
                                 Профиль
-                            </button>
+                            </RouterLink>
                             /
                             <button class="link" type="button" @click="openConfirmLogoutModal">
                                 Выход

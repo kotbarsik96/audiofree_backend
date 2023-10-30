@@ -22,6 +22,7 @@ Route::get('/taxonomies/{taxonomyTitle}', [TaxonomiesController::class, 'filter'
 Route::get('/roles/check/page-access', [RolesController::class, 'checkPageAccess']);
 
 Route::get('/users', [UsersController::class, 'filter']);
+Route::get('/user/{idOrCurrent}', [UsersController::class, 'index']);
 
 Route::get('/auth/check', [AuthController::class, 'checkAuth']);
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -35,11 +36,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/user/delete/{id}', [AuthController::class, 'delete']);
     Route::delete('/users/delete', [UsersController::class, 'delete']);
 
+    Route::post('/user/update', [UsersController::class, 'update']);
+
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
     Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 
     Route::post('/rating/set/{productId}/{ratingValue}', [RatingsController::class, 'store']);
     Route::delete('/rating/delete/{productId}', [RatingsController::class, 'delete']);
+    
 
     Route::post('/image/load', [ImagesController::class, 'handleStoreRequest']);
     Route::post('/image/update/{id}', [ImagesController::class, 'update']);

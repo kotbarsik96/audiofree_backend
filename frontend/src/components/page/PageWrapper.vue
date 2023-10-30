@@ -1,6 +1,5 @@
 <template>
     <div class="wrapper">
-        <LoadingScreen v-if="isAppLoading" position="fixed" squareSize="150px"></LoadingScreen>
         <PageHeader></PageHeader>
         <div class="content">
             <slot></slot>
@@ -10,30 +9,22 @@
 </template>
 
 <script>
-import PageHeader from "@/components/page/PageHeader.vue"
-import PageFooter from "@/components/page/PageFooter.vue"
-import LoadingScreen from "@/components/page/LoadingScreen.vue"
+import PageHeader from '@/components/page/PageHeader.vue'
+import PageFooter from '@/components/page/PageFooter.vue'
 
 export default {
-    name: "PageWrapper",
+    name: 'PageWrapper',
     components: {
         PageHeader,
         PageFooter,
-        LoadingScreen,
     },
     data() {
         return {
-            isAppLoading: false,
-        };
+           
+        }
     },
     computed: {
 
-    },
-    created() {
-        this.isAppLoading = true
-    },
-    mounted() {
-        this.isAppLoading = false
     },
 };
 </script>

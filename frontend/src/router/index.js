@@ -45,7 +45,7 @@ const router = createRouter({
                     meta: {
                         hasPageNumber: true
                     }
-                },  
+                },
                 {
                     path: 'role/:pageNumber?',
                     name: 'RolesControl',
@@ -61,6 +61,32 @@ const router = createRouter({
                     meta: {
                         hasPageNumber: true
                     }
+                }
+            ]
+        },
+        // folter: user
+        {
+            path: '/account',
+            name: 'Account',
+            component: () => import('@/views/user/AccountView.vue'),
+            meta: {
+                requiresAuth: true
+            },
+            children: [
+                {
+                    path: 'info',
+                    name: 'AccountInfo',
+                    component: () => import('@/views/user/AccountInfo.vue')
+                },
+                {
+                    path: 'change-password',
+                    name: 'ChangePassword',
+                    component: () => import('@/views/user/ChangePassword.vue')
+                },
+                {
+                    path: 'email-verification',
+                    name: 'EmailVerification',
+                    component: () => import('@/views/user/EmailVerification.vue')
                 }
             ]
         },
@@ -84,14 +110,33 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from) => {
+    const store = useIndexStore()
+
     if (to.meta.requiresAdmin) {
-        const store = useIndexStore()
         store.currentRoute = to
 
         const parentName = to.matched[0].name
         const hasRight = await store.checkPageAccess(parentName)
         if (!hasRight)
             return { name: 'NotFound' }
+    }
+
+    if (to.meta.requiresAuth && !store.isUserLogged) {
+        const authChecking = () => {
+            return new Promise(resolve => {
+                document.addEventListener('auth-checked', resolve)
+            })
+        }
+
+        if (store.isCheckingAuth) {
+            await authChecking()
+            if (!store.isUserLogged)
+                return { name: 'NotFound' }
+        } else {
+            await store.checkAuth()
+            if (!store.isUserLogged)
+                return { name: 'NotFound' }
+        }
     }
 
     if (to.meta.hasPageNumber) {
@@ -101,15 +146,19 @@ router.beforeEach(async (to, from) => {
         }
     }
 
-    if(to.name === 'TaxonomiesControl') {
+    if (to.name === 'TaxonomiesControl') {
         const taxonomies = [
             'brand',
             'type',
             'category',
             'product_status'
         ]
-        if(!taxonomies.includes(to.params.taxonomyName))
+        if (!taxonomies.includes(to.params.taxonomyName))
             return { name: 'NotFound' }
+    }
+
+    if(to.name === 'Account') {
+        return { name: 'AccountInfo' }
     }
 })
 

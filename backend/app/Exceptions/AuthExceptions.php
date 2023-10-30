@@ -9,13 +9,15 @@ use Illuminate\Http\JsonResponse;
 class AuthExceptions extends Exception
 {
     protected static $passwordMinMsg = 'Пароль должен содержать не менее :min символов';
+    public static $emailFormat = 'Формат электронной почты: example@mail.com';
+    public static $phoneFormat = 'Формат номера телефона: +7 (999) 999 - 99 - 99';
 
     public static function registerValidator()
     {
         return [
             'name.required' => 'Не указано имя',
             'email.required' => 'Не указан email',
-            'email.email' => 'Формат электронной почты: example@mail.com',
+            'email.email' => self::$emailFormat,
             'email.unique' => 'Пользователь с таким email уже зарегистрирован',
             'password.required' => 'Не указан пароль',
             'password.min' => self::$passwordMinMsg,
@@ -45,7 +47,6 @@ class AuthExceptions extends Exception
 
     public static function authFaildedResponse()
     {
-        // помимо возвращенной ошибки также удалит невалидные куки
         return response(['error' => 'Провал проверки авторизации'], 403);
     }
 

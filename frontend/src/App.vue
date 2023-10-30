@@ -1,5 +1,6 @@
 <template>
     <PageWrapper>
+        <LoadingScreen v-if="isPageLoading" position="fixed" squareSize="150px"></LoadingScreen>
         <RouterView v-slot="{ Component }">
             <Transition name="page-transition" :mode="transitionMode">
                 <component :is="Component"></component>
@@ -14,6 +15,7 @@
 import PageWrapper from '@/components/page/PageWrapper.vue'
 import NotificationsList from '@/components/notifications/NotificationsList.vue'
 import ModalsList from '@/components/modals/ModalsList.vue'
+import LoadingScreen from "@/components/page/LoadingScreen.vue"
 import '@/assets/scss/styles.scss'
 import { mapState } from 'pinia'
 import { useIndexStore } from '@/stores/'
@@ -25,18 +27,17 @@ export default {
     components: {
         PageWrapper,
         NotificationsList,
-        ModalsList
+        ModalsList,
+        LoadingScreen
     },
     async mounted() {
         const store = useIndexStore()
-        store.checkAuth()
-    },
-    data() {
-        return {
-        }
+        store.toggleLoading('checkAuth', true)
+        await store.checkAuth()
+        store.toggleLoading('checkAuth', false)
     },
     computed: {
-        ...mapState(useIndexStore, ['isUserLogged']),
+        ...mapState(useIndexStore, ['isUserLogged', 'isPageLoading']),
         transitionMode() {
             return "out-in";
         },
