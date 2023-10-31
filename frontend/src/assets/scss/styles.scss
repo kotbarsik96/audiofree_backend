@@ -381,8 +381,9 @@ button:disabled {
 
         display: block;
 
-        &::after {
+        &:not(:last-child)::after {
             content: "/";
+            margin-right: 3px;
         }
     }
 }
