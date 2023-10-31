@@ -52,9 +52,7 @@ export default injectShared(shared, {
         StarRating,
     },
     data() {
-        return Object.assign({
-            rating: 0
-        }, shared.data)
+        return Object.assign({}, shared.data)
     },
     methods: {
         getExcerpt

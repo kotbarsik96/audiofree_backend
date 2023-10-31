@@ -15,7 +15,7 @@ use App\Models\User;
 use App\Http\Controllers\TaxonomiesController;
 
 class ProductsController extends Controller
-{    
+{
     public function index(Request $request, $id)
     {
         $timestampsQuery = $request->query('timestamps');
@@ -33,7 +33,8 @@ class ProductsController extends Controller
         $productQuery = Product::filter($queryFilter);
         $totalCount = $productQuery->count();
 
-        $productQuery->offsetLimit($limit, $offset)
+        $productQuery->sort($request->query('sortValue'))
+            ->offsetLimit($limit, $offset)
             ->mainData();
         if ($request->query('allData') === 'true' || $request->query('allData') === true)
             $productQuery->taxonomies()->timestamps();

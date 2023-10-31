@@ -89,14 +89,16 @@
         </div>
         <div v-show="isDesktop" class="header__bottom">
             <div class="container">
-                <DynamicAdaptive destinationSelector="#header-mobile-catalog-link" :query="mobileMediaQuery">
-                    <RouterLink class="header__bottom-section header__catalog-button link" :to="{ name: 'Home' }">
-                        <BurgerIcon></BurgerIcon>
-                        <span>
-                            Каталог товаров
-                        </span>
-                    </RouterLink>
-                </DynamicAdaptive>
+                <div class="header__bottom-section">
+                    <DynamicAdaptive destinationSelector="#header-mobile-catalog-link" :query="mobileMediaQuery">
+                        <RouterLink class="header__catalog-button link" :to="{ name: 'Catalog' }">
+                            <BurgerIcon></BurgerIcon>
+                            <span>
+                                Каталог товаров
+                            </span>
+                        </RouterLink>
+                    </DynamicAdaptive>
+                </div>
                 <nav class="header__bottom-nav">
                     <ul class="header__bottom-nav-list">
                         <li class="header__bottom-nav-item">
@@ -442,6 +444,8 @@ export default {
         font-weight: 500;
         font-size: 18px;
         color: #474747;
+        display: flex;
+        align-items: center;
 
         svg {
             width: 19px;

@@ -1,29 +1,31 @@
 <template>
     <div class="loading-screen" :style="{ '--square-size': squareSize, position }">
-        <div class="loading-screen__wrapper">
-            <div class="loading-screen__circle" style="--i: 1"></div>
-            <div class="loading-screen__circle" style="--i: 2"></div>
-            <div class="loading-screen__circle" style="--i: 3"></div>
-            <div class="loading-screen__circle" style="--i: 4"></div>
-            <div class="loading-screen__circle" style="--i: 5"></div>
-            <div class="loading-screen__circle" style="--i: 6"></div>
-            <div class="loading-screen__circle" style="--i: 7"></div>
-            <div class="loading-screen__circle" style="--i: 8"></div>
-            <div class="loading-screen__circle" style="--i: 9"></div>
-            <div class="loading-screen__circle" style="--i: 10"></div>
-            <div class="loading-screen__circle" style="--i: 11"></div>
-            <div class="loading-screen__circle" style="--i: 12"></div>
-            <div class="loading-screen__circle" style="--i: 13"></div>
-            <div class="loading-screen__circle" style="--i: 14"></div>
-            <div class="loading-screen__circle" style="--i: 15"></div>
-            <div class="loading-screen__circle" style="--i: 16"></div>
-            <div class="loading-screen__circle" style="--i: 17"></div>
-            <div class="loading-screen__circle" style="--i: 18"></div>
-            <div class="loading-screen__circle" style="--i: 19"></div>
-            <div class="loading-screen__circle" style="--i: 20"></div>
-        </div>
-        <div class="loading-screen__icon">
-            <HeadphonesIcon></HeadphonesIcon>
+        <div class="loading-screen__body">
+            <div class="loading-screen__wrapper">
+                <div class="loading-screen__circle" style="--i: 1"></div>
+                <div class="loading-screen__circle" style="--i: 2"></div>
+                <div class="loading-screen__circle" style="--i: 3"></div>
+                <div class="loading-screen__circle" style="--i: 4"></div>
+                <div class="loading-screen__circle" style="--i: 5"></div>
+                <div class="loading-screen__circle" style="--i: 6"></div>
+                <div class="loading-screen__circle" style="--i: 7"></div>
+                <div class="loading-screen__circle" style="--i: 8"></div>
+                <div class="loading-screen__circle" style="--i: 9"></div>
+                <div class="loading-screen__circle" style="--i: 10"></div>
+                <div class="loading-screen__circle" style="--i: 11"></div>
+                <div class="loading-screen__circle" style="--i: 12"></div>
+                <div class="loading-screen__circle" style="--i: 13"></div>
+                <div class="loading-screen__circle" style="--i: 14"></div>
+                <div class="loading-screen__circle" style="--i: 15"></div>
+                <div class="loading-screen__circle" style="--i: 16"></div>
+                <div class="loading-screen__circle" style="--i: 17"></div>
+                <div class="loading-screen__circle" style="--i: 18"></div>
+                <div class="loading-screen__circle" style="--i: 19"></div>
+                <div class="loading-screen__circle" style="--i: 20"></div>
+            </div>
+            <div class="loading-screen__icon">
+                <HeadphonesIcon></HeadphonesIcon>
+            </div>
         </div>
     </div>
 </template>
@@ -59,6 +61,13 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+
+    &__body {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
     &__wrapper {
         width: calc(var(--square-size) * 1.3);

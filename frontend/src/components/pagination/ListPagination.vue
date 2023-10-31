@@ -35,6 +35,7 @@
 import axios from 'axios'
 import { isNumeric } from '@/assets/js/scripts.js'
 import { setMatchMedia } from '@/assets/js/methods.js'
+import { nextTick } from 'vue'
 
 export default {
     name: 'ListPagination',
@@ -51,14 +52,17 @@ export default {
             type: Array,
             required: true
         },
-        error: String,
-        isLoading: Boolean,
-        count: Number,
         /* ссылка, по которой нужно загружать элементы списка, например, товары (https://../api/products). Ресурс должен возврать массив */
         loadLink: {
             type: String,
             required: true
         },
+        /* v-model:error */
+        error: String,
+        /* v-model:isLoading */
+        isLoading: Boolean,
+        /* v-model:count — общее количество загруженных элементов, а не только на выбранной странице */
+        count: Number,
         /* ограничение на показ количества страниц в пагинации. Остальное будет скрыто "...", а после него будет номер последней страницы */
         pagesLimit: {
             type: Number,
@@ -82,7 +86,9 @@ export default {
             initialLoadPassed: false,
             matchMediaMatches: {
                 max: {
-                    '992': false
+                    '992': false,
+                    '479': false,
+                    '399': false
                 }
             }
         }
@@ -92,6 +98,10 @@ export default {
             return Math.floor(this.totalCount / this.limit)
         },
         pagesLimitComputed() {
+            if (this.matchMediaMatches.max['399'])
+                return 1
+            if (this.matchMediaMatches.max['479'])
+                return 2
             if (this.matchMediaMatches.max['992'])
                 return 4
 
@@ -102,7 +112,7 @@ export default {
         },
         visiblePages() {
             const array = []
-            const half = Math.floor(this.pagesLimitComputed / 2)
+            const half = Math.floor(this.pagesLimitComputed / 2) || 1
             if (this.currentPageNumber <= half) {
                 for (let num = 1; num <= this.pagesLimitComputed && num <= this.pagesCount; num++) {
                     array.push(num)
@@ -255,6 +265,7 @@ export default {
         }
     },
     async mounted() {
+        await nextTick()
         await this.loadList()
         this.initialLoadPassed = true
         this.setMatchMedia()

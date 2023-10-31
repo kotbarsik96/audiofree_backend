@@ -248,7 +248,7 @@ export default {
 
         input:checked+span,
         input[data-checked='true']+span {
-            background-color: var(--admin_panel_color);
+            background-color: var(--theme_color_3);
             color: #fff;
         }
     }

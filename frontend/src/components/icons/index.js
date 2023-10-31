@@ -6,6 +6,7 @@ import ChevronIcon from '@/components/icons/ChevronIcon.vue'
 import CloseCircularIcon from '@/components/icons/CloseCircularIcon.vue'
 import EyeClosedIcon from '@/components/icons/EyeClosedIcon.vue'
 import EyeIcon from '@/components/icons/EyeIcon.vue'
+import FilterIcon from '@/components/icons/FilterIcon.vue'
 import HeadphonesIcon from '@/components/icons/HeadphonesIcon.vue'
 import HeartIcon from '@/components/icons/HeartIcon.vue'
 import KeyIcon from '@/components/icons/KeyIcon.vue'
@@ -33,6 +34,7 @@ export default [
     { component: CloseCircularIcon, name: 'CloseCircularIcon' },
     { component: EyeClosedIcon, name: 'EyeClosedIcon' },
     { component: EyeIcon, name: 'EyeIcon' },
+    { component: FilterIcon, name: 'FilterIcon' },
     { component: HeadphonesIcon, name: 'HeadphonesIcon' },
     { component: HeartIcon, name: 'HeartIcon' },
     { component: KeyIcon, name: 'KeyIcon' },

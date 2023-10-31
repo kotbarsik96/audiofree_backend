@@ -363,6 +363,38 @@ button:disabled {
 
 /* <UI>========================================================================================= */
 
+/* <PAGE-HEADING>=============================================================================== */
+.page-heading {
+    .breadcrumbs {
+        margin-bottom: 16px;
+    }
+}
+
+.breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+
+    &__link {
+        font-size: 12px;
+        line-height: 14px;
+        color: #B3B3B3;
+
+        display: block;
+        &::after {
+            content: "/";
+        }
+    }
+}
+
+.page-title {
+    font-size: 36px;
+    line-height: 42px;
+    color: #3a3a3a;
+    font-weight: 700;
+}
+
+/* <PAGE-HEADING>=============================================================================== */
+
 /* <CONTACT-BLOCK>============================================================================== */
 .contact-block {
     display: flex;
@@ -496,6 +528,10 @@ button:disabled {
 
     [data-prodcard-mobile-buttons] {
         display: none;
+    }
+
+    &__container {
+        padding: 12px;
     }
 
     &__expand-top {
@@ -798,45 +834,6 @@ button:disabled {
 }
 
 /* <INPUT>====================================================================================== */
-
-/* <CHECKBOX>=================================================================================== */
-.checkbox {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &__box {
-        width: 20px;
-        height: 20px;
-        border-radius: 2px;
-        border: 1px solid rgba(0, 0, 0, .35);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: transparent;
-    }
-
-    input {
-        display: none;
-    }
-
-    input:checked+&__box {
-        background-color: var(--theme_color);
-
-        &::before {
-            content: "";
-            background-image: url('/img/icons/checkmark.svg');
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-            position: absolute;
-            width: 15px;
-            height: 15px;
-        }
-    }
-}
-
-/* <CHECKBOX>=================================================================================== */
 
 /* <ERROR>====================================================================================== */
 .error {

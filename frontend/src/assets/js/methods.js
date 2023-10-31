@@ -1,5 +1,4 @@
 import { isNumeric } from './scripts.js'
-import { adjustTextarea } from './scripts.js'
 
 /* требуется, чтобы в data был прописан объект matchMediaMatches такого вида:
     matchMediaMatches: {
@@ -15,11 +14,16 @@ import { adjustTextarea } from './scripts.js'
 */
 export function setMatchMedia() {
     function forEachCallback(mediaValue, type) {
+        const onChange = () => {
+            this.matchMediaMatches[type][mediaValue] = mm.matches
+        }
+
         if (!isNumeric(mediaValue))
             return
 
         const mm = window.matchMedia(`(${type}-width: ${mediaValue}px)`)
-        mm.addEventListener('change', () => this.matchMediaMatches[type][mediaValue] = mm.matches)
+        mm.addEventListener('change', onChange)
+        onChange()
     }
 
     forEachCallback = forEachCallback.bind(this)

@@ -49,6 +49,18 @@ class Product extends FilterableModel
             ->groupBy('products.id');
     }
 
+    public function scopeSort(Builder $builder, $sortValue)
+    {
+        if(empty($sortValue))
+            return;
+
+        $split = explode('|', $sortValue);
+        $sortBy = $split[0];
+        $sortType = array_key_exists(1, $split) ? $split[1] : 'asc' ?? 'desc';
+
+        $builder->orderBy($sortBy, $sortType);
+    }
+
     public static function scopeTaxonomies(Builder $builder)
     {
         $builder->addSelect(

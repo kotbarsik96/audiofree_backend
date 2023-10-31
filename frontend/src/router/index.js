@@ -64,7 +64,7 @@ const router = createRouter({
                 }
             ]
         },
-        // folter: user
+        // folder: user
         {
             path: '/account',
             name: 'Account',
@@ -89,6 +89,15 @@ const router = createRouter({
                     component: () => import('@/views/user/EmailVerification.vue')
                 }
             ]
+        },
+        // folder: products
+        {
+            path: '/catalog/:pageNumber?',
+            name: 'Catalog',
+            component: () => import('@/views/products/CatalogView.vue'),
+            meta: {
+                hasPageNumber: true
+            }
         },
         // other
         {
