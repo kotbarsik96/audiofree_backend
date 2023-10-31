@@ -156,11 +156,6 @@ export default {
         grid-column: 1 / 2;
         position: relative;
         grid-row: 1 / -1;
-
-        .filter {
-            position: sticky;
-            top: 30px;
-        }
     }
 
     &__page-heading {

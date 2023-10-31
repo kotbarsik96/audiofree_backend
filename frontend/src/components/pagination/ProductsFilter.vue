@@ -1,5 +1,5 @@
 <template>
-    <div class="filter card" :class="{ 'filter--body-hidden': isBodyHiddenComputed }">
+    <div class="filter card" :class="{ 'filter--body-hidden': isBodyHiddenComputed, '__sticky': isSticky }">
         <div class="filter__container card__container">
             <div class="filter__header" @click="() => isBodyHidden = !isBodyHidden">
                 <span class="filter__header-text">
@@ -90,7 +90,8 @@ export default {
                 max: {
                     '919': false
                 }
-            }
+            },
+            isSticky: false
         }
     },
     computed: {
@@ -205,6 +206,15 @@ export default {
                     })
                 }
             }
+        },
+        onResize(){
+            const filterHeight = this.$el.offsetHeight
+            const windowHeight = document.documentElement.clientHeight
+
+            if(filterHeight < windowHeight - 30)
+                this.isSticky = true
+            else 
+                this.isSticky = false
         }
     },
     watch: {
@@ -223,12 +233,21 @@ export default {
         for (let key in this.modelValue) {
             this.filterInput[key] = this.modelValue[key]
         }
+        this.onResize()
+        window.addEventListener('resize', this.onResize)
+    },
+    beforeUnmount() {
+        window.removeEventListener('resize', this.onResize)
     }
 }
 </script>
 
 <style lang="scss">
 .filter {
+    &.__sticky {
+        position: sticky;
+        top: 30px;
+    }
 
     &__container {
         color: #353535;
@@ -297,6 +316,11 @@ export default {
     }
 
     @media (max-width: 919px) {
+        &.__sticky {
+            position: relative;
+            top: 0;
+        }
+
         &__container {
             padding: 0 0 25px 0;
         }
