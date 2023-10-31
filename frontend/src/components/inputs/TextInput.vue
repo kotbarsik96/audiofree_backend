@@ -122,7 +122,7 @@ export default {
         },
         onInput() {
             if (this.maxlength) {
-                const value = this.value.replace(/\D/g, '')
+                const value = this.value.toString().replace(/\D/g, '')
                 if (this.numberonly && parseInt(value) > parseInt(this.max))
                     this.value = this.max
             }
@@ -135,7 +135,7 @@ export default {
             if (!this.scopeSymbolsRegexp)
                 return
 
-            nextTick().then(() => this.value = this.value.replace(this.scopeSymbolsRegexp, ''))
+            nextTick().then(() => this.value = this.value.toString().replace(this.scopeSymbolsRegexp, ''))
         },
         doApplyModifiers() {
             if (!this.modifiers)
@@ -155,7 +155,7 @@ export default {
                     return
 
                 if (modifier === 'toLocaleString') {
-                    value = parseInt(value.replace(/\s/g, ''))
+                    value = parseInt(value.toString().replace(/\s/g, ''))
                     if (isNaN(value))
                         return
                 }
@@ -174,7 +174,7 @@ export default {
             let clearValue = this.getUnmaskedValue()
 
             clearValue.split('')
-                .forEach(substr => modifiedValue = modifiedValue.replace(this.maskSymbol, substr))
+                .forEach(substr => modifiedValue = modifiedvalue.toString().replace(this.maskSymbol, substr))
             if (modifiedValue.includes(this.maskSymbol)) {
                 const index = modifiedValue.indexOf(this.maskSymbol)
                 modifiedValue = modifiedValue.slice(0, index)
@@ -188,7 +188,7 @@ export default {
 
             switch (this.mask) {
                 case 'phone':
-                    return this.value.replace(/(\+7)|\(|\)|\-|\s/g, '')
+                    return this.value.toString().replace(/(\+7)|\(|\)|\-|\s/g, '')
                 default:
                     if (this.value.length >= this.maskString.indexOf(this.maskSymbol)) {
                         return this.value.split('')

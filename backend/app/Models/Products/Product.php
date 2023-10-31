@@ -108,7 +108,7 @@ class Product extends FilterableModel
             ->where('product_id', $product->id)
             ->get(['product_images.id', 'images.id as image_id', 'images.path']);
         $variations = Variation::where('product_id', $product->id)
-            ->get(['variation.id', 'variation.name']);
+            ->get(['variations.id', 'variations.name']);
 
         $productVariations = [];
         foreach ($variations as $variationModel) {

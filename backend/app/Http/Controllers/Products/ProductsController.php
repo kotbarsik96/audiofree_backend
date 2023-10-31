@@ -65,6 +65,8 @@ class ProductsController extends Controller
             ProductsExceptions::storeValidator($request),
             [
                 'brand' => 'Бренд',
+                'price' => 'Цена',
+                'discount_price' => 'Цена по скидке',
                 'category' => 'Категория',
                 'type' => 'Тип',
                 'image_id' => 'Изображение',
