@@ -1,41 +1,45 @@
 <template>
-    <div class="container">
-        <div class="catalog">
-            <div class="catalog__wrapper">
-                <LoadingScreen v-if="isLoading"></LoadingScreen>
-                <div class="catalog__filter-container">
-                    <ProductsFilter ref="productsFilter" v-model="filters" :sections="filterSections"></ProductsFilter>
-                </div>
-                <div class="catalog__page-heading page-heading">
-                    <div class="breadcrumbs">
-                        <RouterLink class="breadcrumbs__link link" :to="{ name: 'Home' }">
-                            Главная
-                        </RouterLink>
-                        <RouterLink class="breadcrumbs__link link" :to="{ name: 'Catalog' }">
-                            Каталог
-                        </RouterLink>
+    <div>
+        <div class="container">
+            <div class="catalog">
+                <div class="catalog__wrapper">
+                    <LoadingScreen v-if="isLoading"></LoadingScreen>
+                    <div class="catalog__filter-container">
+                        <ProductsFilter ref="productsFilter" v-model="filters" :sections="filterSections"></ProductsFilter>
                     </div>
-                    <h1 class="page-title">
-                        Каталог
-                    </h1>
-                </div>
-                <div class="catalog__select">
-                    <ValueSelect v-model="sortValue" name="products-catalog-sort" :values="sortValues"></ValueSelect>
-                </div>
-                <div class="catalog__list-container">
-                    <ul class="catalog__list">
-                        <li v-for="product in list" :key="product.id" class="catalog__list-item">
-                            <ProductCard :product="product"></ProductCard>
-                        </li>
-                    </ul>
-                    <div class="catalog__pagination">
-                        <ListPagination v-model="list" v-model:error="error" v-model:count="totalCount"
-                            :loadLink="productsLoadLink" :filters="filtersAndSort" :limit="productsOnPageLimit" v-model:isLoading="isLoading">
-                        </ListPagination>
+                    <div class="catalog__page-heading page-heading">
+                        <div class="breadcrumbs">
+                            <RouterLink class="breadcrumbs__link link" :to="{ name: 'Home' }">
+                                Главная
+                            </RouterLink>
+                            <RouterLink class="breadcrumbs__link link" :to="{ name: 'Catalog' }">
+                                Каталог
+                            </RouterLink>
+                        </div>
+                        <h1 class="page-title">
+                            Каталог
+                        </h1>
+                    </div>
+                    <div class="catalog__select">
+                        <ValueSelect v-model="sortValue" name="products-catalog-sort" :values="sortValues"></ValueSelect>
+                    </div>
+                    <div class="catalog__list-container">
+                        <ul class="catalog__list">
+                            <li v-for="product in list" :key="product.id" class="catalog__list-item">
+                                <ProductCard :product="product"></ProductCard>
+                            </li>
+                        </ul>
+                        <div class="catalog__pagination">
+                            <ListPagination v-model="list" v-model:error="error" v-model:count="totalCount"
+                                :loadLink="productsLoadLink" :filters="filtersAndSort" :limit="productsOnPageLimit"
+                                v-model:isLoading="isLoading">
+                            </ListPagination>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <QuestionsAnswersSection></QuestionsAnswersSection>
     </div>
 </template>
 
@@ -46,6 +50,7 @@ import ListPagination from '@/components/pagination/ListPagination.vue'
 import ProductCard from '@/components/cards/products/ProductCard.vue'
 import ProductCardDiscount from '@/components/cards/products/ProductCardDiscount.vue'
 import LoadingScreen from '@/components/page/LoadingScreen.vue'
+import QuestionsAnswersSection from '@/components/page/sections/QuestionsAnswersSection.vue'
 import { setMatchMedia } from '@/assets/js/methods.js'
 
 export default {
@@ -56,7 +61,8 @@ export default {
         ListPagination,
         ProductCard,
         LoadingScreen,
-        ProductCardDiscount
+        ProductCardDiscount,
+        QuestionsAnswersSection
     },
     data() {
         return {
@@ -115,8 +121,8 @@ export default {
         filtersAndSort() {
             return Object.assign(this.filters, { sortValue: this.sortValue })
         },
-        productsOnPageLimit(){
-            if(this.matchMediaMatches.max['1189'])
+        productsOnPageLimit() {
+            if (this.matchMediaMatches.max['1189'])
                 return 8
 
             return 9
@@ -125,7 +131,7 @@ export default {
     methods: {
         setMatchMedia
     },
-    mounted(){
+    mounted() {
         this.setMatchMedia()
     }
 }

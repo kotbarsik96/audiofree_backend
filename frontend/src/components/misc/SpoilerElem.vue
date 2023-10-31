@@ -1,5 +1,5 @@
 <template>
-    <component :is="tag" class="spoiler">
+    <component :is="tag" class="spoiler" :class="{ '__shown': isBodyShown }">
         <button class="spoiler__button" type="button" @click="toggle">
             <slot name="buttonContent"></slot>
         </button>
@@ -26,6 +26,7 @@ function tagValidator(value) {
 }
 export default {
     name: 'SpoilerElem',
+    emits: ['hide', 'show'],
     props: {
         isShownDefault: Boolean,
         tag: {
@@ -57,9 +58,11 @@ export default {
                 : this.show()
         },
         async show() {
+            this.$emit('show')
             this.isBodyShown = true
         },
         async hide() {
+            this.$emit('hide')
             this.isBodyShown = false
         },
         onBeforeEnter(el) {

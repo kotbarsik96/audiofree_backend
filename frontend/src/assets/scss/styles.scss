@@ -380,6 +380,7 @@ button:disabled {
         color: #B3B3B3;
 
         display: block;
+
         &::after {
             content: "/";
         }
@@ -394,6 +395,26 @@ button:disabled {
 }
 
 /* <PAGE-HEADING>=============================================================================== */
+
+/* <SECTION-TITLE>============================================================================== */
+.section-title {
+    font-size: 44px;
+    line-height: 52px;
+    color: #535353;
+    font-weight: 300;
+    margin-bottom: 30px;
+
+    &__highlighted {
+        color: var(--theme_color);
+        font-weight: 700;
+    }
+
+    &--centered {
+        text-align: center;
+    }
+}
+
+/* <SECTION-TITLE>============================================================================== */
 
 /* <CONTACT-BLOCK>============================================================================== */
 .contact-block {

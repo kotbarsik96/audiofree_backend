@@ -195,7 +195,7 @@ export default {
                 })
             } else {
                 if (!this.matchMediaMatches.max['919']) {
-                    fbody.style.removeProperty('max-height')
+                    setTimeout(() => fbody.style.removeProperty('max-height'), 0);
                 } else {
                     gsap.set(fbody, { overflow: 'hidden' })
                     const maxHeight = getHeight(fbody)
