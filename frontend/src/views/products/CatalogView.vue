@@ -24,15 +24,18 @@
                         <ValueSelect v-model="sortValue" name="products-catalog-sort" :values="sortValues"></ValueSelect>
                     </div>
                     <div class="catalog__list-container">
-                        <ul class="catalog__list">
+                        <ul class="catalog__list" v-if="list.length > 0">
                             <li v-for="product in list" :key="product.id" class="catalog__list-item">
                                 <ProductCard :product="product"></ProductCard>
                             </li>
                         </ul>
+                        <div class="catalog__not-found" v-else>
+                            К сожалению, товаров по выбранным фильтрам не найдено
+                        </div>
                         <div class="catalog__pagination">
                             <ListPagination v-model="list" v-model:error="error" v-model:count="totalCount"
                                 :loadLink="productsLoadLink" :filters="filtersAndSort" :limit="productsOnPageLimit"
-                                v-model:isLoading="isLoading">
+                                v-model:isLoading="isLoading" v-model:meta="paginationMeta">
                             </ListPagination>
                         </div>
                     </div>
@@ -77,7 +80,11 @@ export default {
             filters: {
                 brands: [],
                 types: [],
-                has_discount: ''
+                has_discount: '',
+                price_range: {
+                    min: 0,
+                    max: 0
+                }
             },
             filterSections: [
                 {
@@ -101,12 +108,20 @@ export default {
                         { string: 'Нет', value: 'no' }
                     ]
                 },
+                {
+                    title: 'Цена',
+                    name: 'price_range',
+                    type: 'range',
+                    minValue: 0,
+                    maxValue: 0
+                }
             ],
             matchMediaMatches: {
                 max: {
                     '1189': false
                 }
             },
+            paginationMeta: {},
             sort: '',
             totalCount: 0,
             isLoading: false,
@@ -144,6 +159,19 @@ export default {
                     obj.values = this.taxonomies[key]
                 })
             }
+        },
+        setPriceRange(){
+            const priceObj = this.filterSections.find(obj => obj.name === 'price_range')
+            if(!priceObj)
+                return
+
+            priceObj.minValue = this.paginationMeta.cheapest_price
+            priceObj.maxValue = this.paginationMeta.most_expensive_price
+        }
+    },
+    watch: {
+        paginationMeta(){
+            this.setPriceRange()
         }
     },
     mounted() {
@@ -186,6 +214,7 @@ export default {
 
     &__list-container {
         grid-column: 2 / 5;
+        position: relative;
     }
 
     &__select {
@@ -200,6 +229,16 @@ export default {
         display: grid;
         grid-template-columns: repeat(auto-fit, 270px);
         grid-gap: 30px;
+    }
+
+    &__not-found {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-size: 34px;
+        line-height: 37px;
+        text-align: center;
     }
 
     &__pagination {
@@ -278,6 +317,11 @@ export default {
     @media (max-width: 529px) {
         &__filter-container {
             flex: 0 0 100%;
+        }
+
+        &__not-found {
+            font-size: 24px;
+            line-height: 27px;
         }
     }
 }

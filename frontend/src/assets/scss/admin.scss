@@ -345,6 +345,10 @@
         }
     }
 
+    .checkbox {
+        justify-content: center;
+    }
+
     @media (max-width: 1249px) {
         &__container {
             overflow: auto;

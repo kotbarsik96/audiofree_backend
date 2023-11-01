@@ -30,6 +30,8 @@ class ProductsController extends Controller
         $limit = $request->query('limit') ?? null;
         $offset = $request->query('offset') ?? null;
 
+        $cheapest = Product::cheapest();
+        $mostExpensive = Product::mostExpensive();
         $productQuery = Product::filter($queryFilter);
         $totalCount = $productQuery->count();
 
@@ -41,7 +43,9 @@ class ProductsController extends Controller
 
         return [
             'result' => $productQuery->get(),
-            'total_count' => $totalCount
+            'total_count' => $totalCount,
+            'cheapest_price' => $cheapest,
+            'most_expensive_price' => $mostExpensive
         ];
     }
 

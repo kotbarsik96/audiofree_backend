@@ -24,6 +24,12 @@
                             {{ obj.string }}
                         </RadioLabel>
                     </div>
+                    <div class="filter__section-body" v-if="section.type === 'range'">
+                        <DoubleRange ref="doubleRange" :name="section.name" placeholderMin="499₽" placeholderMax="8499₽"
+                            :minValue="section.minValue" :maxValue="section.maxValue"
+                            v-model:modelValueMin="filterInput[section.name].min"
+                            v-model:modelValueMax="filterInput[section.name].max"></DoubleRange>
+                    </div>
                 </div>
                 <div class="filter__apply">
                     <button class="button" type="button" @click="clear">
@@ -36,6 +42,7 @@
 </template>
 
 <script>
+import DoubleRange from '@/components/inputs/DoubleRange.vue'
 import { isNumeric, getHeight } from '@/assets/js/scripts.js'
 import { setMatchMedia } from '@/assets/js/methods.js'
 import { gsap } from 'gsap'
@@ -54,7 +61,7 @@ export default {
             для radio/checkbox:
                 [{ values: [{ string: 'Xiaomi', value: 1 }, 'Apple'] }] (строка 'Apple' превратится в объект { string: 'Apple', value: 'Apple' })
             для range: 
-                [{ min: 0, max: 8499 }]
+                [{ minValue: 0, maxValue: 8499 }]
         */
         sections: {
             type: Array,
@@ -82,6 +89,9 @@ export default {
         modelValue: Object
     },
     emits: ['update:modelValue'],
+    components: {
+        DoubleRange
+    },
     data() {
         return {
             filterInput: Object.assign({}, this.modelValue),
@@ -130,12 +140,12 @@ export default {
                             .filter(o => o)
                         return section
                     case 'range':
-                        if (isNumeric(section.min))
-                            section.min = parseInt(section.min)
+                        if (isNumeric(section.minValue))
+                            section.minValue = parseInt(section.minValue)
                         else
-                            section.min = 0
+                            section.minValue = 0
 
-                        section.max = parseInt(section.max)
+                        section.maxValue = parseInt(section.maxValue)
                         return section
                 }
             })
@@ -150,6 +160,8 @@ export default {
     methods: {
         setMatchMedia,
         clear() {
+            this.$refs.doubleRange.forEach(dbr => dbr.setDefaults())
+
             const cleared = Object.assign({}, this.filterInput)
             for (let key in cleared) {
                 const val = cleared[key]
@@ -158,8 +170,6 @@ export default {
 
                 if (typeof val === 'string')
                     cleared[key] = ''
-                else if (typeof val === 'object' && !Array.isArray(val))
-                    cleared[key] = {}
                 else if (Array.isArray(val))
                     cleared[key] = []
             }
@@ -192,10 +202,14 @@ export default {
                 gsap.to(fbody, {
                     maxHeight: '0px',
                     duration,
+                    onComplete: () => {
+                        if (!this.isBodyHiddenComputed)
+                            fbody.style.removeProperty('max-height')
+                    }
                 })
             } else {
                 if (!this.matchMediaMatches.max['919']) {
-                    setTimeout(() => fbody.style.removeProperty('max-height'), 0);
+                    fbody.style.removeProperty('max-height')
                 } else {
                     gsap.set(fbody, { overflow: 'hidden' })
                     const maxHeight = getHeight(fbody)
@@ -207,13 +221,13 @@ export default {
                 }
             }
         },
-        onResize(){
+        onResize() {
             const filterHeight = this.$el.offsetHeight
             const windowHeight = document.documentElement.clientHeight
 
-            if(filterHeight < windowHeight - 30)
+            if (filterHeight < windowHeight - 30)
                 this.isSticky = true
-            else 
+            else
                 this.isSticky = false
         }
     },
@@ -247,6 +261,10 @@ export default {
     &.__sticky {
         position: sticky;
         top: 30px;
+    }
+
+    &::before {
+        transform: translateY(26px) scale(0.96);
     }
 
     &__container {
@@ -322,7 +340,7 @@ export default {
         }
 
         &__container {
-            padding: 0 0 25px 0;
+            padding: 0 0 45px 0;
         }
 
         &__header {

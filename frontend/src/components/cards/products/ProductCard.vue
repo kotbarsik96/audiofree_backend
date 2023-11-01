@@ -1,7 +1,8 @@
 <template>
     <div class="card product-card">
         <div class="card__container product-card__container">
-            <button class="product-card__expand-top circle-wrapper" :class="{ '__active': isTopExpanded }" type="button" @click="expandTop">
+            <button class="product-card__expand-top circle-wrapper" :class="{ '__active': isTopExpanded }" type="button"
+                @click="expandTop">
                 <PlusIcon></PlusIcon>
             </button>
             <div class="product-card__top" :class="{ '__expanded': isTopExpanded }">
@@ -14,11 +15,14 @@
                 <div data-prodcard-mobile-buttons></div>
             </div>
             <div class="product-card__image-container">
-                <img class="product-card__image" :src="imageSrc"
-                    :alt="product.name">
+                <RouterLink class="link" :to="{ name: 'Product', params: { productId: product.id } }">
+                    <img class="product-card__image" :src="imageSrc" :alt="product.name">
+                </RouterLink>
             </div>
             <div class="product-card__title">
-                {{ product.name }}
+                <RouterLink class="link" :to="{ name: 'Product', params: { productId: product.id } }">
+                    {{ product.name }}
+                </RouterLink>
             </div>
             <div class="product-card__flex">
                 <div class="product-card__flex-item">

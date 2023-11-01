@@ -373,6 +373,7 @@ button:disabled {
 .breadcrumbs {
     display: flex;
     flex-wrap: wrap;
+    margin-bottom: 10px;
 
     &__link {
         font-size: 12px;
@@ -1050,3 +1051,75 @@ button:disabled {
 }
 
 /* <INPUTS-FLEX>================================================================================ */
+
+/* <RANGE>====================================================================================== */
+.double-range {
+
+    &__delimeter {
+        &::before {
+            content: "–";
+            font-size: 16px;
+        }
+    }
+}
+
+.range {
+    --border_radius: 15px;
+
+    &__input {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .text-input {
+            &__input {
+                border-radius: 9px;
+                text-align: center;
+            }
+        }
+    }
+
+    &__scale {
+        cursor: pointer;
+        position: relative;
+        width: 100%;
+        height: 5px;
+        background-color: #f0f0f0;
+        border-radius: var(--border_radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 35px;
+        touch-action: none;
+    }
+
+    &__bar {
+        position: absolute;
+        z-index: 5;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--theme_color);
+        border-radius: var(--border_radius);
+    }
+
+    &__toggler {
+        position: absolute;
+        z-index: 10;
+        left: 0;
+        border-radius: 50%;
+        border: 3px solid var(--theme_color);
+        background-color: #fff;
+        width: 26px;
+        height: 26px;
+        touch-action: none;
+
+        &--max {
+            z-index: 15;
+        }
+    }
+}
+
+
+/* <RANGE>====================================================================================== */

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/index/HomeView.vue'
 import { useIndexStore } from '@/stores'
+import axios from 'axios'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -99,6 +100,11 @@ const router = createRouter({
                 hasPageNumber: true
             }
         },
+        {
+            path: '/product/:productId',
+            name: 'Product',
+            component: () => import('@/views/products/ProductView.vue'),
+        },
         // other
         {
             path: '/:pathMatch(.*)*',
@@ -166,8 +172,27 @@ router.beforeEach(async (to, from) => {
             return { name: 'NotFound' }
     }
 
-    if(to.name === 'Account') {
+    if (to.name === 'Account') {
         return { name: 'AccountInfo' }
+    }
+
+    if (to.name === 'Product') {
+        const store = useIndexStore()
+        store.toggleLoading('loadProductPage', true)
+        const link = `${import.meta.env.VITE_PRODUCT_GET_LINK}${to.params.productId}`
+
+        try {
+            const res = await axios.get(link)
+            if (!res.data.id)
+                return { name: 'NotFound' }
+
+            to.meta.product = res.data
+        } catch (err) {
+            store.toggleLoading('loadProductPage', false)
+            return { name: 'NotFound' }
+        }
+
+        store.toggleLoading('loadProductPage', false)
     }
 })
 

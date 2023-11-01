@@ -23,6 +23,20 @@ class ProductsFilter extends QueryFilter
         $this->builder->whereRaw('IF(discount_price IS NULL, price = ?, discount_price = ?)', [$value, $value]);
     }
 
+    public function price_range($values)
+    {
+        if (!is_array($values))
+            return;
+
+        $min = array_key_exists('min', $values) ? (int) $values['min'] ?? 0 : 0;
+        $max = array_key_exists('max', $values) ? (int) $values['max'] ?? 0 : 0;
+
+        if ($max === 0)
+            return;
+
+        $this->builder->whereRaw('IF(discount_price IS NULL, price > ? AND price < ?, discount_price > ? AND discount_price < ?)', [$min, $max, $min, $max]);
+    }
+
     public function has_discount($value = null)
     {
         if (empty($value) || $value === 'no_matter')

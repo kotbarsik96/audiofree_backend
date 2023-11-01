@@ -44,7 +44,8 @@ export default {
         'updateLoaded',
         'update:error',
         'update:isLoading',
-        'update:count'
+        'update:count',
+        'update:meta'
     ],
     props: {
         /* массив, который содержит в себе элементы с текущей страницы */
@@ -63,6 +64,8 @@ export default {
         isLoading: Boolean,
         /* v-model:count — общее количество загруженных элементов, а не только на выбранной странице */
         count: Number,
+        /* v-model:meta — какие-либо метаданные, например, cheapest и mostExpensive для товаров. В данный объект будут записаны все поля из объекта, загруженного через this.loadLink, кроме полей total_count и result  */
+        meta: Object,
         /* ограничение на показ количества страниц в пагинации. Остальное будет скрыто "...", а после него будет номер последней страницы */
         pagesLimit: {
             type: Number,
@@ -165,6 +168,15 @@ export default {
                     this.$emit('updateLoaded', res.data.result)
                     if (isNumeric(res.data.total_count))
                         this.totalCount = parseInt(res.data.total_count)
+
+                    const meta = {}
+                    for(let key in res.data) {
+                        if(key === 'total_count' || key === 'result')
+                            continue
+
+                        meta[key] = res.data[key]
+                    }
+                    this.$emit('update:meta', meta)
                 } else {
                     this.$emit('update:error', 'Произошла ошибка')
                 }

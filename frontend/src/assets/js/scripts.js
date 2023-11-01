@@ -184,14 +184,21 @@ export function getExcerpt(longText, options = {}) {
     if (!isNumeric(options.maxlength))
         options.maxlength = 50
     options.maxlength = parseInt(options.maxlength)
-    
+
     let cut = longText.slice(0, options.maxlength)
     const match = cut.match(/^.+(?=\s)/)
-    if(match)
+    if (match)
         cut = match[0]
 
-    if(options.after)
+    if (options.after)
         cut += options.after
 
     return cut
+}
+
+export function getNumber(string) {
+    if (!string)
+        return 0
+
+    return parseFloat(string.toString().replace(/[^0-9,\.]/g, ''))
 }

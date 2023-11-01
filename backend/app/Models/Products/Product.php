@@ -28,22 +28,29 @@ class Product extends FilterableModel
         'rating_value' => 'float'
     ];
 
-    public static function scopeMainData(Builder $builder)
+    public static function scopeCurrentPrice(Builder $builder)
     {
         $builder->addSelect(
-            'products.id',
-            'products.name',
-            'products.price',
-            'products.discount_price',
-            'products.quantity',
-            'products.product_status_id',
-            DB::raw('IF(products.discount_price, products.discount_price, products.price) AS current_price'),
-            'products.description',
-            'images.path AS image_path',
-            'images.id AS image_id',
-            DB::raw('avg(ratings.value) as rating_value'),
-            DB::raw('count(*) as rating_count')
-        )
+            DB::raw('IF(products.discount_price, products.discount_price, products.price) AS current_price')
+        );
+    }
+
+    public static function scopeMainData(Builder $builder)
+    {
+        $builder->currentPrice()
+            ->addSelect(
+                'products.id',
+                'products.name',
+                'products.price',
+                'products.discount_price',
+                'products.quantity',
+                'products.product_status_id',
+                'products.description',
+                'images.path AS image_path',
+                'images.id AS image_id',
+                DB::raw('avg(ratings.value) as rating_value'),
+                DB::raw('count(*) as rating_count')
+            )
             ->leftJoin('images', 'products.image_id', '=', 'images.id')
             ->leftJoin('ratings', 'products.id', '=', 'ratings.product_id')
             ->groupBy('products.id');
@@ -51,7 +58,7 @@ class Product extends FilterableModel
 
     public function scopeSort(Builder $builder, $sortValue)
     {
-        if(empty($sortValue))
+        if (empty($sortValue))
             return;
 
         $split = explode('|', $sortValue);
@@ -73,6 +80,30 @@ class Product extends FilterableModel
             ->leftJoin('brands', 'products.brand_id', '=', 'brands.id')
             ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
             ->leftJoin('product_statuses', 'products.product_status_id', '=', 'product_statuses.id');
+    }
+
+    public static function scopeCheapest(Builder $builder)
+    {
+        $bCopy = clone $builder;
+        $res = $bCopy->currentPrice()->orderBy('current_price', 'asc')->first();
+        if (empty($res))
+            return 0;
+        if (empty($res->current_price))
+            return 0;
+
+        return $res->current_price;
+    }
+
+    public static function scopeMostExpensive(Builder $builder)
+    {
+        $bCopy = clone $builder;
+        $res = $bCopy->currentPrice()->orderBy('current_price', 'desc')->first();
+        if (empty($res))
+            return 0;
+        if (empty($res->current_price))
+            return 0;
+
+        return $res->current_price;
     }
 
     public static function singleFullData($id, $selectTimestamps = false)

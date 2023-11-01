@@ -74,9 +74,12 @@ export default {
         align-items: center;
         justify-content: center;
         background-color: transparent;
-        margin-right: 11px;
         transition-property: background-color;
         transition-duration: .2s;
+    }
+
+    &__text {
+        margin-left: 11px;
     }
 
     input {
