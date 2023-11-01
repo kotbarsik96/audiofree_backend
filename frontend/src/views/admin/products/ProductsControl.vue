@@ -21,21 +21,41 @@
                     Есть скидка
                 </template>
             </ValueSelect>
-            <TextInputWrapper name="brand" id="brand" v-model="filters.brand">
+            <ValueSelect name="brand" :values="taxonomies.brands" v-model="filters.brands">
+                <template v-slot:label>
+                    Бренд
+                </template>
+            </ValueSelect>
+            <ValueSelect name="category" :values="taxonomies.categories" v-model="filters.categories">
+                <template v-slot:label>
+                    Категория
+                </template>
+            </ValueSelect>
+            <ValueSelect name="type" :values="taxonomies.types" v-model="filters.types">
+                <template v-slot:label>
+                    Тип
+                </template>
+            </ValueSelect>
+            <ValueSelect name="product_status" :values="taxonomies.product_statuses" v-model="filters.product_statuses">
+                <template v-slot:label>
+                    Статус
+                </template>
+            </ValueSelect>
+            <!-- <TextInputWrapper name="brand" id="brand" v-model="filters.brands">
                 <template v-slot:label>
                     Бренд
                 </template>
             </TextInputWrapper>
-            <TextInputWrapper name="category" id="category" v-model="filters.category">
+            <TextInputWrapper name="category" id="category" v-model="filters.categories">
                 <template v-slot:label>
                     Категория
                 </template>
             </TextInputWrapper>
-            <TextInputWrapper name="type" id="type" v-model="filters.type">
+            <TextInputWrapper name="type" id="type" v-model="filters.types">
                 <template v-slot:label>
                     Тип
                 </template>
-            </TextInputWrapper>
+            </TextInputWrapper> -->
         </div>
         <div class="admin-page__listing">
             <AdminListTable v-model="list" v-model:selectedItems="selectedItems" :columnsCount="7"
@@ -73,7 +93,8 @@
                 </template>
                 <tr v-for="item in list" :key="item.id">
                     <td>
-                        <CheckboxLabel name="product-control-selection" :checked="selectedItems.includes(item.id)" :value="item.id" v-model="selectedItems"></CheckboxLabel>
+                        <CheckboxLabel name="product-control-selection" :checked="selectedItems.includes(item.id)"
+                            :value="item.id" v-model="selectedItems"></CheckboxLabel>
                     </td>
                     <td>
                         <img :src="getImageSrc(item.image_path)" :alt="item.image_path">
@@ -123,6 +144,7 @@ import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import ListPagination from '@/components/pagination/ListPagination.vue'
 import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import AdminListTable from '@/components/tables/AdminListTable.vue'
+import { useIndexStore } from '@/stores/'
 import { useModalsStore } from '@/stores/modals.js'
 import { useNotificationsStore } from '@/stores/notifications.js'
 import { h } from 'vue'
@@ -145,22 +167,31 @@ export default {
             listCount: 0,
             selectedItems: [],
             isLoading: false,
+            taxonomies: {
+                brands: [],
+                categories: [],
+                types: [],
+                product_statuses: []
+            },
             filters: {
                 name: '',
                 current_price: '',
                 has_discount: null,
-                brand: '',
-                category: '',
-                type: '',
+                brands: '',
+                categories: '',
+                types: '',
             }
         }
     },
     computed: {
         loadLink() {
             return import.meta.env.VITE_PRODUCTS_GET_LINK
-        },
+        }
     },
     methods: {
+        async loadTaxonomies() {
+            await useIndexStore().loadTaxonomies(this.taxonomies, true)
+        },
         updateProducts() {
             this.$refs.paginationComponent.loadList(true)
         },
@@ -249,5 +280,8 @@ export default {
             useModalsStore().addModal({ component: modalComponent })
         },
     },
+    mounted() {
+        this.loadTaxonomies()
+    }
 }
 </script>

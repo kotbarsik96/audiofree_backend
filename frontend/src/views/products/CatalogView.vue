@@ -52,6 +52,7 @@ import ProductCardDiscount from '@/components/cards/products/ProductCardDiscount
 import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import QuestionsAnswersSection from '@/components/page/sections/QuestionsAnswersSection.vue'
 import { setMatchMedia } from '@/assets/js/methods.js'
+import { useIndexStore } from '@/stores/'
 
 export default {
     name: 'CatalogView',
@@ -74,23 +75,22 @@ export default {
             ],
             sortValue: 'name|asc',
             filters: {
-                brand: [],
-                category: [],
-                type: [],
+                brands: [],
+                types: [],
                 has_discount: ''
             },
             filterSections: [
                 {
                     title: 'Бренд',
-                    name: 'brand',
+                    name: 'brands',
                     type: 'checkbox',
-                    values: ['Xiaomi', 'Apple']
+                    values: []
                 },
                 {
-                    title: 'Категория',
-                    name: 'category',
+                    title: 'Тип',
+                    name: 'types',
                     type: 'checkbox',
-                    values: ['Наушники']
+                    values: []
                 },
                 {
                     title: 'Скидка',
@@ -111,6 +111,10 @@ export default {
             totalCount: 0,
             isLoading: false,
             list: [],
+            taxonomies: {
+                brands: [],
+                types: []
+            },
             error: ''
         }
     },
@@ -129,10 +133,22 @@ export default {
         }
     },
     methods: {
-        setMatchMedia
+        setMatchMedia,
+        async loadTaxonomies() {
+            await useIndexStore().loadTaxonomies(this.taxonomies)
+            for (let key in this.taxonomies) {
+                this.filterSections.forEach(obj => {
+                    if (obj.name !== key)
+                        return
+
+                    obj.values = this.taxonomies[key]
+                })
+            }
+        }
     },
     mounted() {
         this.setMatchMedia()
+        this.loadTaxonomies()
     }
 }
 </script>

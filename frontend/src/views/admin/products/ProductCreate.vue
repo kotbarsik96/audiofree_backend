@@ -94,6 +94,8 @@ import ImageLoad from '@/components/inputs/images/ImageLoad.vue'
 import ImagesGallery from '@/components/inputs/images/ImagesGallery.vue'
 import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import axios from 'axios'
+import { getNumber } from '@/assets/js/scripts.js'
+import { useIndexStore } from '@/stores/'
 
 export default {
     name: 'ProductCreate',
@@ -155,15 +157,7 @@ export default {
     },
     methods: {
         async loadTaxonomies() {
-            try {
-                const res = await axios.get(import.meta.env.VITE_TAXONOMIES_GET_LINK)
-                for (let key in this.taxonomies) {
-                    if (!Array.isArray(res.data[key]))
-                        continue
-
-                    this.taxonomies[key] = res.data[key].map(obj => obj.name)
-                }
-            } catch (err) { }
+            useIndexStore().loadTaxonomies(this.taxonomies, true)
         },
         async loadProductData() {
             const productId = this.$route.params.productId
@@ -233,8 +227,8 @@ export default {
 
             const data = {
                 name: this.input.name,
-                price: this.input.price,
-                discount_price: this.input.discount_price,
+                price: getNumber(this.input.price),
+                discount_price: getNumber(this.input.discount_price),
                 quantity: this.input.quantity,
                 product_status: this.input.taxonomies.product_status,
                 brand: this.input.taxonomies.brand,

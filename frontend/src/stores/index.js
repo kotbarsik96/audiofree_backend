@@ -124,6 +124,28 @@ export const useIndexStore = defineStore('index', {
                 throw err
             }
         },
+        async loadTaxonomies(taxonomiesObj = {}, showError = false) {
+            useIndexStore().toggleLoading('loadTaxonomies', true)
+
+            try {
+                const res = await axios.get(import.meta.env.VITE_TAXONOMIES_GET_LINK)
+                for (let key in taxonomiesObj) {
+                    if (!Array.isArray(res.data[key]))
+                        continue
+
+                    taxonomiesObj[key] = res.data[key].map(obj => obj.name)
+                }
+            } catch (err) {
+                if (showError) {
+                    useNotificationsStore().addNotification({
+                        message: 'Произошла ошибка при загрузке таксономий',
+                        timeout: 5000
+                    })
+                }
+            }
+
+            useIndexStore().toggleLoading('loadTaxonomies', false)
+        },
         toggleLoading(loadingName, adding = false) {
             if (adding)
                 this.loadings.push(loadingName)

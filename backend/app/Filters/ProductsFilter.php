@@ -52,18 +52,23 @@ class ProductsFilter extends QueryFilter
         );
     }
 
-    public function brand($titles = null)
+    public function brands($titles = null)
     {
         $this->filterByTaxonomy($titles, 'brand_id', 'brands.id', 'brands', 'brands.name');
     }
 
-    public function category($titles = null)
+    public function categories($titles = null)
     {
         $this->filterByTaxonomy($titles, 'category_id', 'categories.id', 'categories', 'categories.name');
     }
 
-    public function type($titles = null)
+    public function types($titles = null)
     {
         $this->filterByTaxonomy($titles, 'type_id', 'types.id', 'types', 'types.name');
+    }
+
+    public function product_statuses($titles = null)
+    {
+        $this->filterByTaxonomy($titles, 'product_status_id', 'product_statuses.id', 'product_statuses', 'product_statuses.name');
     }
 }
