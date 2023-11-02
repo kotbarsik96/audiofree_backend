@@ -854,6 +854,13 @@ button:disabled {
     margin-bottom: 5px;
     margin-left: 5px;
     text-align: left;
+
+    &--medium {
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 16px;
+        margin-left: 0;
+    }
 }
 
 /* <INPUT>====================================================================================== */
