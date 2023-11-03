@@ -132,7 +132,7 @@ export default {
             let closestToggler = 'min'
             if (toTogglerMin > toTogglerMax)
                 closestToggler = 'max'
-            else if (toTogglerMin === toTogglerMax) 
+            else if (toTogglerMin === toTogglerMax)
                 closestToggler = xRelative < toTogglerMin ? 'min' : 'max'
 
             onMove = onMove.bind(this)
@@ -145,7 +145,7 @@ export default {
             function onMove(moveEvent) {
                 const moveX = moveEvent.clientX
                 const moveXRelative = moveX - this.scaleCoords.left
-
+                
                 if (closestToggler === 'min' && moveXRelative > this.left.max)
                     this.input.min = this.input.max
                 else if (closestToggler === 'max' && moveXRelative < this.left.min)
@@ -155,8 +155,8 @@ export default {
                 else if (moveXRelative - this.togglerWidth > this.totalScaleWidth)
                     this.input[closestToggler] = this.maxValue
                 else {
-                    const percent = moveXRelative / (this.totalScaleWidth / 100)
-                    this.input[closestToggler] = this.totalValue / 100 * percent
+                    const percent = (moveXRelative - this.togglerWidth / 2) / (this.totalScaleWidth / 100)
+                    this.input[closestToggler] = this.totalValue / 100 * percent + this.minValue
                 }
 
                 this.onInputChange()
@@ -166,7 +166,7 @@ export default {
                 document.removeEventListener('pointerup', onUp)
             }
         },
-        setDefaults(){
+        setDefaults() {
             this.input.min = this.minValue
             this.input.max = this.maxValue
             this.onInputChange()
@@ -182,17 +182,17 @@ export default {
                 if (!isNaN(min)) {
                     this.input.min = min
                     this.$emit('update:modelValueMin', this.input.min)
-                } else 
+                } else
                     this.$emit('update:modelValueMin', this.minValue)
 
                 if (!isNaN(max)) {
                     this.input.max = max
                     this.$emit('update:modelValueMax', this.input.max)
-                } else 
+                } else
                     this.$emit('update:modelValueMax', this.maxValue)
             }
         },
-        minValue(){
+        minValue() {
             this.input.min = this.minValue
             this.onInputChange()
         },

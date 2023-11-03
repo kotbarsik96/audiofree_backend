@@ -34,7 +34,7 @@ class ProductsFilter extends QueryFilter
         if ($max === 0)
             return;
 
-        $this->builder->whereRaw('IF(discount_price IS NULL, price > ? AND price < ?, discount_price > ? AND discount_price < ?)', [$min, $max, $min, $max]);
+        $this->builder->whereRaw('IF(discount_price, discount_price >= ? AND discount_price <= ?, price >= ? AND price <= ?)', [$min, $max, $min, $max]);
     }
 
     public function has_discount($value = null)
