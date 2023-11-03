@@ -79,7 +79,7 @@ class User extends Authenticatable
         if (empty($user) || !Hash::check($user->email . $user->id, $userSecret))
             return false;
 
-        return true;
+        return $user;
     }
 
     public static function hasRight($user, $action, $request = null)

@@ -204,6 +204,11 @@ button:disabled {
     justify-content: center;
     transition: background-color .2s;
 
+    &:disabled {
+        cursor: default;
+        background-color: #eee !important;
+    }
+
     &:not(.circle-wrapper--not-interactive):hover {
         background-color: rgba(151, 212, 19, .6);
     }

@@ -8,7 +8,8 @@
             <div class="product-card__top" :class="{ '__expanded': isTopExpanded }">
                 <InStockPlaceholder class="product-card__stock" type="in-stock"></InStockPlaceholder>
                 <div class="product-card__circle-buttons">
-                    <button class="circle-wrapper circle-wrapper--shadow circle-wrapper--gray" type="button">
+                    <button class="circle-wrapper circle-wrapper--shadow circle-wrapper--gray" :class="{ '__active': isInFavorites }" type="button"
+                        :disabled="isInFavorites === null" @click="toggleFavorite">
                         <HeartIcon></HeartIcon>
                     </button>
                 </div>
@@ -53,7 +54,7 @@ import shared from './shared.js'
 import InStockPlaceholder from '@/components/misc/InStockPlaceholder.vue'
 import StarRating from '@/components/misc/StarRating.vue'
 
-export default injectShared(shared, {
+const componentData = injectShared(shared, {
     name: 'ProductCard',
     components: {
         InStockPlaceholder,
@@ -65,4 +66,5 @@ export default injectShared(shared, {
         }, shared.data)
     }
 })
+export default componentData
 </script>

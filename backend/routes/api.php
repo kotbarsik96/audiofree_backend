@@ -10,9 +10,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\Products\ProductsController;
 
-Route::post('/user-entities/create/cart', [UserEntitiesController::class, 'storeCart']);
-Route::post('/user-entities/create/favorite', [UserEntitiesController::class, 'storeFavorite']);
-
 Route::get('/product/{id}', [ProductsController::class, 'index']);
 Route::get('/products', [ProductsController::class, 'filter']);
 
@@ -32,6 +29,13 @@ Route::post('/auth/logout', [AuthController::class, 'logout']);
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user/favorites/{productId}', [UserEntitiesController::class, 'isInUserFavorites']);
+    Route::post('/user/favorites/add/{productId}', [UserEntitiesController::class, 'storeToFavorites']);
+    Route::delete(
+        '/user/favorites/delete/{productId}',
+        [UserEntitiesController::class, 'deleteFromFavorites']
+    );
+
     Route::get('/email/verify', [AuthController::class, 'sendEmailVerification']);
     Route::get('/email/verification-sent', [AuthController::class, 'isVerificationSent']);
     Route::get('/email/verify/{code}', [AuthController::class, 'verifyEmail']);

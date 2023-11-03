@@ -7,34 +7,75 @@ use Illuminate\Support\Facades\Validator;
 use App\Exceptions\UserEntitiesExceptions;
 use App\Models\UserEntities\Cart;
 use App\Models\UserEntities\Favorite;
+use App\Models\UserEntities\FavoritesProduct;
 use App\Models\User;
+use App\Exceptions\AuthExceptions;
+use App\Models\Products\Product;
 
 class UserEntitiesController extends Controller
 {
-    public function storeCart(Request $request)
+    public function storeToFavorites(Request $request, $productId)
     {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id'
-        ], UserEntitiesExceptions::storeUserEntitiesValidator());
+        $user = User::authenticate($request);
+        if (empty($user))
+            return response(['error' => AuthExceptions::userNotLoggedIn()->getMessage()], 401);
 
-        if ($validator->fails())
-            return response(['errors' => $validator->errors()], 400);
+        $product = Product::find($productId);
+        if (empty($product))
+            return response(['error' => 'Товар не существует'], 400);
 
-        $cart = Cart::create($validator->validated());
-        return $cart;
+        $userFavorites = Favorite::where('user_id', $user->id)
+            ->first();
+        if (empty($userFavorites))
+            Favorite::create(['user_id' => $user->id]);
+
+        FavoritesProduct::create([
+            'favorites_id' => $userFavorites->id,
+            'product_id' => $productId
+        ]);
+
+        return ['success' => true];
     }
 
-    public function storeFavorite(Request $request)
+    public function deleteFromFavorites(Request $request, $productId)
     {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id'
-        ], UserEntitiesExceptions::storeUserEntitiesValidator());
+        $user = User::authenticate($request);
+        if (empty($user))
+            return response(['error' => AuthExceptions::userNotLoggedIn()->getMessage()], 401);
 
-        if ($validator->fails())
-            return response(['errors' => $validator->errors()], 400);
+        $userFavorites = Favorite::where('user_id', $user->id)
+            ->first();
+        if (empty($userFavorites))
+            return ['success' => false];
+        $row = FavoritesProduct::where('product_id', $productId)
+            ->where('favorites_id', $userFavorites->id)
+            ->first();
 
-        $favorites = Favorite::create($validator->validated());
-        return $favorites;
+        if (empty($row))
+            return ['success' => false];
+
+        $row->delete();
+        return ['success' => true];
+    }
+
+    public function isInUserFavorites(Request $request, $productId)
+    {
+        $user = User::authenticate($request);
+        if (empty($user))
+            return response(['error' => AuthExceptions::userNotLoggedIn()->getMessage()], 401);
+
+        $userFavorites = Favorite::where('user_id', $user->id)
+            ->first();
+        if (empty($userFavorites))
+            return false;
+
+        $row = FavoritesProduct::where('favorites_id', $userFavorites->id)
+            ->where('product_id', $productId)
+            ->first();
+        if(empty($row))
+            return false;
+
+        return true;
     }
 
     public static function clearUserEntities()

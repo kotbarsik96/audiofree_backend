@@ -94,10 +94,12 @@
                             </div>
                         </div>
                         <div class="product-page__circle-buttons">
-                            <button class="circle-wrapper circle-wrapper--gray" type="button">
+                            <button class="circle-wrapper circle-wrapper--gray" :class="{ '__active': isInFavorites }"
+                                type="button" :disabled="isInFavorites === null" @click="toggleFavorite">
                                 <HeartIcon></HeartIcon>
                             </button>
-                            <RouterLink class="circle-wrapper circle-wrapper--gray" v-if="isAdmin" :to="{ name: 'ProductUpdate', params: { productId: this.product.id } }">
+                            <RouterLink class="circle-wrapper circle-wrapper--gray" v-if="isAdmin"
+                                :to="{ name: 'ProductUpdate', params: { productId: this.product.id } }">
                                 <PencilIcon></PencilIcon>
                             </RouterLink>
                         </div>
@@ -142,6 +144,7 @@ import { h } from 'vue'
 import { mapState } from 'pinia'
 import axios from 'axios'
 import { renderEditorDataHTML } from '@/assets/js/editorjs.js'
+import { checkIfFavorite, toggleFavorite } from '@/assets/js/methods.js'
 
 export default {
     name: 'ProductView',
@@ -164,7 +167,8 @@ export default {
             },
             personalRating: 0,
             product: null,
-            brandOtherProducts: []
+            brandOtherProducts: [],
+            isInFavorites: null
         }
     },
     computed: {
@@ -248,6 +252,8 @@ export default {
                     this.product = res.data
             } catch (err) { }
         },
+        checkIfFavorite,
+        toggleFavorite,
         setCartDefaultVariations() {
             this.cart.variations = this.$route.meta.product.variations.map(obj => {
                 if (!obj.values[0] && !obj.values[0].value)
@@ -279,7 +285,7 @@ export default {
         },
         async setRating(value) {
             value = parseInt(value)
-            if (isNaN(value) || value < 1)
+            if (isNaN(value) || value < 1 || value === this.personalRating)
                 return
 
             const callback = async () => {
@@ -342,6 +348,7 @@ export default {
     },
     watch: {
         product() {
+            this.checkIfFavorite()
             this.setCartDefaultVariations()
             this.getPersonalRating()
         }
@@ -495,7 +502,7 @@ export default {
 
     &__circle-buttons {
         display: flex;
-        margin-left: 60px;
+        margin-left: 30px;
 
         .circle-wrapper {
             margin-right: 11px;

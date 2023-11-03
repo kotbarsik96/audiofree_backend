@@ -1,4 +1,5 @@
 import DynamicAdaptive from '@/components/misc/DynamicAdaptive.vue'
+import { checkIfFavorite, toggleFavorite } from '@/assets/js/methods.js'
 
 export default {
     components: {
@@ -11,9 +12,12 @@ export default {
         }
     },
     data: {
-        isTopExpanded: false
+        isTopExpanded: false,
+        isInFavorites: null
     },
     methods: {
+        checkIfFavorite,
+        toggleFavorite,
         expandTop() {
             this.isTopExpanded = !this.isTopExpanded
         }
@@ -22,5 +26,8 @@ export default {
         imageSrc() {
             return `${import.meta.env.VITE_LINK}${this.product.image_path}`
         }
+    },
+    mounted() {
+        this.checkIfFavorite()
     }
 }

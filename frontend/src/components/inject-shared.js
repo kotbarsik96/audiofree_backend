@@ -12,6 +12,11 @@
 data(){
     return Object.assign({ key: value, ... }, shared.data)
 }
+3. как работают хуки (mounted, beforeMount и т.дю):
+    1) если хук определен в shared и в компоненте одновременно, то сработает только хук из компонента. Поэтому, чтобы сработали оба хука, нужно в хуке компонента вызвать хук из shared в удобном месте (начале или конце, или в середине. Желательно так: 
+            if(typeof shared.mounted === 'function') shared.mounted());
+    2) если хук определен только в shared, будет вызван только он;
+    3) если хук определен только в компоненте, будет вызван только он
 */
 
 export default function (shared, options) {
@@ -23,7 +28,11 @@ export default function (shared, options) {
 
         const option = options[key]
         if (!option) {
-            combined[key] = Object.assign({}, shared[key])
+            if (typeof shared[key] === 'object')
+                combined[key] = Object.assign({}, shared[key])
+            else {
+                combined[key] = shared[key]
+            }
             continue
         }
 
@@ -33,7 +42,8 @@ export default function (shared, options) {
 
             combined[key] = Object.assign({}, shared[key], options[key])
         } else {
-            combined[key] = shared[key]
+            if (typeof shared[key] !== 'function')
+                combined[key] = shared[key]
         }
     }
 
@@ -43,15 +53,17 @@ export default function (shared, options) {
             continue
         }
 
-        if (Object.keys(shared).includes(key))
-            continue
+        if (Object.keys(shared).includes(key)) {
+            if (typeof shared[key] !== 'function')
+                continue
+        }
 
         if (options[key] && typeof options[key] === 'object')
             combined[key] = Object.assign({}, options[key])
-
         else
             combined[key] = options[key]
     }
+
 
     return combined
 }
