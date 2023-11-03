@@ -51,7 +51,7 @@
             </nav>
         </aside>
         <div class="container admin-page__container">
-            <RouterView :key="routeKey" @updateRouteKey="routeKey++"></RouterView>
+            <RouterView :key="routeKey" @updateRouteKey="routeKey < 2 ? routeKey++ : routeKey--"></RouterView>
         </div>
     </div>
 </template>

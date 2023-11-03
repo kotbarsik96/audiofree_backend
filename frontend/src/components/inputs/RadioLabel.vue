@@ -1,6 +1,6 @@
 <template>
     <label class="radio">
-        <input type="radio" :checked="checked" :name="name" :value="value" @change="onChange">
+        <input type="radio" ref="input" :checked="checked" :name="name" :value="value" @change="onChange">
         <span class="radio__circle"></span>
         <span class="radio__text" v-if="$slots.default">
             <slot></slot>
@@ -23,7 +23,7 @@ export default {
         modelValue: [String, Number],
         checked: Boolean,
     },
-    emits: ['update:modelValue'],
+    emits: ['update:modelValue', 'update:checked'],
     methods: {
         onChange(event) {
             if (event.target.checked)

@@ -29,10 +29,16 @@ class ProductsController extends Controller
         $request = $queryFilter->request;
         $limit = $request->query('limit') ?? null;
         $offset = $request->query('offset') ?? null;
+        $except = $request->query('except') ?? [];
 
         $cheapest = Product::cheapest();
         $mostExpensive = Product::mostExpensive();
         $productQuery = Product::filter($queryFilter);
+        foreach ($except as $exceptId) {
+            if (!is_numeric($exceptId))
+                continue;
+            $productQuery->where('products.id', '!=', $exceptId);
+        }
         $totalCount = $productQuery->count();
 
         $productQuery->sort($request->query('sortValue'))

@@ -4,7 +4,7 @@
             <div class="product-card__circle-discount circle-text circle-text--discount">
                 {{ discountValue }}
             </div>
-            <button class="product-card__expand-top circle-wrapper" :class="{ '__active': isTopExpanded }" type="button"
+            <button class="product-card__expand-top circle-wrapper circle-wrapper--gray" :class="{ '__active': isTopExpanded }" type="button"
                 @click="expandTop">
                 <PlusIcon></PlusIcon>
             </button>

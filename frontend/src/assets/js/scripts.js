@@ -69,6 +69,8 @@ export function findClosest(relative, selector, maxParentsCount = null) {
     while (!closestNode) {
         if (isNumeric(maxParentsCount) && maxParentsCount <= count)
             break
+        if (!parent)
+            break
 
         parent = parent.parentNode
         if (!parent)

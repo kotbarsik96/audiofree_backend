@@ -349,6 +349,18 @@
         justify-content: center;
     }
 
+    td .prices {
+        .price-current {
+            font-size: 19px;
+            line-height: 30px;
+        }
+
+        .price-old {
+            font-size: 17px;
+            line-height: 19px;
+        }
+    }
+
     @media (max-width: 1249px) {
         &__container {
             overflow: auto;

@@ -1,6 +1,7 @@
 <template>
     <div class="spoiler-tiles">
-        <SpoilerElem class="spoiler-tile" v-for="(item, index) in content" :key="index" @show="onShow(index)" ref="spoilerTile">
+        <SpoilerElem class="spoiler-tile" v-for="(item, index) in content" :key="index" @show="onShow(index)"
+            ref="spoilerTile">
             <template v-slot:buttonContent>
                 {{ item.button }}
                 <div class="spoiler-tile__button-icon"></div>
@@ -33,10 +34,10 @@ export default {
         SpoilerElem
     },
     methods: {
-        onShow(index){
-            if(this.isAccordeon && this.$refs.spoilerTile) {
+        onShow(index) {
+            if (this.isAccordeon && this.$refs.spoilerTile) {
                 this.$refs.spoilerTile.forEach((component, i) => {
-                    if(i === index)
+                    if (i === index)
                         return
 
                     component.hide()
@@ -97,14 +98,18 @@ export default {
     }
 
     &__body {
-        padding: 47px 20px 30px 20px;
-    }
+        padding-top: 30px;
 
-    p {
-        margin-bottom: 30px;
+        .text {
+            padding: 17px 20px 30px 20px;
+        }
 
-        &:last-child {
-            margin-bottom: 0;
+        p {
+            margin-bottom: 30px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
         }
     }
 

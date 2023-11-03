@@ -8,7 +8,7 @@
             <div class="product-card__top" :class="{ '__expanded': isTopExpanded }">
                 <InStockPlaceholder class="product-card__stock" type="in-stock"></InStockPlaceholder>
                 <div class="product-card__circle-buttons">
-                    <button class="circle-wrapper circle-wrapper--shadow" type="button">
+                    <button class="circle-wrapper circle-wrapper--shadow circle-wrapper--gray" type="button">
                         <HeartIcon></HeartIcon>
                     </button>
                 </div>

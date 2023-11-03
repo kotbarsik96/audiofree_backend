@@ -171,6 +171,8 @@ export default {
                 const res = await axios(link)
                 if (res.data.id) {
                     this.productData = res.data
+                } else {
+                    this.$router.push({ name: 'ProductCreate' })
                 }
             } catch (err) {
                 const data = err.response.data

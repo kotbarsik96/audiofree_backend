@@ -16,9 +16,8 @@
 <script>
 export default {
     name: 'StarRating',
-    emits: ['update:modelValue'],
+    emits: ['update-rating'],
     props: {
-        modelValue: Number,
         stars: {
             type: Number,
             required: true
@@ -28,9 +27,6 @@ export default {
             default: 0
         },
         interactive: Boolean,
-    },
-    mounted() {
-        this.$emit('update:modelValue', this.value)
     },
     data() {
         return {
@@ -46,16 +42,21 @@ export default {
         setValue(value) {
             if (!this.interactive)
                 return
-
-            if (value < 1 || value > this.stars)
+            if (value > this.stars)
                 return
 
             this.value = value
+        },
+        removeValue() {
+            this.value = 0
         }
     },
     watch: {
         value() {
-            this.$emit('update:modelValue', this.value)
+            this.$emit('update-rating', this.value)
+        },
+        rating(){
+            this.value = this.rating
         }
     }
 }

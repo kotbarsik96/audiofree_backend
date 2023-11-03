@@ -264,6 +264,7 @@ export default {
 
     overflow: auto;
     max-width: calc(100vw - 20px);
+    padding-bottom: 30px;
 
     >.button {
         display: block;

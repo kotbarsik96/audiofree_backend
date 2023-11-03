@@ -45,7 +45,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/rating/set/{productId}/{ratingValue}', [RatingsController::class, 'store']);
     Route::delete('/rating/delete/{productId}', [RatingsController::class, 'delete']);
-    
+    Route::get('/rating/product-user/{productId}', [RatingsController::class, 'usersProductRating']);
+    Route::get('/rating/product-user/{productId}/{userId}', [RatingsController::class, 'usersProductRating']);
+
 
     Route::post('/image/load', [ImagesController::class, 'handleStoreRequest']);
     Route::post('/image/update/{id}', [ImagesController::class, 'update']);

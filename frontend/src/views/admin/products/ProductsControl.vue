@@ -104,13 +104,15 @@
                         <br>
                         {{ item.id }}
                     </td>
-                    <td class="prices">
-                        <span class="price-current">
-                            {{ item.current_price }}₽
-                        </span>
-                        <span v-if="item.discount_price" class="price-old">
-                            {{ item.price }}₽
-                        </span>
+                    <td>
+                        <div class="prices">
+                            <span class="price-current">
+                                {{ item.current_price }}₽
+                            </span>
+                            <span v-if="item.discount_price" class="price-old">
+                                {{ item.price }}₽
+                            </span>
+                        </div>
                     </td>
                     <td>
                         {{ item.quantity || 1 }}

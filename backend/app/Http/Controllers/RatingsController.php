@@ -79,4 +79,15 @@ class RatingsController extends Controller
         $rating->delete();
         return response(['success' => true, 'message' => 'Оценка товара ' . $productName . ' удалена']);
     }
+
+    public function usersProductRating(Request $request, $productId, $userId = null)
+    {
+        if (empty($userId))
+            $userId = $request->cookie('user');
+
+        return Rating::select('value')
+            ->where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->first();
+    }
 }

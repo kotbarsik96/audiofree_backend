@@ -1,5 +1,5 @@
 <template>
-    <component :is="currentComponent" :content="content" isAccordeon></component>
+    <component :is="currentComponent" :content="content" :isAccordeon="isAccordeon" :isVertical="isVertical"></component>
 </template>
 
 <script>
@@ -14,12 +14,13 @@ export default {
         TabTiles
     },
     props: {
+        content: Array,
         spoilerMaxMedia: {
             type: String,
             default: '919'
         },
         isAccordeon: Boolean,
-        content: Array
+        isVertical: Boolean,
     },
     data() {
         return {

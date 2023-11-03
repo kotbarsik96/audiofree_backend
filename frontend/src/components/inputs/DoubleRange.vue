@@ -74,7 +74,7 @@ export default {
             return this.totalScaleWidth / 100
         },
         barWidth() {
-            const max = isNumeric(this.left.max) ? this.left.max : this.totalScaleWidth
+            const max = isNumeric(this.left.max) ? this.left.max : 0
             const min = isNumeric(this.left.min) ? this.left.min : 0
 
             return Math.round(max - min)

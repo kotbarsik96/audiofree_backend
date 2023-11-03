@@ -29,7 +29,7 @@
                                 <ProductCard :product="product"></ProductCard>
                             </li>
                         </ul>
-                        <div class="catalog__not-found" v-else>
+                        <div class="catalog__not-found" v-else-if="!isLoading">
                             К сожалению, товаров по выбранным фильтрам не найдено
                         </div>
                         <div class="catalog__pagination">

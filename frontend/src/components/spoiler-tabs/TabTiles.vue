@@ -1,5 +1,5 @@
 <template>
-    <div class="tab-tiles">
+    <div class="tab-tiles" :class="{ 'tab-tiles--vertical': isVertical }">
         <div class="tab-tiles__buttons">
             <button v-for="(item, index) in content" :key="index" class="tab-tiles__button"
                 :class="{ '__active': currentTab === index }" type="button" @click="currentTab = index">
@@ -31,7 +31,7 @@ export default {
             type: Array,
             default: []
         },
-        isAccordeon: Boolean
+        isVertical: Boolean
     },
     data() {
         return {
@@ -116,13 +116,16 @@ export default {
     &__body {
         flex: 1 1 auto;
         background-color: #fff;
-        padding: 40px 30px 65px 85px;
         box-shadow: -5px 0px 0px rgb(255, 255, 255), 0px 4px 18px rgba(0, 0, 0, .05);
         border-radius: var(--border_radius);
         border-top-left-radius: 0;
         align-self: stretch;
         position: relative;
         z-index: 10;
+
+        .text {
+            padding: 40px 30px 65px 85px;
+        }
 
         p {
             font-size: 16px;
@@ -139,6 +142,52 @@ export default {
             font-size: 22px;
             color: #494949;
             margin-bottom: 30px;
+        }
+    }
+}
+
+.tab-tiles--vertical {
+    display: block;
+
+    .tab-tiles {
+        &__buttons {
+            display: flex;
+            margin-bottom: 0;
+            border-radius: var(--border_radius);
+            box-shadow: none;
+        }
+
+        &__button {
+            flex: 1 1 auto;
+            margin-right: 18px;
+            border-radius: var(--border_radius);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            font-weight: 300;
+            font-size: 18px;
+            line-height: 21px;
+            text-align: center;
+            border: 1px solid #F8F8F8;
+            border-bottom: none;
+
+            &:last-child {
+                margin-right: 0;
+            }
+
+            div {
+                border-bottom: none;
+                padding: 32px 0 23px 0;
+            }
+        }
+
+        &__button.__active {
+            transform: none;
+            font-weight: 500;
+            box-shadow: inset 0 -7px 9px -7px #fff, 0px 0px 19px rgba(0, 0, 0, .05);
+        }
+
+        &__body {
+            box-shadow: 0px 0px 19px rgba(0, 0, 0, .05);
         }
     }
 }
