@@ -1,6 +1,10 @@
 <template>
     <div class="admin-page__creation">
         <LoadingScreen v-if="isLoading"></LoadingScreen>
+        <RouterLink class="admin-page__to-result link" v-if="this.productData" :to="{ name: 'Product', params: { productId: this.productData.id } }">
+            <ChevronIcon></ChevronIcon>
+            На страницу товара
+        </RouterLink>
         <div class="inputs-flex">
             <TextInputWrapper name="name" id="name" placeholder="Название товара" v-model="input.name">
                 <template v-slot:label>Название товара</template>
@@ -63,6 +67,17 @@
         <div class="admin-page__creation-table">
             <AdminTable multivalues :headers="['Вариация', 'Значения']" v-model="input.variations"></AdminTable>
         </div>
+        <div class="admin-page__creation-block" @keydown.ctrl.s.prevent="saveEditor" @keyup="onDescriptionInput">
+            <h3 class="admin-page__title">
+                Описание товара
+            </h3>
+            <div class="admin-page__creation-editor" id="product-creation-editor"></div>
+            <Transition name="fade-in">
+                <div class="admin-page__creation-editor-unsaved" v-if="isDescriptionUnsaved">
+                    Изменения не сохранены
+                </div>
+            </Transition>
+        </div>
         <div class="admin-page__creation-image">
             <ImageLoad v-model="input.image.path" v-model:id="input.image.id">
                 <template v-slot:title>
@@ -96,6 +111,7 @@ import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import axios from 'axios'
 import { getNumber } from '@/assets/js/scripts.js'
 import { useIndexStore } from '@/stores/'
+import EditorJS from '@editorjs/editorjs'
 
 export default {
     name: 'ProductCreate',
@@ -134,12 +150,16 @@ export default {
                 },
                 info: [],
                 variations: [],
+                description: {},
                 image: {
                     path: '',
                     id: 0
                 },
                 images: []
             },
+            descriptionEditor: null,
+            descriptionTimeout: null,
+            isDescriptionUnsaved: false
         }
     },
     computed: {
@@ -211,6 +231,7 @@ export default {
                         values: obj.values.map(o => o.value)
                     }
                 })
+            this.input.description = JSON.parse(this.productData.description)
             this.input.image = {
                 path: this.productData.image_path,
                 id: this.productData.image_id
@@ -222,11 +243,19 @@ export default {
                         path: obj.path
                     }
                 })
+
+            this.descriptionEditor = new EditorJS({
+                holder: 'product-creation-editor',
+                placeholder: 'Введите описание товара',
+                minHeight: 0,
+                data: this.input.description
+            })
         },
         async saveProduct() {
             this.nullifyErrors()
             this.isLoading = true
 
+            this.input.description = await this.descriptionEditor.save()
             const data = {
                 name: this.input.name,
                 price: getNumber(this.input.price),
@@ -236,6 +265,7 @@ export default {
                 brand: this.input.taxonomies.brand,
                 category: this.input.taxonomies.category,
                 type: this.input.taxonomies.type,
+                description: JSON.stringify(this.input.description),
                 image_id: this.input.image.id,
                 images: this.input.images.map(obj => obj.id),
                 info: this.input.info.map(obj => {
@@ -255,6 +285,7 @@ export default {
                     this.productData = res.data.product
                     this.$router.push({ name: 'ProductUpdate', params: { productId: this.productData.id } })
                 }
+                this.isDescriptionUnsaved = false
             } catch (err) {
                 const data = err.response.data
                 if (data.error)
@@ -268,6 +299,22 @@ export default {
         nullifyErrors() {
             this.errors = []
             this.error = ''
+        },
+        onDescriptionInput() {
+            if (this.descriptionTimeout)
+                clearTimeout(this.descriptionTimeout)
+
+            this.descriptionTimeout = setTimeout(async () => {
+                const savedObj = await this.descriptionEditor.save()
+                const unsaved = JSON.stringify(savedObj.blocks.map(o => o.data))
+                const saved = JSON.stringify(this.input.description.blocks.map(o => o.data))
+
+                if (unsaved !== saved)
+                    this.isDescriptionUnsaved = true
+                else
+                    this.isDescriptionUnsaved = false
+                this.descriptionTimeout = null
+            }, 500);
         }
     },
     watch: {

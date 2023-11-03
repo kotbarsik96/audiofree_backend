@@ -97,6 +97,9 @@
                             <button class="circle-wrapper circle-wrapper--gray" type="button">
                                 <HeartIcon></HeartIcon>
                             </button>
+                            <RouterLink class="circle-wrapper circle-wrapper--gray" v-if="isAdmin" :to="{ name: 'ProductUpdate', params: { productId: this.product.id } }">
+                                <PencilIcon></PencilIcon>
+                            </RouterLink>
                         </div>
                     </div>
                     <div class="product-page__delivery-payment">
@@ -132,10 +135,13 @@ import DynamicAdaptive from '@/components/misc/DynamicAdaptive.vue'
 import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import SpoilerTabAdaptive from '@/components/spoiler-tabs/SpoilerTabAdaptive.vue'
 import ProductCard from '@/components/cards/products/ProductCard.vue'
+import { useIndexStore } from '@/stores/'
 import { useModalsStore } from '@/stores/modals.js'
 import { useNotificationsStore } from '@/stores/notifications.js'
 import { h } from 'vue'
+import { mapState } from 'pinia'
 import axios from 'axios'
+import { renderEditorDataHTML } from '@/assets/js/editorjs.js'
 
 export default {
     name: 'ProductView',
@@ -162,6 +168,7 @@ export default {
         }
     },
     computed: {
+        ...mapState(useIndexStore, ['isAdmin']),
         fullname() {
             const brand = this.product.brand || ''
             const name = this.product.name || ''
@@ -198,18 +205,8 @@ export default {
             return string
         },
         descriptionHTML() {
-            return `
-                <div class="text">
-                    <p class="medium">Комфортные и стильные беспроводные наушники Awei A500BL оснащены двумя 40-ка миллиметровыми динамиками, обеспечивающими качественное звучание высоких и низких частот с большим запасом громкости.</p>
-                    <p>Удобные амбушюры плотно закрывают уши и изолируют внешние шумы, тем самым делая прослушивание музыки более комфортным и приятным. С наушниками Awei A500BL вы сможете наслаждаться любимыми песнями, не обременяя себя неудобными проводами.</p>
-                    <p>Подключитесь по Bluetooth к своему смартфону и наслаждайтесь музыкой с беспроводной гарнитурой Awei A500BL , чистое стерео-звучание, мощные басы, она отлично подойдет во время занятий спортом, на пробежке.</p>
-                </div>
-            `
-
-            const description = this.product.description
+            const description = renderEditorDataHTML(this.product.description)
             if (!description)
-                return null
-            if (!description.trim())
                 return null
 
             return `
@@ -221,7 +218,7 @@ export default {
         tabSpoilerContent() {
             const arr = []
             if (this.descriptionHTML)
-                arr.push({ button: 'Описание товара', text: this.descriptionHTML })
+                arr.push({ button: 'Описание товара', text: this.descriptionHTML, isEdidorJS: true })
             if (this.infoHTML)
                 arr.push({ button: 'Характеристики', text: this.infoHTML })
 
