@@ -2,7 +2,7 @@
     <Transition name="modals-list">
         <div v-if="firstModal" class="modals-list">
             <Transition name="modal">
-                <component :is="firstModal.component" :modalId="firstModal.id"></component>
+                <component :is="firstModal.component" :modalId="firstModal.id" ref="modalComponent"></component>
             </Transition>
         </div>
     </Transition>
@@ -12,6 +12,7 @@
 import RegisterModal from '@/components/modals/auth/AuthModal.vue'
 import { mapState, mapActions } from 'pinia'
 import { useModalsStore } from '@/stores/modals.js'
+import { nextTick } from 'vue'
 
 export default {
     name: 'ModalsList',
@@ -32,11 +33,29 @@ export default {
     computed: {
         ...mapState(useModalsStore, ['modals']),
         firstModal() {
+            this.onResize()
             return this.modals[0] || null;
         }
     },
     methods: {
-        ...mapActions(useModalsStore, ['removeModal'])
+        ...mapActions(useModalsStore, ['removeModal']),
+        async onResize() {
+            await nextTick()
+            if (!this.$refs.modalComponent)
+                return
+
+            const modalEl = this.$refs.modalComponent.$el
+            const height = modalEl.offsetHeight
+            const windowHeight = document.documentElement.clientHeight
+            if (height > windowHeight - 40)
+                modalEl.style.alignSelf = 'flex-start'
+            else
+                modalEl.style.alignSelf = 'center'
+        }
+    },
+    mounted() {
+        window.addEventListener('resize', this.onResize)
+        this.onResize()
     }
 }
 </script>
