@@ -18,6 +18,14 @@ class ProductsController extends Controller
 {
     public function index(Request $request, $id)
     {
+        // загрузит только внешние данные товара (характеристики, вариации и др.)
+        $isOnlyOuter = $request->query('onlyOuterData');
+        if ($isOnlyOuter && $isOnlyOuter !== 'false') {
+            $productObj = new Product();
+            $productObj->id = $id;
+            return $productObj::addOuterData($productObj);
+        }
+
         $timestampsQuery = $request->query('timestamps');
         $selectTimestamps = $timestampsQuery === 'true'
             ? true : false;

@@ -8,8 +8,9 @@
             <div class="product-card__top" :class="{ '__expanded': isTopExpanded }">
                 <InStockPlaceholder class="product-card__stock" type="in-stock"></InStockPlaceholder>
                 <div class="product-card__circle-buttons">
-                    <button class="circle-wrapper circle-wrapper--shadow circle-wrapper--gray" :class="{ '__active': isInFavorites }" type="button"
-                        :disabled="isInFavorites === null" @click="toggleFavorite">
+                    <button class="circle-wrapper circle-wrapper--shadow circle-wrapper--gray"
+                        :class="{ '__active': isInFavorites }" type="button" :disabled="isInFavorites === null"
+                        @click="toggleFavorite">
                         <HeartIcon></HeartIcon>
                     </button>
                 </div>
@@ -39,7 +40,7 @@
                     <button class="button button--colored" type="button">
                         Купить в 1 клик
                     </button>
-                    <button class="button" type="button">
+                    <button class="button" type="button" @click="onAddToCartClick">
                         В корзину
                     </button>
                 </div>
@@ -58,13 +59,13 @@ const componentData = injectShared(shared, {
     name: 'ProductCard',
     components: {
         InStockPlaceholder,
-        StarRating,
+        StarRating
     },
     data() {
         return Object.assign({
             rating: 0
         }, shared.data)
-    }
+    },
 })
 export default componentData
 </script>

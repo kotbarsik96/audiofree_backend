@@ -1,5 +1,10 @@
+/* здесь содержатся методы, которые используются в component.methods либо напрямую, либо внутри методов */
+
 import { isNumeric } from './scripts.js'
+import { useIndexStore } from '@/stores/'
+import { useNotificationsStore } from '@/stores/notifications.js'
 import axios from 'axios'
+import { nextTick } from 'vue'
 
 /* требуется, чтобы в data был прописан объект matchMediaMatches такого вида:
     matchMediaMatches: {
@@ -53,31 +58,40 @@ export function getDate(dateString) {
 
 // требует isInFavorites: null в data()
 export async function checkIfFavorite() {
-    const product = this.product || this.productData
-    const link = `${import.meta.env.VITE_IS_USER_FAVORITE}${product.id}`
-    try {
-        const res = await axios.get(link)
-        this.isInFavorites = Boolean(res.data)
-    } catch (err) {}
+    const product = this.product
+    if (!product)
+        return
+
+    const store = useIndexStore()
+    await store.onLoadingEnd('loadEntity_favorites')
+    
+    const id = product.id
+    this.isInFavorites = store.favorites.includes(id)
 }
 
 // требует isInFavorites: null в data()
 export function toggleFavorite() {
+    const store = useIndexStore()
+    
     const add = async () => {
-        const link = `${import.meta.env.VITE_ADD_USER_FAVORITE}${this.product.id}`
+        const link = `${import.meta.env.VITE_USER_FAVORITE}${this.product.id}`
 
         try {
-            await axios.post(link)
+            const res = await axios.post(link)
+            if (Array.isArray(res.data.favorites))
+                store.favorites = res.data.favorites.map(obj => obj.product_id)
             this.isInFavorites = true
         } catch (err) {
             this.isInFavorites = false
         }
     }
     const remove = async () => {
-        const link = `${import.meta.env.VITE_DELETE_USER_FAVORITE}${this.product.id}`
+        const link = `${import.meta.env.VITE_USER_FAVORITE}${this.product.id}`
 
         try {
-            await axios.delete(link)
+            const res = await axios.delete(link)
+            if (Array.isArray(res.data.favorites))
+                store.favorites = res.data.favorites.map(obj => obj.product_id)
             this.isInFavorites = false
         } catch (err) {
             this.isInFavorites = false
@@ -89,4 +103,31 @@ export function toggleFavorite() {
 
     this.isInFavorites ? remove() : add()
     this.isInFavorites = null
+}
+
+export async function addToCart(productId, cart = {}) {
+    const store = useIndexStore()
+    store.toggleLoading('addToCart', true)
+
+    try {
+        const link = `${import.meta.env.VITE_USER_CART}${productId}`
+        const res = await axios.post(link, cart)
+        if (!res.data.success)
+            throw new Error()
+
+        if (Array.isArray(res.data.cart))
+            store.cart = res.data.cart
+
+        let message = cart.productName
+            ? `Товар ${cart.productName} добавлен в корзину`
+            : 'Товар добавлен в корзину'
+        if (cart.quantity > 1)
+            message += `(${cart.quantity} шт.)`
+        useNotificationsStore().addNotification({ message })
+    } catch (err) {
+        useNotificationsStore()
+            .addNotification({ message: 'Произошла ошибка при попытке добавить товар в корзину' })
+    }
+
+    store.toggleLoading('addToCart', false)
 }

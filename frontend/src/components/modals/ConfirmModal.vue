@@ -8,8 +8,8 @@
         </h3>
         <div class="modal__body">
             <div v-if="text" class="confirm-modal__text" v-html="text"></div>
-            <div v-if="nestedComponent" class="confirm-modal__nested-component">
-                <component :is="nestedComponent"></component>
+            <div v-if="nestedComponentsList.length > 0" class="confirm-modal__nested-component">
+                <component v-for="comp in nestedComponentsList" :is="comp" ref="nestedComponentRef"></component>
             </div>
             <div class="modal__buttons confirm-modal__buttons">
                 <button class="modal__button button button--colored" type="button" @click="onButtonClick(confirmData)">
@@ -31,7 +31,9 @@ export default {
     props: {
         title: String,
         text: [String, Number],
-        nestedComponent: Object, // h(NestedComponentName, nestedComponentProps = {})
+        nestedComponent: Object, // h(NestedComponentName, nestedComponentProps = {}, () => nestedComponentSlot),
+        nestedComponents: Array, // элементы массива - то же, что и nestedComponent
+        /* ЕСЛИ В confirmProps ИЛИ declineProps передаются callbackArgs, ТО НУЖНО УЧИТЫВАТЬ, ЧТО ПРИ ВЫЗОВЕ МЕТОДА ПЕРВЫМ В ЭТОТ МЕТОД БУДЕТ ПЕРЕДАН КОНТЕКСТ МОДАЛЬНОГО ОКНА this */
         confirmProps: Object,
         declineProps: Object,
         modalId: [String, Number]
@@ -48,6 +50,15 @@ export default {
         },
         declineData() {
             return this.declineProps || { text: this.defaultDeclineText }
+        },
+        nestedComponentsList() {
+            const arr = []
+            if (Array.isArray(this.nestedComponents))
+                arr.push(...this.nestedComponents)
+            if (this.nestedComponent)
+                arr.push(this.nestedComponent)
+
+            return arr
         }
     },
     methods: {
@@ -60,12 +71,13 @@ export default {
             const callbackArgs = Array.isArray(data.callbackArgs)
                 ? data.callbackArgs
                 : []
+            callbackArgs.unshift(this)
             if (typeof callback === 'function') {
                 callback(...callbackArgs)
             }
             this.removeModal()
         },
-    }
+    },
 }
 </script>
 

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\Products\ProductsController;
+use App\Models\UserEntities\CartProduct;
 
 Route::get('/product/{id}', [ProductsController::class, 'index']);
 Route::get('/products', [ProductsController::class, 'filter']);
@@ -29,12 +30,17 @@ Route::post('/auth/logout', [AuthController::class, 'logout']);
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user/favorites/{productId}', [UserEntitiesController::class, 'isInUserFavorites']);
-    Route::post('/user/favorites/add/{productId}', [UserEntitiesController::class, 'storeToFavorites']);
+    Route::get('/user-favorites', [UserEntitiesController::class, 'getUserFavorites']);
+    Route::post('/user-favorites/{productId}', [UserEntitiesController::class, 'storeToFavorites']);
     Route::delete(
-        '/user/favorites/delete/{productId}',
+        '/user-favorites/{productId}',
         [UserEntitiesController::class, 'deleteFromFavorites']
     );
+
+    Route::get('/user-cart', [UserEntitiesController::class, 'getUserCart']);
+    Route::get('/user-cart/{userId}', [UserEntitiesController::class, 'getUserCart']);
+    Route::post('/user-cart/{productId}', [UserEntitiesController::class, 'storeToCart']);
+    Route::delete('/user-cart/{productId}', [UserEntitiesController::class, 'deleteFromCart']);
 
     Route::get('/email/verify', [AuthController::class, 'sendEmailVerification']);
     Route::get('/email/verification-sent', [AuthController::class, 'isVerificationSent']);
@@ -42,7 +48,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::delete('/user/delete/{id}', [AuthController::class, 'delete']);
     Route::delete('/users/delete', [UsersController::class, 'delete']);
-
     Route::post('/user/update', [UsersController::class, 'update']);
 
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);

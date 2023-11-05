@@ -12,7 +12,9 @@ export const useIndexStore = defineStore('index', {
             role: 999,
             emailVerified: false,
             products: [],
-            currentRoute: null
+            currentRoute: null,
+            cart: [],
+            favorites: []
         }
     },
     actions: {
@@ -24,10 +26,12 @@ export const useIndexStore = defineStore('index', {
             if (this.isCheckingAuth)
                 return
 
+            this.toggleLoading('checkAuth', true)
             const onFalse = () => {
                 this.role = 999
                 this.isCheckingAuth = false
                 document.dispatchEvent(new CustomEvent('auth-checked'))
+                this.toggleLoading('checkAuth', false)
             }
             const onTrue = () => {
                 this.isUserLogged = true
@@ -37,6 +41,7 @@ export const useIndexStore = defineStore('index', {
 
                 this.isCheckingAuth = false
                 document.dispatchEvent(new CustomEvent('auth-checked'))
+                this.toggleLoading('checkAuth', false)
             }
 
             this.isCheckingAuth = true
@@ -146,6 +151,7 @@ export const useIndexStore = defineStore('index', {
 
             useIndexStore().toggleLoading('loadTaxonomies', false)
         },
+        /* добавляет в массив store.loadings загрузку loadingName. loadingName - просто строка, может быть любая. Если массив не пустой, будет показан экран загрузки */
         toggleLoading(loadingName, adding = false) {
             if (adding)
                 this.loadings.push(loadingName)
@@ -153,11 +159,66 @@ export const useIndexStore = defineStore('index', {
                 const index = this.loadings.findIndex(n => loadingName === n)
                 if (index >= 0)
                     this.loadings.splice(index, 1)
+
+                document.dispatchEvent(new CustomEvent('loading-end'))
             }
+        },
+        /* принимает loadingName из store.loadings, и, когда в store.loadings закончатся элементы с loadingName, зарезолвит промис */
+        onLoadingEnd(loadingName) {
+            return new Promise(resolve => {
+                const callback = () => {
+                    if (!this.loadings.includes(loadingName)) {
+                        document.removeEventListener('loading-end', callback)
+                        resolve()
+                    }
+                }
+
+                callback()
+                document.addEventListener('loading-end', callback)
+            })
+        },
+        /* для загрузки корзины, избранного */
+        async loadEntity(entityName) {
+            if (!this.isUserLogged)
+                return
+
+            this.toggleLoading(`loadEntity_${entityName}`, true)
+            let link
+            switch (entityName) {
+                case 'cart':
+                    link = import.meta.env.VITE_USER_CART
+                    break
+                case 'favorites':
+                    link = import.meta.env.VITE_USER_FAVORITE
+                    break
+            }
+
+            try {
+                if (!link)
+                    throw new Error('')
+
+                const res = await axios.get(link)
+                if (Array.isArray(res.data)) {
+                    switch (entityName) {
+                        case 'cart':
+                            this[entityName] = res.data
+                            break
+                        case 'favorites':
+                            this[entityName] = res.data.map(obj => obj.product_id)
+                            break
+                    }
+                }
+            } catch (err) {
+                this[entityName] = []
+            }
+
+            this.toggleLoading(`loadEntity_${entityName}`, false)
         }
     },
     getters: {
         isAdmin: (state) => state.role <= 2,
-        isPageLoading: (state) => state.loadings.length > 0
+        isPageLoading: (state) => state.loadings.length > 0,
+        favoritesCount: (state) => state.favorites.length,
+        cartCount: (state) => state.cart.length,
     }
 })

@@ -35,11 +35,11 @@ export default {
             routeKey: 1
         }
     },
-    async mounted() {
+    async created(){
         const store = useIndexStore()
-        store.toggleLoading('checkAuth', true)
         await store.checkAuth()
-        store.toggleLoading('checkAuth', false)
+        await store.loadEntity('cart')
+        await store.loadEntity('favorites')
     },
     computed: {
         ...mapState(useIndexStore, ['isUserLogged', 'isPageLoading']),

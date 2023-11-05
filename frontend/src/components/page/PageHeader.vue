@@ -70,7 +70,9 @@
                         <li class="header__body-nav-item">
                             <DynamicAdaptive destinationSelector="#header-mobile-favorites" :query="mobileMediaQuery">
                                 <div class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive">
-                                    <div class="circle-wrapper__number">1</div>
+                                    <div class="circle-wrapper__number" v-if="favoritesCountComputed">
+                                        {{ favoritesCountComputed }}
+                                    </div>
                                     <HeartIcon></HeartIcon>
                                 </div>
                             </DynamicAdaptive>
@@ -78,7 +80,9 @@
                         <li class="header__body-nav-item">
                             <DynamicAdaptive destinationSelector="#header-mobile-cart" :query="mobileMediaQuery">
                                 <div class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive">
-                                    <div class="circle-wrapper__number">99+</div>
+                                    <div class="circle-wrapper__number" v-if="cartCountComputed">
+                                        {{ cartCountComputed }}
+                                    </div>
                                     <CartIcon></CartIcon>
                                 </div>
                             </DynamicAdaptive>
@@ -286,10 +290,30 @@ export default {
         this.onMediaChange()
     },
     computed: {
-        ...mapState(useIndexStore, ['isUserLogged', 'role', 'isAdmin']),
+        ...mapState(useIndexStore, ['isUserLogged', 'role', 'isAdmin', 'favoritesCount', 'cartCount']),
         isLogged() {
             return true
         },
+        cartCountComputed() {
+            const value = parseInt(this.cartCount)
+            if (value <= 0 || isNaN(value))
+                return null
+
+            if (value <= 9)
+                return value
+
+            return '9+'
+        },
+        favoritesCountComputed() {
+            const value = parseInt(this.favoritesCount)
+            if (value <= 0 || isNaN(value))
+                return null
+
+            if (value <= 9)
+                return value
+
+            return '9+'
+        }
     },
     methods: {
         onMediaChange() {

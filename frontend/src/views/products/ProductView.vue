@@ -55,28 +55,13 @@
                             Количество
                         </QuantityInput>
                     </div>
-                    <div class="product-page__variations">
-                        <div class="product-page__variation-item" v-for="(obj, objIndex) in product.variations"
-                            :key="obj.variation.id">
-                            <h6 class="product-page__variation-title">
-                                {{ obj.variation.name }}
-                            </h6>
-                            <ul class="product-page__variations-list">
-                                <li class="product-page__variation-item" v-for="(varValue, valueIndex) in obj.values"
-                                    :key="varValue.id">
-                                    <RadioLabel v-model="cart.variations[objIndex].value" ref="variationRadio"
-                                        :name="obj.variation.name" :checked="valueIndex === 0" :value="varValue.value">
-                                        {{ varValue.value }}
-                                    </RadioLabel>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+                    <SelectProductVariations v-if="product.variations && product.variations.length > 0"
+                        :variations="product.variations" v-model="cart.variations"></SelectProductVariations>
                     <div class="product-page__buttons">
                         <button class="button button--colored" type="button">
                             Купить в 1 клик
                         </button>
-                        <button class="button" type="button">
+                        <button class="button" type="button" @click="addToCart">
                             В корзину
                         </button>
                         <button class="button" v-if="personalRating > 0" type="button" @click="removeRating">
@@ -137,6 +122,7 @@ import DynamicAdaptive from '@/components/misc/DynamicAdaptive.vue'
 import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import SpoilerTabAdaptive from '@/components/spoiler-tabs/SpoilerTabAdaptive.vue'
 import ProductCard from '@/components/cards/products/ProductCard.vue'
+import SelectProductVariations from '@/components/page/sections/SelectProductVariations.vue'
 import { useIndexStore } from '@/stores/'
 import { useModalsStore } from '@/stores/modals.js'
 import { useNotificationsStore } from '@/stores/notifications.js'
@@ -144,7 +130,7 @@ import { h } from 'vue'
 import { mapState } from 'pinia'
 import axios from 'axios'
 import { renderEditorDataHTML } from '@/assets/js/editorjs.js'
-import { checkIfFavorite, toggleFavorite } from '@/assets/js/methods.js'
+import { checkIfFavorite, toggleFavorite, addToCart } from '@/assets/js/methods.js'
 
 export default {
     name: 'ProductView',
@@ -156,7 +142,8 @@ export default {
         DynamicAdaptive,
         ConfirmModal,
         SpoilerTabAdaptive,
-        ProductCard
+        ProductCard,
+        SelectProductVariations
     },
     emits: ['updateRouteKey'],
     data() {
@@ -172,7 +159,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(useIndexStore, ['isAdmin']),
+        ...mapState(useIndexStore, ['isAdmin', 'favoritesCount', 'cartCount']),
         fullname() {
             const brand = this.product.brand || ''
             const name = this.product.name || ''
@@ -344,6 +331,14 @@ export default {
                     }
                 })
             })
+        },
+        addToCart() {
+            addToCart(this.product.id,
+                Object.assign(
+                    { productName: this.product.name },
+                    this.cart
+                )
+            )
         }
     },
     watch: {
@@ -351,6 +346,9 @@ export default {
             this.checkIfFavorite()
             this.setCartDefaultVariations()
             this.getPersonalRating()
+        },
+        favoritesCount(){
+            this.checkIfFavorite()
         }
     },
     mounted() {
@@ -446,34 +444,17 @@ export default {
         margin-bottom: 20px;
     }
 
-    &__variation-title {
-        font-size: 14px;
-        line-height: 16px;
-        margin-bottom: 10px;
-        font-weight: 500;
-    }
-
-    &__variations-list {
-        display: flex;
-        flex-wrap: wrap;
-    }
-
-    &__variation-item {
-        margin-right: 15px;
-        margin-bottom: 10px;
-    }
-
     &__buttons {
         margin-top: 20px;
         display: flex;
         flex-wrap: wrap;
 
         .button {
-            font-size: 13px;
+            font-size: 14px;
             margin-right: 20px;
             margin-bottom: 15px;
             min-width: 140px;
-            padding: 15px 40px;
+            padding: 15px 30px;
         }
     }
 
