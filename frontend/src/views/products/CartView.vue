@@ -15,7 +15,7 @@
                         Корзина
                     </h1>
                 </div>
-                <div class="cart-page__body">
+                <div class="cart-page__body" v-if="cartLoaded.length > 0">
                     <LoadingScreen v-if="isLoading"></LoadingScreen>
                     <div class="cart-page__list-container">
                         <ul class="cart-page__list-heading cart-list__heading">
@@ -94,6 +94,15 @@
                                 {{ totalPrice }} ₽
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="cart-page__body" v-else>
+                    <div class="cart-page__empty">
+                        <EmptyCartIcon></EmptyCartIcon>
+                        <span>Ваша корзина пуста</span>
+                        <RouterLink class="link" :to="{ name: 'Catalog' }">
+                            За покупками!
+                        </RouterLink>
                     </div>
                 </div>
                 <div class="cart-page__bottom">
@@ -357,6 +366,30 @@ export default {
         flex-wrap: wrap;
         justify-content: space-between;
         align-items: center;
+    }
+
+    &__empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        svg {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
+            color: var(--theme_color);
+        }
+
+        span,
+        .link {
+            font-size: 28px;
+            line-height: 40px;
+        }
+
+        .link:not(:hover) {
+            color: var(--theme_color);
+        }
     }
 
     &__code {

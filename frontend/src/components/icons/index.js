@@ -5,6 +5,7 @@ import CheckmarkIcon from '@/components/icons/CheckmarkIcon.vue'
 import ChevronIcon from '@/components/icons/ChevronIcon.vue'
 import CloseCircularIcon from '@/components/icons/CloseCircularIcon.vue'
 import CrossIcon from '@/components/icons/CrossIcon.vue'
+import EmptyCartIcon from '@/components/icons/EmptyCartIcon.vue'
 import EyeClosedIcon from '@/components/icons/EyeClosedIcon.vue'
 import EyeIcon from '@/components/icons/EyeIcon.vue'
 import FilterIcon from '@/components/icons/FilterIcon.vue'
@@ -34,6 +35,7 @@ export default [
     { component: ChevronIcon, name: 'ChevronIcon' },
     { component: CloseCircularIcon, name: 'CloseCircularIcon' },
     { component: CrossIcon, name: 'CrossIcon' },
+    { component: EmptyCartIcon, name: 'EmptyCartIcon' },
     { component: EyeClosedIcon, name: 'EyeClosedIcon' },
     { component: EyeIcon, name: 'EyeIcon' },
     { component: FilterIcon, name: 'FilterIcon' },
