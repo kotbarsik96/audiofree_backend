@@ -85,4 +85,13 @@ class ProductsFilter extends QueryFilter
     {
         $this->filterByTaxonomy($titles, 'product_status_id', 'product_statuses.id', 'product_statuses', 'product_statuses.name');
     }
+
+    public function in_stock($value)
+    {
+        if(empty($value) || $value === 'false') {
+            $this->builder->where('products.quantity', '<', '1');
+        } else {
+            $this->builder->where('products.quantity', '>', '0');
+        }
+    }
 }

@@ -81,6 +81,8 @@ export default {
                 brands: [],
                 types: [],
                 has_discount: '',
+                product_statuses: 'Активен',
+                in_stock: 'true',
                 price_range: {
                     min: 0,
                     max: 0
