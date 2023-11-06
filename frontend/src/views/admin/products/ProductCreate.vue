@@ -1,7 +1,8 @@
 <template>
     <div class="admin-page__creation">
         <LoadingScreen v-if="isLoading"></LoadingScreen>
-        <RouterLink class="admin-page__to-result link" v-if="this.productData" :to="{ name: 'Product', params: { productId: this.productData.id } }">
+        <RouterLink class="admin-page__to-result link" v-if="this.productData"
+            :to="{ name: 'Product', params: { productId: this.productData.id } }">
             <ChevronIcon></ChevronIcon>
             На страницу товара
         </RouterLink>
@@ -209,6 +210,7 @@ export default {
             if (!this.productData)
                 return
 
+
             this.input.name = this.productData.name
             this.input.price = this.productData.price
             this.input.discount_price = this.productData.discount_price
@@ -244,12 +246,14 @@ export default {
                     }
                 })
 
-            this.descriptionEditor = new EditorJS({
-                holder: 'product-creation-editor',
-                placeholder: 'Введите описание товара',
-                minHeight: 0,
-                data: this.input.description
-            })
+            if (!this.descriptionEditor) {
+                this.descriptionEditor = new EditorJS({
+                    holder: 'product-creation-editor',
+                    placeholder: 'Введите описание товара',
+                    minHeight: 0,
+                    data: this.input.description
+                })
+            }
         },
         async saveProduct() {
             this.nullifyErrors()
