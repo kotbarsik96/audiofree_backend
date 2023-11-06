@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { setMatchMedia } from '@/assets/js/methods.js'
+import { setMatchMedia, getImagePath } from '@/assets/js/methods.js'
 import { register } from 'swiper/element/bundle'
 register()
 
@@ -47,12 +47,7 @@ export default {
     },
     methods: {
         setMatchMedia,
-        getImagePath(path) {
-            if (!path)
-                return '#'
-
-            return `${import.meta.env.VITE_LINK}${path}`
-        }
+        getImagePath
     },
     watch: {
         selectedImage() {

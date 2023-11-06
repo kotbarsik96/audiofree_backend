@@ -90,11 +90,14 @@ export default {
             this.adjustWidth()
             this.$emit('update:modelValue', parseInt(this.value))
         },
-        modelValue(newValue, oldValue) {
-            if (newValue === oldValue)
-                return
+        modelValue: {
+            deep: true,
+            handler(newValue, oldValue) {
+                if (newValue === oldValue)
+                    return
 
-            this.value = newValue
+                this.value = newValue
+            }
         }
     },
     mounted() {

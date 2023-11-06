@@ -27,6 +27,10 @@ export const useIndexStore = defineStore('index', {
                 return
 
             this.toggleLoading('checkAuth', true)
+            const onAny = () => {
+                this.loadEntity('cart')
+                this.loadEntity('favorites')
+            }
             const onFalse = () => {
                 this.role = 999
                 this.isCheckingAuth = false
@@ -42,6 +46,7 @@ export const useIndexStore = defineStore('index', {
                 this.isCheckingAuth = false
                 document.dispatchEvent(new CustomEvent('auth-checked'))
                 this.toggleLoading('checkAuth', false)
+                onAny()
             }
 
             this.isCheckingAuth = true

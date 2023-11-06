@@ -22,6 +22,7 @@ class CartProduct extends Model
     public static function scopeMainData(Builder $builder)
     {
         $builder->addSelect(
+            'cart_product.id',
             'cart_product.product_id',
             'products.name AS product_name',
             'cart_product.variations',

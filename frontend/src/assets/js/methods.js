@@ -64,7 +64,7 @@ export async function checkIfFavorite() {
 
     const store = useIndexStore()
     await store.onLoadingEnd('loadEntity_favorites')
-    
+
     const id = product.id
     this.isInFavorites = store.favorites.includes(id)
 }
@@ -72,7 +72,7 @@ export async function checkIfFavorite() {
 // требует isInFavorites: null в data()
 export function toggleFavorite() {
     const store = useIndexStore()
-    
+
     const add = async () => {
         const link = `${import.meta.env.VITE_USER_FAVORITE}${this.product.id}`
 
@@ -122,7 +122,7 @@ export async function addToCart(productId, cart = {}) {
             ? `Товар ${cart.productName} добавлен в корзину`
             : 'Товар добавлен в корзину'
         if (cart.quantity > 1)
-            message += `(${cart.quantity} шт.)`
+            message += ` (${cart.quantity} шт.)`
         useNotificationsStore().addNotification({ message })
     } catch (err) {
         useNotificationsStore()
@@ -130,4 +130,11 @@ export async function addToCart(productId, cart = {}) {
     }
 
     store.toggleLoading('addToCart', false)
+}
+
+export function getImagePath(path) {
+    if (!path)
+        return '#'
+
+    return `${import.meta.env.VITE_LINK}${path}`
 }

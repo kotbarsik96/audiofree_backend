@@ -3,7 +3,8 @@
         <LoadingScreen v-if="isPageLoading" position="fixed" squareSize="150px"></LoadingScreen>
         <RouterView v-slot="{ Component }">
             <Transition name="page-transition" :mode="transitionMode">
-                <component :is="Component" :key="routeKey" @updateRouteKey="routeKey < 2 ? routeKey++ : routeKey--"></component>
+                <component :is="Component" :key="routeKey" @updateRouteKey="routeKey < 2 ? routeKey++ : routeKey--">
+                </component>
             </Transition>
         </RouterView>
         <NotificationsList></NotificationsList>
@@ -30,16 +31,13 @@ export default {
         ModalsList,
         LoadingScreen
     },
-    data(){
+    data() {
         return {
             routeKey: 1
         }
     },
-    async created(){
-        const store = useIndexStore()
-        await store.checkAuth()
-        await store.loadEntity('cart')
-        await store.loadEntity('favorites')
+    async created() {
+        await useIndexStore().checkAuth()
     },
     computed: {
         ...mapState(useIndexStore, ['isUserLogged', 'isPageLoading']),

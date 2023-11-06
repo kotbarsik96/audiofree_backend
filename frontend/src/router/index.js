@@ -105,6 +105,22 @@ const router = createRouter({
             name: 'Product',
             component: () => import('@/views/products/ProductView.vue'),
         },
+        {
+            path: '/cart',
+            name: 'Cart',
+            component: () => import('@/views/products/CartView.vue'),
+            meta: {
+                requiresAuth: true
+            }
+        },
+        {
+            path: '/cart/one-click',
+            name: 'CartOneClick',
+            component: () => import('@/views/products/CartView.vue'),
+            meta: {
+                requiresAuth: true
+            }
+        },
         // other
         {
             path: '/:pathMatch(.*)*',

@@ -144,6 +144,12 @@ export default {
             margin-bottom: 30px;
         }
     }
+
+    @media (max-width: 1219px){
+        &__button.__active {
+            transform: scale(1);
+        }
+    }
 }
 
 .tab-tiles--vertical {

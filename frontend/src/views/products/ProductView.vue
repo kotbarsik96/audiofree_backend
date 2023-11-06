@@ -51,17 +51,17 @@
                     </div>
                     <div class="product-page__quantity">
                         <QuantityInput v-model="cart.quantity" name="product-quantity" id="product-quantity" :min="1"
-                            :max="99">
+                            :max="product.available_quantity">
                             Количество
                         </QuantityInput>
                     </div>
                     <SelectProductVariations v-if="product.variations && product.variations.length > 0"
                         :variations="product.variations" v-model="cart.variations"></SelectProductVariations>
                     <div class="product-page__buttons">
-                        <button class="button button--colored" type="button">
+                        <button class="button button--colored" :disabled="isOutOfStock" type="button">
                             Купить в 1 клик
                         </button>
-                        <button class="button" type="button" @click="addToCart">
+                        <button class="button" type="button" :disabled="isOutOfStock" @click="addToCart">
                             В корзину
                         </button>
                         <button class="button" v-if="personalRating > 0" type="button" @click="removeRating">
@@ -71,11 +71,17 @@
                 </div>
                 <div class="product-page__info">
                     <div class="product-page__info-buttons">
-                        <div class="product-page__notify">
+                        <div class="product-page__notify" v-if="isSmallQuantity">
                             <div class="circle-wrapper circle-wrapper--not-interactive warning-circle"></div>
                             <div class="product-page__notify-text">
-                                До конца акции осталось:
-                                <span class="bold">3 дня</span>
+                                Товаров осталось:
+                                <span class="bold">{{ product.available_quantity }}</span>
+                            </div>
+                        </div>
+                        <div class="product-page__notify" v-if="isOutOfStock">
+                            <div class="circle-wrapper circle-wrapper--not-interactive warning-circle"></div>
+                            <div class="product-page__notify-text">
+                                К сожалению, товар закончился
                             </div>
                         </div>
                         <div class="product-page__circle-buttons">
@@ -106,7 +112,7 @@
                     Другие товары бренда
                 </h3>
                 <div class="product-cards">
-                    <ProductCard v-for="product in brandOtherProducts" :product="product"></ProductCard>
+                    <ProductCard v-for="product in brandOtherProducts" :productData="product"></ProductCard>
                 </div>
             </div>
         </div>
@@ -214,6 +220,12 @@ export default {
                 arr.push({ button: 'Характеристики', text: this.infoHTML })
 
             return arr
+        },
+        isSmallQuantity(){
+            return this.product.available_quantity < 9 && this.product.available_quantity > 0
+        },
+        isOutOfStock(){
+            return this.product.available_quantity < 1
         }
     },
     methods: {
@@ -332,13 +344,14 @@ export default {
                 })
             })
         },
-        addToCart() {
-            addToCart(this.product.id,
+        async addToCart() {
+            await addToCart(this.product.id,
                 Object.assign(
                     { productName: this.product.name },
                     this.cart
                 )
             )
+            this.updateProduct()
         }
     },
     watch: {
@@ -347,7 +360,7 @@ export default {
             this.setCartDefaultVariations()
             this.getPersonalRating()
         },
-        favoritesCount(){
+        favoritesCount() {
             this.checkIfFavorite()
         }
     },
@@ -471,6 +484,7 @@ export default {
     &__notify {
         display: flex;
         align-items: center;
+        margin-right: 30px;
 
         .circle-wrapper {
             flex: 0 0 auto;
@@ -483,7 +497,6 @@ export default {
 
     &__circle-buttons {
         display: flex;
-        margin-left: 30px;
 
         .circle-wrapper {
             margin-right: 11px;

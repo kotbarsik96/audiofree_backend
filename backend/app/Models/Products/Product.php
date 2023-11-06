@@ -7,6 +7,8 @@ use App\Models\FilterableModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\UserEntities\Cart;
+use App\Models\UserEntities\CartProduct;
 
 class Product extends FilterableModel
 {
@@ -157,5 +159,24 @@ class Product extends FilterableModel
         $product->variations = $productVariations;
 
         return $product;
+    }
+
+    /* возвращает количество товара, доступное для добавления в корзину конкретному пользователю. То есть, учитывает, сколько товаров пользователь уже добавил в корзину */
+    public static function getAvailableQuantity($product, $userId)
+    {
+        $quantity = $product->quantity;
+        if ($userId) {
+            $userCart = Cart::where('user_id', $userId)->first();
+            if (empty($userCart))
+                $userCart = Cart::create(['user_id' => $userId]);
+
+            $currentProductInCart = CartProduct::where('cart_id', $userCart->id)
+                ->where('product_id', $product->id)
+                ->get();
+            foreach ($currentProductInCart as $prodData) {
+                $quantity = $quantity - $prodData->quantity;
+            }
+        }
+        return $quantity;
     }
 }

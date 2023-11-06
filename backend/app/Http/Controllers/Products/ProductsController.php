@@ -29,12 +29,40 @@ class ProductsController extends Controller
         $timestampsQuery = $request->query('timestamps');
         $selectTimestamps = $timestampsQuery === 'true'
             ? true : false;
-        return Product::singleFullData($id, $selectTimestamps);
+        $product = Product::singleFullData($id, $selectTimestamps);
+        $product->available_quantity = Product::getAvailableQuantity(
+            $product,
+            $request->cookie('user')
+        );
+        return $product;
     }
 
     public function filter(ProductsFilter $queryFilter)
     {
+        function getAvailableQuantity($productsArray, $request)
+        {
+            foreach ($productsArray as $product) {
+                $product->available_quantity = Product::getAvailableQuantity(
+                    $product,
+                    $request->cookie('user')
+                );
+            }
+            return $productsArray;
+        }
+
         $request = $queryFilter->request;
+        if ($request->query('idsList')) {
+            $idsList = $request->query('idsList');
+            if (!is_array($idsList))
+                return response(['error' => 'Не передан список id'], 400);
+
+            $products = getAvailableQuantity(
+                Product::mainData()->whereIn('products.id', $idsList)->get(),
+                $request
+            );
+            return $products;
+        }
+
         $limit = $request->query('limit') ?? null;
         $offset = $request->query('offset') ?? null;
         $except = $request->query('except') ?? [];
@@ -55,8 +83,10 @@ class ProductsController extends Controller
         if ($request->query('allData') === 'true' || $request->query('allData') === true)
             $productQuery->taxonomies()->timestamps();
 
+        $products = getAvailableQuantity($productQuery->get(), $request);
+
         return [
-            'result' => $productQuery->get(),
+            'result' => $products,
             'total_count' => $totalCount,
             'cheapest_price' => $cheapest,
             'most_expensive_price' => $mostExpensive

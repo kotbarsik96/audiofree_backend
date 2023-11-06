@@ -79,12 +79,12 @@
                         </li>
                         <li class="header__body-nav-item">
                             <DynamicAdaptive destinationSelector="#header-mobile-cart" :query="mobileMediaQuery">
-                                <div class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive">
+                                <RouterLink :to="{ name: 'Cart' }" class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive">
                                     <div class="circle-wrapper__number" v-if="cartCountComputed">
                                         {{ cartCountComputed }}
                                     </div>
                                     <CartIcon></CartIcon>
-                                </div>
+                                </RouterLink>
                             </DynamicAdaptive>
                         </li>
                     </ul>

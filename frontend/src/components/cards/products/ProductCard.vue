@@ -1,6 +1,6 @@
 <template>
     <div class="card product-card">
-        <div class="card__container product-card__container">
+        <div class="card__container product-card__container" v-if="product">
             <button class="product-card__expand-top circle-wrapper" :class="{ '__active': isTopExpanded }" type="button"
                 @click="expandTop">
                 <PlusIcon></PlusIcon>
@@ -37,12 +37,15 @@
             <DynamicAdaptive query="max-width: 599px" destinationSelector="[data-prodcard-mobile-buttons]"
                 :maxParentsCount="1">
                 <div class="product-card__buttons">
-                    <button class="button button--colored" type="button">
+                    <button class="button button--colored" v-if="!isOutOfStock" type="button">
                         Купить в 1 клик
                     </button>
-                    <button class="button" type="button" @click="onAddToCartClick">
+                    <button class="button" v-if="!isOutOfStock" type="button" @click="onAddToCartClick">
                         В корзину
                     </button>
+                    <div class="product-card__out-of-stock" v-if="isOutOfStock">
+                        Товар закончился
+                    </div>
                 </div>
             </DynamicAdaptive>
         </div>

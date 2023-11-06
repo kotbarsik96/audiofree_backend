@@ -122,7 +122,7 @@ export default {
             font-size: 20px;
             line-height: 23px;
             font-weight: 700;
-            padding: 20px 30px;
+            padding: 20px 50px 20px 20px;
             color: #4e4e4e;
             box-shadow: 0px 0px 8px rgba(0, 0, 0, .15);
             border-radius: var(--border_radius);

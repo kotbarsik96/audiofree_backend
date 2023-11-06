@@ -422,6 +422,15 @@ button:disabled {
         background-color: var(--theme_color_darker);
         color: #fff;
     }
+
+    &:disabled,
+    &:disabled:hover {
+        background-color: #bababa;
+        border-width: 0;
+        box-shadow: none;
+        font-weight: 500;
+        color: #ececec;
+    }
 }
 
 .button--colored {
@@ -746,6 +755,14 @@ button:disabled {
             margin: 0 10px 10px 0;
             padding: 11px 7px;
         }
+    }
+
+    &__out-of-stock {
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 19px;
+        margin-top: 10px;
+        text-align: center;
     }
 
     @media (max-width: 599px) {

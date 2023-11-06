@@ -38,9 +38,11 @@ Route::middleware('auth:sanctum')->group(function () {
     );
 
     Route::get('/user-cart', [UserEntitiesController::class, 'getUserCart']);
+    Route::post('/user-cart/update', [UserEntitiesController::class, 'updateCart']);
     Route::get('/user-cart/{userId}', [UserEntitiesController::class, 'getUserCart']);
     Route::post('/user-cart/{productId}', [UserEntitiesController::class, 'storeToCart']);
-    Route::delete('/user-cart/{productId}', [UserEntitiesController::class, 'deleteFromCart']);
+    Route::delete('/user-cart', [UserEntitiesController::class, 'deleteFromCart']);
+    Route::delete('/user-cart/{cartItemId}', [UserEntitiesController::class, 'deleteFromCart']);
 
     Route::get('/email/verify', [AuthController::class, 'sendEmailVerification']);
     Route::get('/email/verification-sent', [AuthController::class, 'isVerificationSent']);

@@ -1,6 +1,6 @@
 <template>
     <div class="card product-card product-card--horizontal">
-        <div class="card__container product-card__container">
+        <div class="card__container product-card__container" v-if="product">
             <div class="product-card__image-container">
                 <img class="product-card__image" :src="imageSrc" :alt="product.name">
             </div>

@@ -19,6 +19,7 @@ class FavoritesProduct extends Model
     public static function scopeMainData(Builder $builder)
     {
         $builder->addSelect(
+            'favorites_product.id',
             'favorites_product.product_id',
             'products.name AS product_name'
         )->leftJoin('products', 'products.id', '=', 'favorites_product.product_id');

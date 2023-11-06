@@ -26,7 +26,7 @@
                     <div class="catalog__list-container">
                         <ul class="catalog__list" v-if="list.length > 0">
                             <li v-for="product in list" :key="product.id" class="catalog__list-item">
-                                <ProductCard :product="product"></ProductCard>
+                                <ProductCard :productData="product"></ProductCard>
                             </li>
                         </ul>
                         <div class="catalog__not-found" v-else-if="!isLoading">
@@ -229,6 +229,13 @@ export default {
         display: grid;
         grid-template-columns: repeat(auto-fit, 270px);
         grid-gap: 30px;
+    }
+
+    &__list-item {
+        .card,
+        .card__container {
+            height: 100%;
+        }
     }
 
     &__not-found {

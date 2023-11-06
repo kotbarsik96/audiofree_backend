@@ -149,7 +149,65 @@ class UserEntitiesController extends Controller
         ];
     }
 
-    public function deleteFromCart(Request $request, $productId)
+    public function updateCart(Request $request)
+    {
+        $user = User::authenticate($request);
+        if (empty($user))
+            return response(['error' => AuthExceptions::userNotLoggedIn()->getMessage()], 401);
+
+        $updatingCart = $request->cart;
+        if (!is_array($updatingCart))
+            return response(['error' => 'Не передана корзина', 400]);
+
+        $updatingCart = array_filter($updatingCart, function ($cartItem) {
+            // если не передан какой-либо из ключей в $cartItem, отбросить этот элемент
+            $musthaveKeys = ['id', 'product_id', 'quantity'];
+            $hasKeys = array_filter(
+                $musthaveKeys,
+                function ($key) use ($cartItem) {
+                    if (array_key_exists($key, $cartItem))
+                        return true;
+                    return false;
+                }
+            );
+            if (count($musthaveKeys) === count($hasKeys))
+                return true;
+
+            return false;
+        });
+
+        /* валидация каждой ячейки */
+        foreach ($updatingCart as $cartItem) {
+            $row = CartProduct::find($cartItem['id']);
+            if (empty($row))
+                continue;
+
+            $product = Product::find($cartItem['product_id']);
+            if (empty($product))
+                continue;
+
+            /* вычислить максимальное количество, которое может быть указано в этой ячейке корзины. Для этого нужно вычесть из общего количества товаров с этим id (уменьшаемое) количество товаров из ячеек с этим же id, не включая текущую ячейку (вычитаемое, получается благодаря array_reduce) */
+            $maxQuantity = $product->quantity - array_reduce($updatingCart, function ($carry, $otherCartItem) use ($cartItem) {
+                if ($otherCartItem['product_id'] !== $cartItem['product_id'] || $cartItem['id'] === $otherCartItem['id'])
+                    return $carry;
+
+                return $carry + $otherCartItem['quantity'];
+            }, 0);
+
+            if ($cartItem['quantity'] > $maxQuantity)
+                $cartItem['quantity'] = $maxQuantity;
+
+            $row->update([
+                'quantity' => $cartItem['quantity']
+            ]);
+        }
+
+        return [
+            'cart' => $this->getUserCart($request, $user->id)
+        ];
+    }
+
+    public function deleteFromCart(Request $request, $cartItemId = null)
     {
         $user = User::authenticate($request);
         if (empty($user))
@@ -160,13 +218,29 @@ class UserEntitiesController extends Controller
         if (empty($userCart))
             return ['success' => false];
 
-        $row = CartProduct::where('product_id', $productId)
-            ->where('cart_id', $userCart->id)
-            ->first();
+        if (empty($cartItemId)) {
+            $idsList = $request->get('idsList');
+            if (!is_array($idsList))
+                return ['success' => false];
+
+            foreach ($idsList as $rowId) {
+                $subRequest = Request::create('/user-cart', 'DELETE', $request->all(), $request->cookie());
+                $this->deleteFromCart($subRequest, $rowId);
+            }
+
+            return [
+                'success' => true,
+                'cart' => $this->getUserCart($request, $user->id)
+            ];
+        }
+
+        $row = CartProduct::find($cartItemId);
         if (empty($row))
             return ['success' => false];
 
+        $quantity = $row->quantity;
         $row->delete();
+
         return [
             'success' => true,
             'cart' => $this->getUserCart($request, $user->id)

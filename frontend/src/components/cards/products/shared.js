@@ -19,16 +19,22 @@ export default {
         QuantityInput
     },
     props: {
-        product: {
+        productData: {
             type: Object,
             required: true
         }
     },
     data: {
         isTopExpanded: false,
-        isInFavorites: null
+        isInFavorites: null,
+        product: null
     },
     methods: {
+        async updateProductData(){
+            const res = await axios.get(`${import.meta.env.VITE_PRODUCT_GET_LINK}${this.product.id}`)
+            if(res.data.id)
+                this.product = res.data
+        },
         checkIfFavorite,
         toggleFavorite,
         expandTop() {
@@ -59,7 +65,7 @@ export default {
                     name: 'product-popup-quantity',
                     id: 'product-popup-quantity',
                     min: 1,
-                    max: 99
+                    max: this.product.available_quantity
                 }, () => 'Количество')
                 const variationsComp = h(SelectProductVariations, { variations })
                 const component = h(ConfirmModal, {
@@ -67,13 +73,14 @@ export default {
                     nestedComponents: [quantityComp, variationsComp],
                     confirmProps: {
                         text: 'Добавить в корзину',
-                        callback: (modalWindowCtx) => {
+                        callback: async (modalWindowCtx) => {
                             const cart = {
                                 quantity: modalWindowCtx.$refs.nestedComponentRef[0].value,
                                 variations: modalWindowCtx.$refs.nestedComponentRef[1].values,
                                 productName: this.product.name
                             }
-                            addToCart(this.product.id, cart)
+                            await addToCart(this.product.id, cart)
+                            this.updateProductData()
                         }
                     }
                 })
@@ -92,14 +99,21 @@ export default {
         ...mapState(useIndexStore, ['favoritesCount']),
         imageSrc() {
             return `${import.meta.env.VITE_LINK}${this.product.image_path}`
+        },
+        isSmallQuantity() {
+            return this.product.available_quantity < 9 && this.product.available_quantity > 0
+        },
+        isOutOfStock() {
+            return this.product.available_quantity < 1
         }
     },
     watch: {
-        favoritesCount(){
+        favoritesCount() {
             this.checkIfFavorite()
         }
     },
     mounted() {
+        this.product = this.productData
         this.checkIfFavorite()
     }
 }
