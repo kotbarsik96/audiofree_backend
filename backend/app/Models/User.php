@@ -24,9 +24,12 @@ class User extends Authenticatable
         'surname',
         'patronymic',
         'phone_number',
+        'location',
+        'street',
+        'house',
         'cart_id',
         'favorite_id',
-        'role_id'
+        'role_id',
     ];
 
     protected $hidden = [
@@ -62,6 +65,9 @@ class User extends Authenticatable
             'users.surname',
             'users.patronymic',
             'users.phone_number',
+            'users.location',
+            'users.street',
+            'users.house',
             'roles.name AS role',
             'users.role_id',
             'users.created_at'

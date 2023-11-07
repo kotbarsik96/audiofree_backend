@@ -24,7 +24,7 @@
             <TextInputWrapper v-model="input.name" name="name" id="name" placeholder="Имя">
                 <template v-slot:label>Ваше имя</template>
                 <template v-if="errors.email" v-slot:error>
-                    {{ errors.name[0] }}
+                    {{ errors.email[0] }}
                 </template>
             </TextInputWrapper>
             <TextInputWrapper v-model="input.surname" name="surname" id="surname" placeholder="Фамилия">
@@ -32,6 +32,20 @@
             </TextInputWrapper>
             <TextInputWrapper v-model="input.patronymic" name="patronymic" id="patronymic" placeholder="Отчество">
                 <template v-slot:label>Ваше отчество</template>
+            </TextInputWrapper>
+        </div>
+        <div class="inputs-flex">
+            <TextInputWrapper v-model="input.location" name="location" id="location" placeholder="Населенный пункт">
+                <template v-slot:label>Ваш насленный пункт</template>
+                <template v-if="errors.location" v-slot:error>
+                    {{ errors.location[0] }}
+                </template>
+            </TextInputWrapper>
+            <TextInputWrapper v-model="input.street" name="street" id="street" placeholder="Улица">
+                <template v-slot:label>Улица</template>
+            </TextInputWrapper>
+            <TextInputWrapper v-model="input.house" name="house" id="house" placeholder="Дом">
+                <template v-slot:label>Дом</template>
             </TextInputWrapper>
         </div>
         <div class="account__buttons">
@@ -64,7 +78,10 @@ export default {
                 name: '',
                 surname: '',
                 patronymic: '',
-                phone_number: ''
+                phone_number: '',
+                location: '',
+                street: '',
+                house: ''
             },
             error: '',
             errors: []
@@ -82,7 +99,10 @@ export default {
                     email: this.input.email,
                     name: this.input.name,
                     surname: this.input.surname || null,
-                    patronymic: this.input.patronymic || null
+                    patronymic: this.input.patronymic || null,
+                    location: this.input.location || null,
+                    street: this.input.street || null,
+                    house: this.input.house || null,
                 })
 
                 await store.checkAuth()
@@ -102,6 +122,9 @@ export default {
             this.input.surname = this.user.surname || ''
             this.input.patronymic = this.user.patronymic || ''
             this.input.phone_number = this.user.phone_number || ''
+            this.input.location = this.user.location || ''
+            this.input.street = this.user.street || ''
+            this.input.house = this.user.house || ''
         }
     },
     watch: {

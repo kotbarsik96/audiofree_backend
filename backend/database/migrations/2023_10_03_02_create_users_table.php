@@ -20,6 +20,12 @@ return new class extends Migration
             $table->string('surname')->nullable();
             $table->string('patronymic')->nullable();
             $table->string('phone_number')->nullable()->unique();
+            $table->string('location')
+                ->nullable();
+            $table->string('street')
+                ->nullable();
+            $table->string('house')
+                ->nullable();
             $table->foreignId('role_id') // обязательно задается при регистрации
                 ->constrained(table: 'roles');
             $table->rememberToken();

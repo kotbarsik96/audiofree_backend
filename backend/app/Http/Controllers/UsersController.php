@@ -102,7 +102,10 @@ class UsersController extends Controller
             'phone_number' => ['nullable', 'string', 'regex:/^\+7\d\d\d\d\d\d\d\d\d\d/'],
             'name' => 'required|string',
             'surname' => 'nullable|string',
-            'patronymic' => 'nullable|string'
+            'patronymic' => 'nullable|string',
+            'location' => 'nullable|string',
+            'street' => 'nullable|string',
+            'house' => 'nullable|string',
         ], [
             'email' => AuthExceptions::$emailFormat,
             'phone_number' => AuthExceptions::$phoneFormat,
