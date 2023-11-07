@@ -86,12 +86,35 @@ class ProductsFilter extends QueryFilter
         $this->filterByTaxonomy($titles, 'product_status_id', 'product_statuses.id', 'product_statuses', 'product_statuses.name');
     }
 
-    public function in_stock($value)
+    public function in_stock($value = null)
     {
-        if(empty($value) || $value === 'false') {
+        if (empty($value) || $value === 'false') {
             $this->builder->where('products.quantity', '<', '1');
         } else {
             $this->builder->where('products.quantity', '>', '0');
+        }
+    }
+
+    public function is_favorite($value = null)
+    {
+        $userId = $this->request->cookie('user');
+        if (empty($userId))
+            $userId = $this->request->get('userId');
+
+        if (empty($userId))
+            return;
+
+        $subQueryCallback = function (Builder $subquery) use ($userId) {
+            $subquery->select('favorites_product.product_id')
+                ->from('favorites')
+                ->leftJoin('favorites_product', 'favorites_product.favorites_id', '=', 'favorites.id')
+                ->where('favorites.user_id', $userId);
+        };
+
+        if (empty($value) || $value === 'false') {
+            $this->builder->whereNotIn('products.id', $subQueryCallback);
+        } else {
+            $this->builder->whereIn('products.id', $subQueryCallback);
         }
     }
 }

@@ -121,6 +121,15 @@ const router = createRouter({
                 requiresAuth: true
             }
         },
+        {
+            path: '/favorites/:pageNumber?',
+            name: 'Favorites',
+            component: () => import('@/views/products/FavoritesView.vue'),
+            meta: {
+                requiresAuth: true,
+                hasPageNumber: true
+            }
+        },
         // other
         {
             path: '/:pathMatch(.*)*',

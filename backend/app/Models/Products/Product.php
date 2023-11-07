@@ -164,7 +164,9 @@ class Product extends FilterableModel
     /* возвращает количество товара, доступное для добавления в корзину конкретному пользователю. То есть, учитывает, сколько товаров пользователь уже добавил в корзину */
     public static function getAvailableQuantity($product, $userId)
     {
-        $quantity = $product->quantity;
+        $quantity = is_array($product)
+            ? $product['quantity']
+            : $product->quantity;
         if ($userId) {
             $userCart = Cart::where('user_id', $userId)->first();
             if (empty($userCart))

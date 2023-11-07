@@ -51,21 +51,27 @@ class ProductsController extends Controller
         }
 
         $request = $queryFilter->request;
+        $limit = $request->query('limit') ?? null;
+        $offset = $request->query('offset') ?? null;
+        $except = $request->query('except') ?? [];
+
         if ($request->query('idsList')) {
             $idsList = $request->query('idsList');
             if (!is_array($idsList))
                 return response(['error' => 'Не передан список id'], 400);
 
+            $products = Product::mainData()
+                ->sort($request->query('sortValue'))
+                ->filter($queryFilter)
+                ->whereIn('products.id', $idsList)
+                ->offsetLimit($limit, $offset)
+                ->get();
             $products = getAvailableQuantity(
-                Product::mainData()->whereIn('products.id', $idsList)->get(),
+                $products,
                 $request
             );
             return $products;
         }
-
-        $limit = $request->query('limit') ?? null;
-        $offset = $request->query('offset') ?? null;
-        $except = $request->query('except') ?? [];
 
         $cheapest = Product::cheapest();
         $mostExpensive = Product::mostExpensive();

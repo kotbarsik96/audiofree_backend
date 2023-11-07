@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div class="cart-page">
         <div class="container">
-            <div class="cart-page">
+            <div>
                 <div class="cart-page__page-heading page-heading">
                     <div class="breadcrumbs">
                         <RouterLink class="breadcrumbs__link link" :to="{ name: 'Home' }">

@@ -115,7 +115,7 @@
                         </div>
                     </td>
                     <td>
-                        {{ item.quantity || 1 }}
+                        {{ item.quantity || 'Нет в наличии' }}
                     </td>
                     <td>
                         {{ item.product_status }}

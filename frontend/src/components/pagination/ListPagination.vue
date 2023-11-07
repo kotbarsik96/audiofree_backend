@@ -170,8 +170,8 @@ export default {
                         this.totalCount = parseInt(res.data.total_count)
 
                     const meta = {}
-                    for(let key in res.data) {
-                        if(key === 'total_count' || key === 'result')
+                    for (let key in res.data) {
+                        if (key === 'total_count' || key === 'result')
                             continue
 
                         meta[key] = res.data[key]

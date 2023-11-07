@@ -69,12 +69,12 @@
                     <ul class="header__body-nav-list">
                         <li class="header__body-nav-item">
                             <DynamicAdaptive destinationSelector="#header-mobile-favorites" :query="mobileMediaQuery">
-                                <div class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive">
-                                    <div class="circle-wrapper__number" v-if="favoritesCountComputed">
+                                <RouterLink class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive" :to="{ name: 'Favorites' }">
+                                    <span class="circle-wrapper__number" v-if="favoritesCountComputed">
                                         {{ favoritesCountComputed }}
-                                    </div>
+                                    </span>
                                     <HeartIcon></HeartIcon>
-                                </div>
+                                </RouterLink>
                             </DynamicAdaptive>
                         </li>
                         <li class="header__body-nav-item">
