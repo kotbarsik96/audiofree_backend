@@ -86,7 +86,9 @@ export default {
                 }
             }
         },
-        modelValue: Object
+        modelValue: Object,
+        /* те ключи из modelValue (т.е. фильтра), которые в методе clear не будут затронуты */
+        unclearableFilters: Array,
     },
     emits: ['update:modelValue'],
     components: {
@@ -165,7 +167,7 @@ export default {
             const cleared = Object.assign({}, this.filterInput)
             for (let key in cleared) {
                 const val = cleared[key]
-                if (!val)
+                if (!val || this.isUnclearable(key))
                     continue
 
                 if (typeof val === 'string')
@@ -181,6 +183,12 @@ export default {
                 .forEach(r => r.checked = false)
 
             this.filterInput = cleared
+        },
+        isUnclearable(key){
+            if(!Array.isArray(this.unclearableFilters))
+                return false
+
+            return this.unclearableFilters.includes(key)
         },
         updateModelValue() {
             this.$emit('update:modelValue', this.filterInput)

@@ -5,7 +5,7 @@
                 <div class="catalog__wrapper">
                     <LoadingScreen v-if="isLoading"></LoadingScreen>
                     <div class="catalog__filter-container">
-                        <ProductsFilter ref="productsFilter" v-model="filters" :sections="filterSections"></ProductsFilter>
+                        <ProductsFilter ref="productsFilter" v-model="filters" :sections="filterSections" :unclearableFilters="unclearableFilters"></ProductsFilter>
                     </div>
                     <div class="catalog__page-heading page-heading">
                         <div class="breadcrumbs">
@@ -88,6 +88,7 @@ export default {
                     max: 0
                 }
             },
+            unclearableFilters: ['product_statuses', 'in_stock'],
             filterSections: [
                 {
                     title: 'Бренд',
@@ -140,7 +141,7 @@ export default {
             return import.meta.env.VITE_PRODUCTS_GET_LINK
         },
         filtersAndSort() {
-            return Object.assign(this.filters, { sortValue: this.sortValue })
+            return Object.assign({ sortValue: this.sortValue }, this.filters)
         },
         productsOnPageLimit() {
             if (this.matchMediaMatches.max['1189'])
