@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('user_id')
                 ->constrained(table: 'users')
                 ->cascadeOnDelete();
-            $table->string('status');
             $table->unsignedInteger('quantity');
             $table->unsignedInteger('total_price');
             $table->string('type'); // тип: "oneclick" или "cart"
@@ -34,6 +33,10 @@ return new class extends Migration
                 ->nullable();
             $table->string('address')
                 ->nullable();
+            $table->string('cart_rows'); // ссылаются на cart_product.id
+            $table->foreignId('status_id')
+                ->constrained(table: 'order_statuses')
+                ->cascadeOnDelete();
             $table->foreignId('delivery_type')
                 ->nullable()
                 ->constrained(table: 'delivery_types')

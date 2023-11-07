@@ -130,6 +130,11 @@ const router = createRouter({
                 hasPageNumber: true
             }
         },
+        {
+            path: '/order/:id',
+            name: 'Order',
+            component: () => import('@/views/products/OrderView.vue')
+        },
         // other
         {
             path: '/:pathMatch(.*)*',
@@ -217,6 +222,10 @@ router.beforeEach(async (to, from) => {
         }
 
         store.toggleLoading('loadProductPage', false)
+    }
+
+    if(to.name === 'Order') {
+        
     }
 })
 

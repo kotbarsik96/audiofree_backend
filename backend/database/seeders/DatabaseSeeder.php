@@ -9,6 +9,7 @@ use Database\Seeders\TypesSeeder;
 use Database\Seeders\RolesSeeder;
 use Database\Seeders\PaymentTypesSeeder;
 use Database\Seeders\DeliveryTypesSeeder;
+use Database\Seeders\OrderStatusesSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,12 +19,13 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            BrandsSeeder::class,
-            CategoriesSeeder::class,
-            TypesSeeder::class,
-            RolesSeeder::class,
-            DeliveryTypesSeeder::class,
-            PaymentTypesSeeder::class,
+            // BrandsSeeder::class,
+            // CategoriesSeeder::class,
+            // TypesSeeder::class,
+            // RolesSeeder::class,
+            // DeliveryTypesSeeder::class,
+            // PaymentTypesSeeder::class,
+            // OrderStatusesSeeder::class
         ]);
     }
 }

@@ -1,115 +1,111 @@
 <template>
     <div class="cart-page">
         <div class="container">
-            <div>
-                <div class="cart-page__page-heading page-heading">
-                    <div class="breadcrumbs">
-                        <RouterLink class="breadcrumbs__link link" :to="{ name: 'Home' }">
-                            Главная
-                        </RouterLink>
-                        <RouterLink class="breadcrumbs__link link" :to="{ name: 'Cart' }">
-                            Корзина
-                        </RouterLink>
-                    </div>
-                    <h1 class="page-title">
+            <div class="cart-page__page-heading page-heading">
+                <div class="breadcrumbs">
+                    <RouterLink class="breadcrumbs__link link" :to="{ name: 'Home' }">
+                        Главная
+                    </RouterLink>
+                    <RouterLink class="breadcrumbs__link link" :to="{ name: 'Cart' }">
                         Корзина
-                    </h1>
+                    </RouterLink>
                 </div>
-                <div class="cart-page__body" v-if="cart.length > 0">
-                    <LoadingScreen v-if="isLoading"></LoadingScreen>
-                    <div class="cart-page__list-container">
-                        <ul class="cart-page__list-heading cart-list__heading">
-                            <li class="cart-page__list-heading-item cart-list__column-image"></li>
-                            <li class="cart-page__list-heading-item cart-list__column-name">
-                                Название товара:
-                            </li>
-                            <li class="cart-page__list-heading-item cart-list__column-price">
-                                Цена за штуку:
-                            </li>
-                            <li class="cart-page__list-heading-item cart-list__column-quantity">
-                                Количество:
-                            </li>
-                            <li class="cart-page__list-heading-item cart-list__column-sum">
-                                Сумма:
-                            </li>
-                            <li class="cart-page__list-heading-item cart-list__column-cancel"></li>
-                        </ul>
-                        <TransitionGroup tag="ul" class="cart-page__list cart-list"
-                            v-if="cart.length > 0 && cart[0].productData" :css="false"
-                            @before-enter="onItemBeforeEnter" @enter="onItemEnter" @leave="onItemLeave">
-                            <li class="cart-list__item" v-for="(item, index) in cart" :key="item.id">
-                                <template v-if="item.productData">
-                                    <div class="cart-list__item-row cart-list__item-image cart-list__column-image">
-                                        <RouterLink :to="{ name: 'Product', params: { productId: item.product_id } }">
-                                            <img :src="getImagePath(item.productData.image_path)"
-                                                :alt="item.productData.name">
-                                        </RouterLink>
-                                    </div>
-                                    <div class="cart-list__item-row cart-list__item-name cart-list__column-name">
-                                        <RouterLink class="link"
-                                            :to="{ name: 'Product', params: { productId: item.product_id } }">
-                                            {{ item.productData.name }}
-                                        </RouterLink>
-                                    </div>
-                                    <div class="cart-list__item-row cart-list__item-price cart-list__column-price">
-                                        <span>Цена за штуку:</span>
-                                        <span>
-                                            {{ item.productData.current_price }} ₽
-                                        </span>
-                                    </div>
-                                    <div class="cart-list__item-row cart-list__item-quantity cart-list__column-quantity">
-                                        <QuantityInput v-model="cart[index].quantity"
-                                            :name="`product-${item.id}-quantity`" :id="`product-${item.id}-quantity`"
-                                            :min="1" :max="cart[index].productData.quantity"
-                                            @update:modelValue="onItemChange(item)"></QuantityInput>
-                                    </div>
-                                    <div class="cart-list__item-row cart-list__item-sum cart-list__column-sum">
-                                        <span>Итого:</span>
-                                        <span>
-                                            {{ getSum(item) }} ₽
-                                        </span>
-                                    </div>
-                                    <div class="cart-list__item-row cart-list__item-cancel cart-list__column-cancel">
-                                        <button type="button" @click="removeFromCart(item)">
-                                            <CrossIcon></CrossIcon>
-                                        </button>
-                                    </div>
-                                </template>
-                            </li>
-                        </TransitionGroup>
+                <h1 class="page-title">
+                    Корзина
+                </h1>
+            </div>
+            <div class="cart-page__body" v-if="cart.length > 0">
+                <LoadingScreen v-if="isLoading"></LoadingScreen>
+                <div class="cart-page__list-container">
+                    <ul class="cart-page__list-heading cart-list__heading">
+                        <li class="cart-page__list-heading-item cart-list__column-image"></li>
+                        <li class="cart-page__list-heading-item cart-list__column-name">
+                            Название товара:
+                        </li>
+                        <li class="cart-page__list-heading-item cart-list__column-price">
+                            Цена за штуку:
+                        </li>
+                        <li class="cart-page__list-heading-item cart-list__column-quantity">
+                            Количество:
+                        </li>
+                        <li class="cart-page__list-heading-item cart-list__column-sum">
+                            Сумма:
+                        </li>
+                        <li class="cart-page__list-heading-item cart-list__column-cancel"></li>
+                    </ul>
+                    <TransitionGroup tag="ul" class="cart-page__list cart-list"
+                        v-if="cart.length > 0 && cart[0].productData" :css="false" @before-enter="onItemBeforeEnter"
+                        @enter="onItemEnter" @leave="onItemLeave">
+                        <li class="cart-list__item" v-for="(item, index) in cart" :key="item.id">
+                            <template v-if="item.productData">
+                                <div class="cart-list__item-row cart-list__item-image cart-list__column-image">
+                                    <RouterLink :to="{ name: 'Product', params: { productId: item.product_id } }">
+                                        <img :src="getImagePath(item.productData.image_path)" :alt="item.productData.name">
+                                    </RouterLink>
+                                </div>
+                                <div class="cart-list__item-row cart-list__item-name cart-list__column-name">
+                                    <RouterLink class="link"
+                                        :to="{ name: 'Product', params: { productId: item.product_id } }">
+                                        {{ item.productData.name }}
+                                    </RouterLink>
+                                </div>
+                                <div class="cart-list__item-row cart-list__item-price cart-list__column-price">
+                                    <span>Цена за штуку:</span>
+                                    <span>
+                                        {{ item.productData.current_price }} ₽
+                                    </span>
+                                </div>
+                                <div class="cart-list__item-row cart-list__item-quantity cart-list__column-quantity">
+                                    <QuantityInput v-model="cart[index].quantity" :name="`product-${item.id}-quantity`"
+                                        :id="`product-${item.id}-quantity`" :min="1" :max="cart[index].productData.quantity"
+                                        @update:modelValue="onItemChange(item)"></QuantityInput>
+                                </div>
+                                <div class="cart-list__item-row cart-list__item-sum cart-list__column-sum">
+                                    <span>Итого:</span>
+                                    <span>
+                                        {{ getSum(item) }} ₽
+                                    </span>
+                                </div>
+                                <div class="cart-list__item-row cart-list__item-cancel cart-list__column-cancel">
+                                    <button type="button" @click="removeFromCart(item)">
+                                        <CrossIcon></CrossIcon>
+                                    </button>
+                                </div>
+                            </template>
+                        </li>
+                    </TransitionGroup>
+                </div>
+                <div class="cart-page__meta">
+                    <div class="cart-page__code">
+                        <CodeInput id="cart-code" name="cart-code" button="Активировать" placeholder="Введите код">
+                            <template v-slot:label>
+                                Введите Ваш код купона, если он у вас есть:
+                            </template>
+                        </CodeInput>
                     </div>
-                    <div class="cart-page__meta">
-                        <div class="cart-page__code">
-                            <CodeInput id="cart-code" name="cart-code" button="Активировать" placeholder="Введите код">
-                                <template v-slot:label>
-                                    Введите Ваш код купона, если он у вас есть:
-                                </template>
-                            </CodeInput>
+                    <div class="cart-page__total">
+                        <div>
+                            Сумма заказа:
                         </div>
-                        <div class="cart-page__total">
-                            <div>
-                                Сумма заказа:
-                            </div>
-                            <div>
-                                {{ totalPrice }} ₽
-                            </div>
+                        <div>
+                            {{ totalPrice }} ₽
                         </div>
                     </div>
                 </div>
-                <div class="cart-page__body" v-else>
-                    <div class="cart-page__empty">
-                        <EmptyCartIcon></EmptyCartIcon>
-                        <span>Ваша корзина пуста</span>
-                        <RouterLink class="link" :to="{ name: 'Catalog' }">
-                            За покупками!
-                        </RouterLink>
-                    </div>
+            </div>
+            <div class="cart-page__body" v-else>
+                <div class="cart-page__empty">
+                    <EmptyCartIcon></EmptyCartIcon>
+                    <span>Ваша корзина пуста</span>
+                    <RouterLink class="link" :to="{ name: 'Catalog' }">
+                        За покупками!
+                    </RouterLink>
                 </div>
-                <div class="cart-page__bottom">
-                    <button class="button button--colored" type="submit" :disabled="isCheckoutDisabled" @click.prevent>
-                        Оформить заказ
-                    </button>
-                </div>
+            </div>
+            <div class="cart-page__bottom">
+                <button class="checkout-button button button--colored" type="submit" :disabled="isCheckoutDisabled" @click.prevent>
+                    Оформить заказ
+                </button>
             </div>
         </div>
     </div>
@@ -155,7 +151,7 @@ export default {
     methods: {
         getImagePath,
         getSum(item) {
-            if(!item.productData)
+            if (!item.productData)
                 return 0
             return item.quantity * item.productData.current_price
         },
@@ -380,14 +376,6 @@ export default {
     &__bottom {
         display: flex;
         justify-content: flex-end;
-        margin-top: 35px;
-
-        .button {
-            font-size: 18px;
-            line-height: 21px;
-            font-weight: 700;
-            padding: 20px 65px;
-        }
     }
 }
 
@@ -515,6 +503,8 @@ export default {
 
 @media (max-width: 949px) {
     .cart-page {
+        padding: 25px 0 50px 0;
+
         &__total {
             div:last-child {
                 font-size: 21px;
@@ -620,12 +610,6 @@ export default {
 
             div:first-child {
                 margin-right: 15px;
-            }
-        }
-
-        &__bottom {
-            .button {
-                width: 100%;
             }
         }
     }
