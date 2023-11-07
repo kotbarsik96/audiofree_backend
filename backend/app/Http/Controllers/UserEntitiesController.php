@@ -143,9 +143,10 @@ class UserEntitiesController extends Controller
             'quantity' => $quantity
         ]);
 
+        $cart = $this->getUserCart($request, $user->id);
         return [
             'success' => true,
-            'cart' => $this->getUserCart($request, $user->id)
+            'cart' => $cart['cart']
         ];
     }
 
@@ -202,8 +203,10 @@ class UserEntitiesController extends Controller
             ]);
         }
 
+        $cart = $this->getUserCart($request, $user->id);
         return [
-            'cart' => $this->getUserCart($request, $user->id)
+            'success' => true,
+            'cart' => $cart['cart']
         ];
     }
 
@@ -241,9 +244,10 @@ class UserEntitiesController extends Controller
         $quantity = $row->quantity;
         $row->delete();
 
+        $cart = $this->getUserCart($request, $user->id);
         return [
             'success' => true,
-            'cart' => $this->getUserCart($request, $user->id)
+            'cart' => $cart['cart']
         ];
     }
 
