@@ -27,8 +27,12 @@ export const useIndexStore = defineStore('index', {
                 return
 
             this.toggleLoading('checkAuth', true)
-            const onAny = () => {
-                this.loadEntity('cart')
+            const onAny = async () => {
+                // эти страницы сами загрузят корзину
+                const cartLoadExceptions = ['Cart']
+
+                if (this.currentRoute && !cartLoadExceptions.includes(this.currentRoute.name))
+                    this.loadEntity('cart')
                 this.loadEntity('favorites')
             }
             const onFalse = () => {
@@ -183,7 +187,7 @@ export const useIndexStore = defineStore('index', {
             })
         },
         /* для загрузки корзины, избранного */
-        async loadEntity(entityName) {
+        async loadEntity(entityName, params = {}) {
             if (!this.isUserLogged)
                 return
 
@@ -202,16 +206,29 @@ export const useIndexStore = defineStore('index', {
                 if (!link)
                     throw new Error('')
 
-                const res = await axios.get(link)
-                if (Array.isArray(res.data)) {
-                    switch (entityName) {
-                        case 'cart':
-                            this[entityName] = res.data
-                            break
-                        case 'favorites':
+                const res = await axios.get(link, { params })
+                switch (entityName) {
+                    case 'cart':
+                        if (Array.isArray(res.data.cart))
+                            this[entityName] = res.data.cart
+
+                        const deleted = res.data.deletedFromCart
+                        if (Array.isArray(deleted) && deleted.length > 0) {
+                            let message = ''
+                            if (deleted.length === 1)
+                                message = `Товара ${deleted[0]} больше нет в наличии, поэтому он удален из вашей корзины`
+                            else
+                                message = `Следующих товаров больше нет в наличии: ${deleted.reduce((acc, current) => acc += current, '')}. Они удалены из вашей корзины`
+                            useNotificationsStore().addNotification({
+                                message,
+                                timeout: 7500
+                            })
+                        }
+                        break
+                    case 'favorites':
+                        if (Array.isArray(res.data))
                             this[entityName] = res.data.map(obj => obj.product_id)
-                            break
-                    }
+                        break
                 }
             } catch (err) {
                 this[entityName] = []

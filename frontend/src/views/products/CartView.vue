@@ -15,7 +15,7 @@
                         Корзина
                     </h1>
                 </div>
-                <div class="cart-page__body" v-if="cartLoaded.length > 0">
+                <div class="cart-page__body" v-if="cart.length > 0">
                     <LoadingScreen v-if="isLoading"></LoadingScreen>
                     <div class="cart-page__list-container">
                         <ul class="cart-page__list-heading cart-list__heading">
@@ -35,9 +35,9 @@
                             <li class="cart-page__list-heading-item cart-list__column-cancel"></li>
                         </ul>
                         <TransitionGroup tag="ul" class="cart-page__list cart-list"
-                            v-if="cartLoaded.length > 0 && cartLoaded[0].productData" :css="false"
+                            v-if="cart.length > 0 && cart[0].productData" :css="false"
                             @before-enter="onItemBeforeEnter" @enter="onItemEnter" @leave="onItemLeave">
-                            <li class="cart-list__item" v-for="(item, index) in cartLoaded" :key="item.id">
+                            <li class="cart-list__item" v-for="(item, index) in cart" :key="item.id">
                                 <template v-if="item.productData">
                                     <div class="cart-list__item-row cart-list__item-image cart-list__column-image">
                                         <RouterLink :to="{ name: 'Product', params: { productId: item.product_id } }">
@@ -58,9 +58,9 @@
                                         </span>
                                     </div>
                                     <div class="cart-list__item-row cart-list__item-quantity cart-list__column-quantity">
-                                        <QuantityInput v-model="cartLoaded[index].quantity"
+                                        <QuantityInput v-model="cart[index].quantity"
                                             :name="`product-${item.id}-quantity`" :id="`product-${item.id}-quantity`"
-                                            :min="1" :max="cartLoaded[index].productData.quantity"
+                                            :min="1" :max="cart[index].productData.quantity"
                                             @update:modelValue="onItemChange(item)"></QuantityInput>
                                     </div>
                                     <div class="cart-list__item-row cart-list__item-sum cart-list__column-sum">
@@ -138,7 +138,6 @@ export default {
     data() {
         return {
             isLoading: false,
-            cartLoaded: [],
             unsavedItems: [],
             updateCartTimeout: null,
             isLoaded: false,
@@ -148,7 +147,7 @@ export default {
     computed: {
         ...mapState(useIndexStore, ['cart']),
         totalPrice() {
-            return this.cartLoaded.reduce((accumulator, currentValueObj) => {
+            return this.cart.reduce((accumulator, currentValueObj) => {
                 return accumulator + this.getSum(currentValueObj)
             }, 0)
         }
@@ -156,55 +155,16 @@ export default {
     methods: {
         getImagePath,
         getSum(item) {
+            if(!item.productData)
+                return 0
             return item.quantity * item.productData.current_price
         },
-        async loadCartData() {
+        async loadCart() {
             const store = useIndexStore()
-            store.toggleLoading('loadCartData', true)
             this.isLoaded = false
-
-            try {
-                const link = import.meta.env.VITE_PRODUCTS_GET_LINK
-                const idsList = this.cart.map(obj => obj.product_id)
-                if (idsList.length > 0) {
-                    const res = await axios.get(link, { params: { idsList } })
-                    if (!Array.isArray(res.data))
-                        throw new Error()
-
-                    let outOfStock = []
-                    this.cartLoaded = this.cart.map(obj => {
-                        const productData = res.data.find(o => o.id === obj.product_id)
-                        if (!productData)
-                            return null
-
-                        obj.productData = productData
-                        if (productData.quantity < 1) {
-                            outOfStock.push(obj)
-                            return null
-                        }
-                        else if (productData.quantity < obj.quantity)
-                            obj.quantity = productData.quantity
-
-                        return obj
-                    }).filter(o => o)
-
-                    if (outOfStock.length > 0)
-                        this.removeOutOfStock(outOfStock)
-                } else {
-                    this.cartLoaded = []
-                }
-            } catch (err) {
-                useNotificationsStore().addNotification({
-                    message: 'Произошла ошибка при попытке загрузить корзину',
-                    timeout: 7500
-                })
-            }
-
-            setTimeout(() => {
-                this.isLoaded = true
-                this.isCheckoutDisabled = false
-                store.toggleLoading('loadCartData', false)
-            }, 500);
+            await store.loadEntity('cart', { allData: true })
+            this.isLoaded = true
+            this.isCheckoutDisabled = false
         },
         async removeOutOfStock(outOfStock) {
             let message = outOfStock.length === 1
@@ -256,6 +216,7 @@ export default {
             }
 
             this.isLoading = false
+            this.loadCart()
         },
         onItemChange(item) {
             if (!this.isLoaded)
@@ -263,7 +224,7 @@ export default {
 
             this.isCheckoutDisabled = true
             // вычислить максимальное количество товаров с этим id, которое может быть добавлено в корзину
-            const maxQuantity = item.productData.quantity - this.cartLoaded.reduce((acc, otherItem) => {
+            const maxQuantity = item.productData.quantity - this.cart.reduce((acc, otherItem) => {
                 if (otherItem.productData.id === item.productData.id && otherItem.id !== item.id)
                     return acc + otherItem.quantity
                 return acc
@@ -282,6 +243,7 @@ export default {
                 this.updateCart()
             })
         },
+        /* загрузит новые данные в БД корзины */
         updateCart() {
             if (this.updateCartTimeout)
                 clearTimeout(this.updateCartTimeout)
@@ -289,11 +251,11 @@ export default {
             this.updateCartTimeout = setTimeout(async () => {
                 const link = `${import.meta.env.VITE_USER_CART}update`
                 const store = useIndexStore()
-                store.toggleLoading('upadteCart', true)
+                store.toggleLoading('updateCart', true)
 
                 try {
                     const res = await axios.post(link, {
-                        cart: this.cartLoaded
+                        cart: this.cart
                     })
                     if (Array.isArray(res.data.cart))
                         store.cart = res.data.cart
@@ -304,7 +266,8 @@ export default {
                 }
 
                 this.unsavedItems = []
-                store.toggleLoading('upadteCart', false)
+                store.toggleLoading('updateCart', false)
+
             }, 1000);
         },
         // list animation - start
@@ -334,13 +297,8 @@ export default {
         }
         // list animation - end
     },
-    watch: {
-        cart() {
-            this.loadCartData()
-        },
-    },
     async mounted() {
-        this.loadCartData()
+        this.loadCart()
     }
 }
 </script>

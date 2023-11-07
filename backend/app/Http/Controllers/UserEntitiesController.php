@@ -133,7 +133,7 @@ class UserEntitiesController extends Controller
             return response(['error' => 'Произошла ошибка при обработке параметров товара'], 400);
 
         $quantity = (int) $request->quantity ?? 1;
-        if ($quantity < 1 || $quantity > 99)
+        if ($quantity < 1 || $quantity > Product::getAvailableQuantity($product, $user->id))
             return response(['error' => 'Передано некорректное количество'], 400);
 
         CartProduct::create([
@@ -265,11 +265,35 @@ class UserEntitiesController extends Controller
         $productsInCart = CartProduct::mainData()
             ->where('cart_id', $userCart->id)
             ->get();
-        foreach ($productsInCart as $productData) {
-            $productData->variations = $this->variationsToObj($productData->variations);
+        $deletedFromCart = [];
+        foreach ($productsInCart as $key => $cartRow) {
+            $cartRow->variations = $this->variationsToObj($cartRow->variations);
+            // если нужны все данные (например, для страницы корзины)
+            if ($request->get('allData') && $request->get('allData') !== 'false') {
+                $cartRow->productData = Product::mainData()->find($cartRow->product_id);
+                $cartRow->productData->available_quantity = Product::getAvailableQuantity(
+                    $cartRow->productData,
+                    $user->id
+                );
+
+                // если в наличии товара больше нет, но он есть в корзине - удалить товар из корзины
+                if ($cartRow->productData->quantity < 1) {
+                    $req = Request::create('/user-cart', 'DELETE', $request->all(), $request->cookie);
+                    array_push($deletedFromCart, $cartRow->productData->name);
+                    $this->deleteFromCart($req, $cartRow->id);
+                    unset($productsInCart->$key);
+                }
+                // если в наличии товара меньше, чем указано в корзине - указать 1
+                elseif ($cartRow->productData->quantity < $cartRow->quantity) {
+                    $cartRow->quantity = 1;
+                }
+            }
         }
 
-        return $productsInCart;
+        return [
+            'cart' => $productsInCart,
+            'deleted' => $deletedFromCart
+        ];
     }
 
     public function variationsToString($variations)

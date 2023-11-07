@@ -151,10 +151,9 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
     const store = useIndexStore()
+    store.currentRoute = to
 
     if (to.meta.requiresAdmin) {
-        store.currentRoute = to
-
         const parentName = to.matched[0].name
         const hasRight = await store.checkPageAccess(parentName)
         if (!hasRight)
