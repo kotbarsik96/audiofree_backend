@@ -182,8 +182,14 @@ export default {
         },
         async loadProductData() {
             const productId = this.$route.params.productId
-            if (!productId)
+            if (!productId) {
+                this.descriptionEditor = new EditorJS({
+                    holder: 'product-creation-editor',
+                    placeholder: 'Введите описание товара',
+                    minHeight: 0,
+                })
                 return
+            }
 
             this.isLoading = true
 
@@ -209,7 +215,6 @@ export default {
         onLoadedProductData() {
             if (!this.productData)
                 return
-
 
             this.input.name = this.productData.name
             this.input.price = this.productData.price
@@ -305,6 +310,9 @@ export default {
             this.error = ''
         },
         onDescriptionInput() {
+            if(!this.$route.params.productId)
+                return
+
             if (this.descriptionTimeout)
                 clearTimeout(this.descriptionTimeout)
 
