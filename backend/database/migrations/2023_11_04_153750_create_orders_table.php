@@ -18,7 +18,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
             $table->unsignedInteger('quantity');
             $table->unsignedInteger('total_price');
-            $table->string('type'); // тип: "oneclick" или "cart"
+            $table->boolean('is_oneclick');
             $table->string('applied_coupon')
                 ->nullable();
             $table->string('name')
