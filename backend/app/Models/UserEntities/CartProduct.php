@@ -16,7 +16,8 @@ class CartProduct extends Model
         'cart_id',
         'product_id',
         'variations',
-        'quantity'
+        'quantity',
+        'is_oneclick'
     ];
 
     public static function scopeMainData(Builder $builder)

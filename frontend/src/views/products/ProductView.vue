@@ -58,10 +58,10 @@
                     <SelectProductVariations v-if="product.variations && product.variations.length > 0"
                         :variations="product.variations" v-model="cart.variations"></SelectProductVariations>
                     <div class="product-page__buttons">
-                        <button class="button button--colored" :disabled="isOutOfStock" type="button">
+                        <button class="button button--colored" :disabled="isOutOfStock" type="button" @click="addToCart(true)">
                             Купить в 1 клик
                         </button>
-                        <button class="button" type="button" :disabled="isOutOfStock" @click="addToCart">
+                        <button class="button" type="button" :disabled="isOutOfStock" @click="addToCart(false)">
                             В корзину
                         </button>
                         <button class="button" v-if="personalRating > 0" type="button" @click="removeRating">
@@ -344,15 +344,17 @@ export default {
                 })
             })
         },
-        async addToCart() {
+        async addToCart(isOneClick = false) {
             await addToCart(this.product.id,
                 Object.assign(
-                    { productName: this.product.name },
+                    { productName: this.product.name, isOneClick },
                     this.cart
                 )
             )
             this.updateProduct()
-        }
+            if(isOneClick)
+                this.$router.push({ name: 'CartOneClick' })
+        },
     },
     watch: {
         product() {

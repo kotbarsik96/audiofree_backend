@@ -117,7 +117,6 @@ export default {
     &__list {
         display: grid;
         grid-template-columns: repeat(auto-fit, 270px);
-        justify-content: center;
         grid-gap: 30px;
     }
 

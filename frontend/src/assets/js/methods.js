@@ -105,6 +105,7 @@ export function toggleFavorite() {
     this.isInFavorites = null
 }
 
+/* если "в 1 клик", нужно указать cart.isOneClick === true */
 export async function addToCart(productId, cart = {}) {
     const store = useIndexStore()
     store.toggleLoading('addToCart', true)

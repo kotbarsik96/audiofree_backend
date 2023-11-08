@@ -21,6 +21,7 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->integer('quantity');
             $table->string('variations');
+            $table->boolean('is_oneclick');
             $table->timestamps();
         });
     }

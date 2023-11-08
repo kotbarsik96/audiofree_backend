@@ -154,9 +154,11 @@ const router = createRouter({
     ]
 })
 
-router.beforeEach(async (to, from) => {
+export let currentRoute = null
+
+router.beforeEach(async (to) => {
     const store = useIndexStore()
-    store.currentRoute = to
+    currentRoute = to
 
     if (to.meta.requiresAdmin) {
         const parentName = to.matched[0].name

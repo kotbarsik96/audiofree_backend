@@ -14,7 +14,7 @@
                     Корзина
                 </h1>
             </div>
-            <div class="cart-page__body" v-if="cart.length > 0">
+            <div class="cart-page__body" v-if="cartList.length > 0">
                 <LoadingScreen v-if="isLoading"></LoadingScreen>
                 <div class="cart-page__list-container">
                     <ul class="cart-page__list-heading cart-list__heading">
@@ -34,9 +34,9 @@
                         <li class="cart-page__list-heading-item cart-list__column-cancel"></li>
                     </ul>
                     <TransitionGroup tag="ul" class="cart-page__list cart-list"
-                        v-if="cart.length > 0 && cart[0].productData" :css="false" @before-enter="onItemBeforeEnter"
+                        v-if="cartList.length > 0 && cartList[0].productData" :css="false" @before-enter="onItemBeforeEnter"
                         @enter="onItemEnter" @leave="onItemLeave">
-                        <li class="cart-list__item" v-for="(item, index) in cart" :key="item.id">
+                        <li class="cart-list__item" v-for="(item, index) in cartList" :key="item.id">
                             <template v-if="item.productData">
                                 <div class="cart-list__item-row cart-list__item-image cart-list__column-image">
                                     <RouterLink :to="{ name: 'Product', params: { productId: item.product_id } }">
@@ -56,9 +56,10 @@
                                     </span>
                                 </div>
                                 <div class="cart-list__item-row cart-list__item-quantity cart-list__column-quantity">
-                                    <QuantityInput v-model="cart[index].quantity" :name="`product-${item.id}-quantity`"
-                                        :id="`product-${item.id}-quantity`" :min="1" :max="cart[index].productData.quantity"
-                                        @update:modelValue="onItemChange(item)"></QuantityInput>
+                                    <QuantityInput v-model="cartList[index].quantity" :name="`product-${item.id}-quantity`"
+                                        :id="`product-${item.id}-quantity`" :min="1"
+                                        :max="cartList[index].productData.quantity" @update:modelValue="onItemChange(item)">
+                                    </QuantityInput>
                                 </div>
                                 <div class="cart-list__item-row cart-list__item-sum cart-list__column-sum">
                                     <span>Итого:</span>
@@ -103,7 +104,8 @@
                 </div>
             </div>
             <div class="cart-page__bottom">
-                <button class="checkout-button button button--colored" type="submit" :disabled="isCheckoutDisabled" @click.prevent>
+                <button class="checkout-button button button--colored" type="submit" :disabled="isCheckoutDisabled"
+                    @click.prevent>
                     Оформить заказ
                 </button>
             </div>
@@ -141,11 +143,22 @@ export default {
         }
     },
     computed: {
-        ...mapState(useIndexStore, ['cart']),
+        ...mapState(useIndexStore, ['cart', 'cartOneClick']),
         totalPrice() {
-            return this.cart.reduce((accumulator, currentValueObj) => {
+            return this.cartList.reduce((accumulator, currentValueObj) => {
                 return accumulator + this.getSum(currentValueObj)
             }, 0)
+        },
+        isOneClick() {
+            return Boolean(this.$route.name.match(/oneclick/i))
+        },
+        cartName() {
+            return this.isOneClick ? 'cartOneClick' : 'cart'
+        },
+        cartList() {
+            return this.isOneClick
+                ? this.cartOneClick
+                : this.cart
         }
     },
     methods: {
@@ -158,50 +171,23 @@ export default {
         async loadCart() {
             const store = useIndexStore()
             this.isLoaded = false
-            await store.loadEntity('cart', { allData: true })
+            await store.loadEntity(this.cartName, { allData: true })
             this.isLoaded = true
             this.isCheckoutDisabled = false
-        },
-        async removeOutOfStock(outOfStock) {
-            let message = outOfStock.length === 1
-                ? `Товар ${outOfStock[0].productData.name}`
-                : `Следующие товары закончились и были удалены из корзины: ${outOfStock.reduce((acc, currentObj, index) => {
-                    let str = acc + currentObj.productData.name
-                    if (index !== outOfStock.length - 1)
-                        str += ', '
-                    return str
-                }, '')}`
-
-            const store = useIndexStore()
-            store.toggleLoading('removeOutOfStockProducts', true)
-
-            try {
-                const link = import.meta.env.VITE_USER_CART
-                const res = await axios.delete(link, {
-                    data: {
-                        idsList: outOfStock.map(obj => obj.id)
-                    }
-                })
-                if (Array.isArray(res.data.cart))
-                    store.cart = res.data.cart
-            } catch (err) { }
-
-            store.toggleLoading('removeOutOfStockProducts', false)
-
-            useNotificationsStore().addNotification({
-                message,
-                timeout: 15000
-            })
         },
         async removeFromCart(item) {
             const link = `${import.meta.env.VITE_USER_CART}${item.id}`
             this.isLoading = true
 
             try {
-                const res = await axios.delete(link)
+                const res = await axios.delete(link, {
+                    data: {
+                        isOneClick: this.isOneClick
+                    }
+                })
                 if (Array.isArray(res.data.cart)) {
                     const store = useIndexStore()
-                    store.cart = res.data.cart
+                    store[this.cartName] = res.data.cart
                 } else if (!res.data.success)
                     throw new Error()
             } catch (err) {
@@ -220,7 +206,7 @@ export default {
 
             this.isCheckoutDisabled = true
             // вычислить максимальное количество товаров с этим id, которое может быть добавлено в корзину
-            const maxQuantity = item.productData.quantity - this.cart.reduce((acc, otherItem) => {
+            const maxQuantity = item.productData.quantity - this.cartList.reduce((acc, otherItem) => {
                 if (otherItem.productData.id === item.productData.id && otherItem.id !== item.id)
                     return acc + otherItem.quantity
                 return acc
@@ -248,13 +234,16 @@ export default {
                 const link = `${import.meta.env.VITE_USER_CART}update`
                 const store = useIndexStore()
                 store.toggleLoading('updateCart', true)
+                const isOneClick = this.$route.name.match(/oneclick/i)
 
                 try {
                     const res = await axios.post(link, {
-                        cart: this.cart
+                        cart: this.cartList,
+                        allData: true,
+                        isOneClick
                     })
                     if (Array.isArray(res.data.cart))
-                        store.cart = res.data.cart
+                        store[this.cartName] = res.data.cart
                 } catch (err) {
                     useNotificationsStore().addNotification({
                         message: 'Произошла ошибка при попытке обновления корзины'
@@ -293,9 +282,15 @@ export default {
         }
         // list animation - end
     },
+    watch: {
+        async '$route.name'(){
+            await this.$nextTick()
+            this.loadCart()
+        }
+    },
     async mounted() {
         this.loadCart()
-    }
+    },
 }
 </script>
 
@@ -623,5 +618,4 @@ export default {
             grid-column: 2 / 3;
         }
     }
-}
-</style>
+}</style>

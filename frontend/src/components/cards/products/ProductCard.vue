@@ -37,10 +37,10 @@
             <DynamicAdaptive query="max-width: 599px" destinationSelector="[data-prodcard-mobile-buttons]"
                 :maxParentsCount="1">
                 <div class="product-card__buttons">
-                    <button class="button button--colored" v-if="!isOutOfStock" type="button">
+                    <button class="button button--colored" v-if="!isOutOfStock" type="button" @click="onAddToCartClick(true)">
                         Купить в 1 клик
                     </button>
-                    <button class="button" v-if="!isOutOfStock" type="button" @click="onAddToCartClick">
+                    <button class="button" v-if="!isOutOfStock" type="button" @click="onAddToCartClick(false)">
                         В корзину
                     </button>
                     <div class="product-card__out-of-stock" v-if="isOutOfStock">

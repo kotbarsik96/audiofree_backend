@@ -30,9 +30,9 @@ export default {
         product: null
     },
     methods: {
-        async updateProductData(){
+        async updateProductData() {
             const res = await axios.get(`${import.meta.env.VITE_PRODUCT_GET_LINK}${this.product.id}`)
-            if(res.data.id)
+            if (res.data.id)
                 this.product = res.data
         },
         checkIfFavorite,
@@ -40,7 +40,7 @@ export default {
         expandTop() {
             this.isTopExpanded = !this.isTopExpanded
         },
-        async onAddToCartClick() {
+        async onAddToCartClick(isOneClick = false) {
             const store = useIndexStore()
             const loadVariations = async () => {
                 const link = `${import.meta.env.VITE_PRODUCT_GET_LINK}${this.product.id}`
@@ -54,6 +54,22 @@ export default {
 
                 return res.data.variations
             }
+            // выполнится при нажатии "в корзину" или "купить" (в случае "в 1 клик") в модальном окне
+            const confirmCallback = async (modalWindowCtx) => {
+                const cart = {
+                    quantity: modalWindowCtx.$refs.nestedComponentRef[0].value,
+                    variations: modalWindowCtx.$refs.nestedComponentRef[1].values,
+                    productName: this.product.name,
+                    isOneClick
+                }
+                await addToCart(this.product.id, cart)
+                this.updateProductData()
+
+                if (isOneClick)
+                    this.$router.push({ name: 'CartOneClick' })
+            }
+            const confirmButtonText = isOneClick
+                ? 'Перейти к оформлению' : 'Добавить в корзину';
 
             try {
                 store.toggleLoading('addToCartCard', true)
@@ -72,16 +88,8 @@ export default {
                     title: 'Выберите параметры',
                     nestedComponents: [quantityComp, variationsComp],
                     confirmProps: {
-                        text: 'Добавить в корзину',
-                        callback: async (modalWindowCtx) => {
-                            const cart = {
-                                quantity: modalWindowCtx.$refs.nestedComponentRef[0].value,
-                                variations: modalWindowCtx.$refs.nestedComponentRef[1].values,
-                                productName: this.product.name
-                            }
-                            await addToCart(this.product.id, cart)
-                            this.updateProductData()
-                        }
+                        text: confirmButtonText,
+                        callback: confirmCallback
                     }
                 })
                 useModalsStore().addModal({ component })

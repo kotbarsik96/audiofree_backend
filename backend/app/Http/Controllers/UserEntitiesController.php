@@ -136,12 +136,26 @@ class UserEntitiesController extends Controller
         if ($quantity < 1 || $quantity > Product::getAvailableQuantity($product, $user->id))
             return response(['error' => 'Передано некорректное количество'], 400);
 
-        CartProduct::create([
+        $data = [
             'cart_id' => $userCart->id,
             'product_id' => $productId,
             'variations' => $this->variationsToString($variations),
-            'quantity' => $quantity
-        ]);
+            'quantity' => $quantity,
+            'is_oneclick' => false
+        ];
+        if ($request->isOneClick && $request->isOneClick !== 'false') {
+            // если "в 1 клик", удалить предыдущ(ую/ие) запис(ь/и) с пометкой "в 1 клик" и добавить эту, новую
+            $data['is_oneclick'] = true;
+            $oldCartProductRow = CartProduct::where('cart_id', $userCart->id)
+                ->where('is_oneclick', '1')
+                ->get();
+            foreach ($oldCartProductRow as $oldRow) {
+                $oldRow->delete();
+            }
+            CartProduct::create($data);
+        } else {
+            CartProduct::create($data);
+        }
 
         $cart = $this->getUserCart($request, $user->id);
         return [
@@ -266,9 +280,13 @@ class UserEntitiesController extends Controller
         if (empty($userCart))
             Cart::create(['user_id' => $user->id]);
 
+        $isOneClick = $request->isOneClick ? '1' : '0';
+
         $productsInCart = CartProduct::mainData()
             ->where('cart_id', $userCart->id)
+            ->where('is_oneclick', $isOneClick)
             ->get();
+
         $deletedFromCart = [];
         foreach ($productsInCart as $key => $cartRow) {
             $cartRow->variations = $this->variationsToObj($cartRow->variations);

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { currentRoute } from '@/router/'
 import axios from 'axios'
 import { useNotificationsStore } from '@/stores/notifications.js'
 
@@ -12,8 +13,8 @@ export const useIndexStore = defineStore('index', {
             role: 999,
             emailVerified: false,
             products: [],
-            currentRoute: null,
             cart: [],
+            cartOneClick: [],
             favorites: []
         }
     },
@@ -31,7 +32,7 @@ export const useIndexStore = defineStore('index', {
                 // эти страницы сами загрузят корзину
                 const cartLoadExceptions = ['Cart']
 
-                if (this.currentRoute && !cartLoadExceptions.includes(this.currentRoute.name))
+                if (currentRoute && !cartLoadExceptions.includes(currentRoute.name))
                     this.loadEntity('cart')
                 this.loadEntity('favorites')
             }
@@ -197,6 +198,10 @@ export const useIndexStore = defineStore('index', {
                 case 'cart':
                     link = import.meta.env.VITE_USER_CART
                     break
+                case 'cartOneClick':
+                    link = import.meta.env.VITE_USER_CART
+                    params.isOneClick = true
+                    break
                 case 'favorites':
                     link = import.meta.env.VITE_USER_FAVORITE
                     break
@@ -209,6 +214,7 @@ export const useIndexStore = defineStore('index', {
                 const res = await axios.get(link, { params })
                 switch (entityName) {
                     case 'cart':
+                    case 'cartOneClick':
                         if (Array.isArray(res.data.cart))
                             this[entityName] = res.data.cart
 
