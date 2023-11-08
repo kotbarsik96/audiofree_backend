@@ -11,10 +11,10 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'status',
+        'status_id',
         'quantity',
         'total_price',
-        'type',
+        'is_oneclick',
         'applied_coupon',
         'name',
         'email',
@@ -25,5 +25,6 @@ class Order extends Model
         'delivery_type',
         'payment_type',
         'paid',
+        'cart_rows'
     ];
 }
