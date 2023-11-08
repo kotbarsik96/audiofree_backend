@@ -16,6 +16,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public static $phoneRegexp = '/^\+7\d\d\d\d\d\d\d\d\d\d/';
+
     protected $fillable = [
         'email',
         'email_verified_at',

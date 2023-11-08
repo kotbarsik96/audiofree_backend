@@ -105,7 +105,7 @@
             </div>
             <div class="cart-page__bottom">
                 <button class="checkout-button button button--colored" type="submit" :disabled="isCheckoutDisabled"
-                    @click.prevent>
+                    @click.prevent="createOrder">
                     Оформить заказ
                 </button>
             </div>
@@ -252,8 +252,31 @@ export default {
 
                 this.unsavedItems = []
                 store.toggleLoading('updateCart', false)
-
+                this.isCheckoutDisabled = false
             }, 1000);
+        },
+        async createOrder(){
+            const link = import.meta.env.VITE_ORDER_NEW_LINK
+
+            try {
+                const res = await axios.post(link, {
+                    isOneClick: this.isOneClick
+                })
+                if(res.data) {
+                    this.$router.push({ name: 'Order', params: { id: res.data } })
+                } else {
+                    throw new Error()
+                }
+            } catch (err) {
+                let message = 'Произошла ошибка. Попробуйте оформить заказ позднее'
+                if(err.response.data.error)
+                    message = err && err.response && err.response.data.error
+
+                useNotificationsStore().addNotification({
+                    message,
+                    timeout: 5000
+                })
+            }
         },
         // list animation - start
         onItemBeforeEnter(el) {
@@ -283,7 +306,7 @@ export default {
         // list animation - end
     },
     watch: {
-        async '$route.name'(){
+        async '$route.name'() {
             await this.$nextTick()
             this.loadCart()
         }
@@ -618,4 +641,5 @@ export default {
             grid-column: 2 / 3;
         }
     }
-}</style>
+}
+</style>

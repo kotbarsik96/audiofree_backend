@@ -42,31 +42,10 @@
                     </h3>
                     <div class="order-page__section-inputs">
                         <ul class="order-page__radios">
-                            <!-- <li class="order-page__radio-item" v-for="deliveryType in deliveryTypes" :key="deliveryType.id" :value="deliveryType.name">
-                                <RadioLabel name="delivery_type" v-model="input.delivery_type">
+                            <li class="order-page__radio-item" v-for="deliveryType in deliveryTypes" :key="deliveryType.id">
+                                <RadioLabel name="delivery_type" v-model="input.delivery_type" :value="deliveryType.name"
+                                    :checked="input.delivery_type === deliveryType.name" ref="deliveryTypeInput">
                                     {{ deliveryType.title }}
-                                </RadioLabel>
-                            </li> -->
-                            <li class="order-page__radio-item">
-                                <RadioLabel name="delivery_type" v-model="input.delivery_type"
-                                    value="Доставка в пределах города">
-                                    Доставка в пределах города
-                                </RadioLabel>
-                            </li>
-                            <li class="order-page__radio-item">
-                                <RadioLabel name="delivery_type" v-model="input.delivery_type"
-                                    value="Доставка за пределы города">
-                                    Доставка за пределы города
-                                </RadioLabel>
-                            </li>
-                            <li class="order-page__radio-item">
-                                <RadioLabel name="delivery_type" v-model="input.delivery_type" value="Самовывоз">
-                                    Самовывоз
-                                </RadioLabel>
-                            </li>
-                            <li class="order-page__radio-item">
-                                <RadioLabel name="delivery_type" v-model="input.delivery_type" value="Экспресс доставка">
-                                    Экспресс доставка
                                 </RadioLabel>
                             </li>
                         </ul>
@@ -82,21 +61,11 @@
                         </h3>
                         <div class="order-page__section-inputs">
                             <ul class="order-page__radios">
-                                <li class="order-page__radio-item" v-for="paymentType in paymentTypes" :key="paymentType.id"
-                                    :value="paymentType.name">
-                                    <RadioLabel name="payment_type" v-model="input.payment_type">
+                                <li class="order-page__radio-item" v-for="paymentType in paymentTypes"
+                                    :key="paymentType.id">
+                                    <RadioLabel name="payment_type" :value="paymentType.name" v-model="input.payment_type"
+                                        :checked="input.payment_type === paymentType.name" ref="paymentTypeInput">
                                         {{ paymentType.title }}
-                                    </RadioLabel>
-                                </li>
-                                <li class="order-page__radio-item">
-                                    <RadioLabel name="payment_type" v-model="input.payment_type" value="Оплата наличными">
-                                        Оплата наличными
-                                    </RadioLabel>
-                                </li>
-                                <li class="order-page__radio-item">
-                                    <RadioLabel name="payment_type" v-model="input.payment_type"
-                                        value="Оплата банковской картой">
-                                        Оплата банковской картой
                                     </RadioLabel>
                                 </li>
                             </ul>
@@ -108,23 +77,7 @@
                                 Сумма заказа:
                             </h5>
                             <div class="order-page__total-value">
-                                15 600 ₽
-                            </div>
-                        </div>
-                        <div class="order-page__total-position">
-                            <h5 class="order-page__total-name">
-                                Сумма доставки:
-                            </h5>
-                            <div class="order-page__total-value">
-                                0 ₽
-                            </div>
-                        </div>
-                        <div class="order-page__total-position">
-                            <h5 class="order-page__total-name">
-                                Итого:
-                            </h5>
-                            <div class="order-page__total-value">
-                                15 600 ₽
+                                {{ orderData.total_price.toLocaleString() }} ₽
                             </div>
                         </div>
                     </div>
@@ -142,6 +95,8 @@
 <script>
 import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
 import TextareaWrapper from '@/components/inputs/TextareaWrapper.vue'
+import { useIndexStore } from '@/stores/'
+import axios from 'axios'
 
 export default {
     name: 'OrderView',
@@ -156,11 +111,66 @@ export default {
                 email: '',
                 phone_number: '',
                 location: '',
-                comment: ''
+                comment: '',
+                address: '',
+                delivery_type: '',
+                payment_type: ''
             },
             deliveryTypes: [],
             paymentTypes: [],
         }
+    },
+    computed: {
+        orderData() {
+            return this.$route.meta.orderData
+        }
+    },
+    methods: {
+        updateInputs() {
+            if (!this.orderData)
+                return
+
+            this.input.name = this.orderData.name
+            this.input.email = this.orderData.email
+            this.input.phone_number = this.orderData.phone_number
+            this.input.location = this.orderData.location
+            this.input.address = this.orderData.address
+        },
+        async loadOrderTypes() {
+            const store = useIndexStore()
+            store.toggleLoading('loadOrderTypes', true)
+
+            try {
+                const link = import.meta.env.VITE_ORDER_TYPES_ALL
+                const res = await axios.get(link)
+                if (res.data.delivery_types)
+                    this.deliveryTypes = res.data.delivery_types
+                if (res.data.payment_types)
+                    this.paymentTypes = res.data.payment_types
+            } catch (err) {
+            }
+
+            store.toggleLoading('loadOrderTypes', false)
+
+            await this.$nextTick()
+            if (this.deliveryTypes.length > 0 && !this.input.delivery_type) {
+                this.input.delivery_type = this.deliveryTypes[0].name
+            }
+            if (this.paymentTypes.length > 0 && !this.input.payment_type) {
+                this.input.payment_type = this.paymentTypes[0].name
+            }
+        }
+    },
+    watch: {
+        orderData() {
+            this.updateInputs()
+        }
+    },
+    created() {
+        this.loadOrderTypes()
+    },
+    mounted() {
+        this.updateInputs()
     }
 }
 </script>
@@ -237,6 +247,10 @@ export default {
 
     &__radio-item {
         margin-bottom: 25px;
+
+        .radio {
+            display: inline-flex;
+        }
     }
 
     &__section-half {
@@ -245,6 +259,13 @@ export default {
             padding-bottom: 70px;
             margin-bottom: 50px;
         }
+    }
+
+    &__total {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 200px;
     }
 
     &__total-position {
@@ -334,7 +355,12 @@ export default {
 
             &:first-child {
                 margin-bottom: 25px;
+                padding-bottom: 5px;
             }
+        }
+
+        &__total {
+            min-height: 50px;
         }
 
         &__total-position {

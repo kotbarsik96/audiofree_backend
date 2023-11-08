@@ -133,7 +133,10 @@ const router = createRouter({
         {
             path: '/order/:id',
             name: 'Order',
-            component: () => import('@/views/products/OrderView.vue')
+            component: () => import('@/views/products/OrderView.vue'),
+            meta: {
+                requiresAuth: true
+            }
         },
         // other
         {
@@ -226,8 +229,24 @@ router.beforeEach(async (to) => {
         store.toggleLoading('loadProductPage', false)
     }
 
-    if(to.name === 'Order') {
-        
+    if (to.name === 'Order') {
+        const id = to.params.id
+        store.toggleLoading('orderPageAuth', true)
+
+        try {
+            const link = `${import.meta.env.VITE_ORDER_LINK}${id}`
+            const res = await axios.get(link)
+            if (res.data.id) {
+                to.meta.orderData = res.data
+            } else {
+                throw new Error()
+            }
+        } catch (err) {
+            store.toggleLoading('orderPageAuth', false)
+            return { name: 'NotFound' }
+        }
+
+        store.toggleLoading('orderPageAuth', false)
     }
 })
 

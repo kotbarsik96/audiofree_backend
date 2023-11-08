@@ -3,8 +3,6 @@
 namespace App\Exceptions;
 
 use Exception;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Http\JsonResponse;
 
 class AuthExceptions extends Exception
 {

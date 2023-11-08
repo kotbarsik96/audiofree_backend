@@ -99,7 +99,7 @@ class UsersController extends Controller
 
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'string', Rule::unique('users', 'email')->ignore($userId), 'email:dns'],
-            'phone_number' => ['nullable', 'string', 'regex:/^\+7\d\d\d\d\d\d\d\d\d\d/'],
+            'phone_number' => ['nullable', 'string', 'regex:' . User::$phoneRegexp],
             'name' => 'required|string',
             'surname' => 'nullable|string',
             'patronymic' => 'nullable|string',

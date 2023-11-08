@@ -7,6 +7,8 @@ use App\Http\Controllers\TaxonomiesController;
 use App\Http\Controllers\UserEntitiesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\OrderTypesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\Products\ProductsController;
 use App\Models\UserEntities\CartProduct;
@@ -59,11 +61,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/rating/product-user/{productId}', [RatingsController::class, 'usersProductRating']);
     Route::get('/rating/product-user/{productId}/{userId}', [RatingsController::class, 'usersProductRating']);
 
-
     Route::post('/image/load', [ImagesController::class, 'handleStoreRequest']);
     Route::post('/image/update/{id}', [ImagesController::class, 'update']);
     Route::delete('/image/delete/{id}', [ImagesController::class, 'delete']);
     Route::delete('/image/delete', [ImagesController::class, 'delete']);
+
+    Route::get('/order/{orderId}', [OrdersController::class, 'authenticate']);
+    Route::post('/order/new', [OrdersController::class, 'storeNew']);
+    Route::get('/order-type/all', [OrderTypesController::class, 'getAll']);
 
     // админские привилегии
     Route::post('/users/update/role/{userId}/{roleId}', [UsersController::class, 'updateRole']);
