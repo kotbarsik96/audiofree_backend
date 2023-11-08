@@ -174,7 +174,7 @@ export default {
             let clearValue = this.getUnmaskedValue()
 
             clearValue.split('')
-                .forEach(substr => modifiedValue = modifiedvalue.toString().replace(this.maskSymbol, substr))
+                .forEach(substr => modifiedValue = modifiedValue.toString().replace(this.maskSymbol, substr))
             if (modifiedValue.includes(this.maskSymbol)) {
                 const index = modifiedValue.indexOf(this.maskSymbol)
                 modifiedValue = modifiedValue.slice(0, index)
