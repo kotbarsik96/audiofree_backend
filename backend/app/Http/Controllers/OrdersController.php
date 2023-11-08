@@ -29,6 +29,13 @@ class OrdersController extends Controller
         if (empty($order))
             return CommonExceptions::pageNotFoundResponse();
 
+        $status = OrderStatus::find($order->status_id);
+        if (empty($status)) {
+            $order->status_id = OrderStatus::where('name', 'waiting_userdata')->first()->id;
+            return response(['error' => 'Ошибка статуса заказа'], 404);
+        }
+        $order->status = $status->name;
+
         $isAuthenticated = (int) $order->user_id === (int) $user->id;
         if (empty($isAuthenticated))
             return RolesExceptions::noRightsResponse();
@@ -95,15 +102,20 @@ class OrdersController extends Controller
             ->first();
 
         if (empty($order))
-            $order = Order::create($fields);        
+            $order = Order::create($fields);
         else
             $order->update($fields);
 
         return $order->id;
     }
 
-    public function updateData(Request $request)
+    public function checkout(Request $request, $orderId)
     {
+        $order = $this->authenticate($request, $orderId);
+        if (!($order instanceof Order))
+            return $order;
+
+        unset($order->status);
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|string',
@@ -112,7 +124,6 @@ class OrdersController extends Controller
             'location' => 'required|string',
             'delivery_type' => 'required|string|exists:delivery_types,name',
             'payment_type' => 'required|string|exists:payment_types,name',
-            'applied_coupon' => 'nullable|string',
             'comment' => 'nullable|string'
         ], [
             'required' => 'Не указано: :attribute',
@@ -126,6 +137,7 @@ class OrdersController extends Controller
             'email' => 'Email',
             'phone_number' => 'Номер телефона',
             'address' => 'Адрес',
+            'comment' => 'Комментарий',
             'location' => 'Населенный пункт',
             'delivery_type' => 'Способ доставки',
             'payment_type' => 'Способ оплаты'
@@ -134,8 +146,66 @@ class OrdersController extends Controller
         if ($validator->fails())
             return response(['errors' => $validator->errors()], 422);
 
-        $fields = $validator->validated();
-        $fields['delivery_type'] = DeliveryType::where('name', $fields['delivery_type'])->first();
-        $fields['payment_type'] = PaymentType::where('name', $fields['payment_type'])->first();
+        $fields = array_merge($validator->validated());
+
+        $payNow = $fields['payment_type'] === 'bank_card';
+        $statusName = $payNow ? 'waiting_payment' : 'in_delivery_not_paid';
+
+        $order->update([
+            'status_id' => OrderStatus::where('name', $statusName)->first()->id,
+            'name' => $fields['name'],
+            'email' => $fields['email'],
+            'phone_number' => $fields['phone_number'],
+            'address' => $fields['address'],
+            'location' => $fields['location'],
+            'delivery_type' => DeliveryType::where('name', $fields['delivery_type'])->first()->id,
+            'payment_type' => PaymentType::where('name', $fields['payment_type'])->first()->id,
+            'comment' => $fields['comment'],
+        ]);
+
+        $this->clearCart($order);
+
+        return [
+            'order' => $order,
+            'pay_after_delivery' => $payNow ? false : true
+        ];
+    }
+
+    public function confirmPayment(Request $request, $orderId)
+    {
+        $order = $this->authenticate($request, $orderId);
+        if (!($order instanceof Order))
+            return $order;
+
+        unset($order->status);
+
+        $order->update([
+            'paid' => $order->total_price,
+            'status' => OrderStatus::where('name', 'paid')->first()
+        ]);
+
+        return $order;
+    }
+
+    /* удалить из корзины записи; отнять количества товаров, которые были указаны в корзине */
+    public function clearCart($order)
+    {
+        $userCart = Cart::where('user_id', $order->user_id)->first();
+        $cartRows = CartProduct::where('is_oneclick', $order->is_oneclick)
+            ->where('cart_id', $userCart->id)
+            ->get();
+
+        foreach($cartRows as $cartRow) {
+            $product = Product::find($cartRow->product_id);
+            if(empty($product)) {
+                $cartRow->delete();
+                continue;
+            }
+
+            $product->update([
+                'quantity' => $product->quantity - $cartRow->quantity
+            ]);
+            $cartRow->delete();
+        }
     }
 }

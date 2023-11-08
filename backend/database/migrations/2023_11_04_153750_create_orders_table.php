@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedInteger('quantity');
             $table->unsignedInteger('total_price');
             $table->boolean('is_oneclick');
+            $table->integer('paid');
             $table->string('applied_coupon')
                 ->nullable();
             $table->string('name')
@@ -45,7 +46,6 @@ return new class extends Migration
                 ->nullable()
                 ->constrained(table: 'payment_types')
                 ->nullOnDelete();
-            $table->integer('paid');
             $table->timestamps();
         });
     }

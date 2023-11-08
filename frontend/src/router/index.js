@@ -236,7 +236,8 @@ router.beforeEach(async (to) => {
         try {
             const link = `${import.meta.env.VITE_ORDER_LINK}${id}`
             const res = await axios.get(link)
-            if (res.data.id) {
+            
+            if (res.data.id && res.data.status === 'waiting_userdata') {
                 to.meta.orderData = res.data
             } else {
                 throw new Error()

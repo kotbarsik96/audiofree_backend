@@ -70,7 +70,8 @@ export default {
 
             this.value = this.value - 1
         },
-        adjustWidth() {
+        async adjustWidth() {
+            await this.$nextTick()
             this.inputWidth = this.$refs.invisible.offsetWidth
         },
         onChange() {

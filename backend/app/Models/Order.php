@@ -15,6 +15,7 @@ class Order extends Model
         'quantity',
         'total_price',
         'is_oneclick',
+        'paid',
         'applied_coupon',
         'name',
         'email',
@@ -24,7 +25,10 @@ class Order extends Model
         'address',
         'delivery_type',
         'payment_type',
-        'paid',
         'cart_rows'
+    ];
+
+    protected $hidden = [
+        'hash'
     ];
 }

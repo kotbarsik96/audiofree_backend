@@ -68,6 +68,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/order/{orderId}', [OrdersController::class, 'authenticate']);
     Route::post('/order/new', [OrdersController::class, 'storeNew']);
+    Route::post('/order/checkout/{orderId}', [OrdersController::class, 'checkout']);
+    Route::post('/order/confirm-payment/{orderId}', [OrdersController::class, 'confirmPayment']);
     Route::get('/order-type/all', [OrderTypesController::class, 'getAll']);
 
     // админские привилегии

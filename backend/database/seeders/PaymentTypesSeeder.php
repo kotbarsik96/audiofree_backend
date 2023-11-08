@@ -26,5 +26,11 @@ class PaymentTypesSeeder extends Seeder
             'created_at' => $now,
             'updated_at' => $now
         ]);
+        DB::table('payment_types')->insert([
+            'name' => 'bank_card_after_delivery',
+            'title' => 'Банковской картой при получении',
+            'created_at' => $now,
+            'updated_at' => $now
+        ]);
     }
 }

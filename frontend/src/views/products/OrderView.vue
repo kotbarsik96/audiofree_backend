@@ -24,12 +24,26 @@
                         <span>Личные данные</span>
                     </h3>
                     <div class="order-page__section-inputs">
-                        <TextInputWrapper name="name" id="name" placeholder="Имя" v-model="input.name"></TextInputWrapper>
+                        <TextInputWrapper name="name" id="name" placeholder="Имя" v-model="input.name">
+                            <template v-if="errors.name" v-slot:error>
+                                {{ errors.name[0] }}
+                            </template>
+                        </TextInputWrapper>
                         <TextInputWrapper name="email" id="email" placeholder="Email" v-model="input.email">
+                            <template v-if="errors.email" v-slot:error>
+                                {{ errors.email[0] }}
+                            </template>
                         </TextInputWrapper>
                         <TextInputWrapper name="phone_number" id="phone_number" placeholder="Телефон"
-                            v-model="input.phone_number" mask="phone"></TextInputWrapper>
+                            v-model="input.phone_number" mask="phone">
+                            <template v-if="errors.phone_number" v-slot:error>
+                                {{ errors.phone_number[0] }}
+                            </template>
+                        </TextInputWrapper>
                         <TextInputWrapper name="location" id="location" placeholder="Город" v-model="input.location">
+                            <template v-if="errors.location" v-slot:error>
+                                {{ errors.location[0] }}
+                            </template>
                         </TextInputWrapper>
                         <TextareaWrapper name="comment" placeholder="Комментарий к заказу" v-model="input.comment">
                         </TextareaWrapper>
@@ -48,6 +62,11 @@
                                     {{ deliveryType.title }}
                                 </RadioLabel>
                             </li>
+                            <Transition name="grow">
+                                <li class="error" v-if="errors.delivery_type">
+                                    {{ errors.delivery_type[0] }}
+                                </li>
+                            </Transition>
                         </ul>
                         <TextareaWrapper name="delivery_address" placeholder="Адрес доставки" v-model="input.address">
                         </TextareaWrapper>
@@ -68,6 +87,11 @@
                                         {{ paymentType.title }}
                                     </RadioLabel>
                                 </li>
+                                <Transition name="grow">
+                                    <li class="error" v-if="errors.payment_type">
+                                        {{ errors.payment_type[0] }}
+                                    </li>
+                                </Transition>
                             </ul>
                         </div>
                     </div>
@@ -82,9 +106,14 @@
                         </div>
                     </div>
                 </div>
+                <Transition name="grow">
+                    <div class="order-page__error error" v-if="error">
+                        {{ error }}
+                    </div>
+                </Transition>
             </div>
             <div class="order-page__bottom">
-                <button class="checkout-button button button--colored" type="submit" @click.prevent>
+                <button class="checkout-button button button--colored" type="submit" @click.prevent="checkout">
                     Оформить заказ
                 </button>
             </div>
@@ -96,7 +125,12 @@
 import TextInputWrapper from '@/components/inputs/TextInputWrapper.vue'
 import TextareaWrapper from '@/components/inputs/TextareaWrapper.vue'
 import { useIndexStore } from '@/stores/'
+import { useModalsStore } from '@/stores/modals.js'
+import { useNotificationsStore } from '@/stores/notifications.js'
 import axios from 'axios'
+import { handleAjaxError } from '@/assets/js/scripts.js'
+import ConfirmModal from '@/components/modals/ConfirmModal.vue'
+import { h } from 'vue'
 
 export default {
     name: 'OrderView',
@@ -118,6 +152,8 @@ export default {
             },
             deliveryTypes: [],
             paymentTypes: [],
+            error: '',
+            errors: []
         }
     },
     computed: {
@@ -159,6 +195,71 @@ export default {
             if (this.paymentTypes.length > 0 && !this.input.payment_type) {
                 this.input.payment_type = this.paymentTypes[0].name
             }
+        },
+        async checkout() {
+            try {
+                const link = `${import.meta.env.VITE_ORDER_CHECKOUT}${this.orderData.id}`
+                const data = Object.assign({}, this.input)
+                data.phone_number = this.input.phone_number.replace(/[^\+0-9]/g, '')
+                const res = await axios.post(link, data)
+                if (!res.data.order)
+                    throw new Error()
+
+                if (res.data.pay_after_delivery)
+                    this.createCheckoutSuccessModal()
+                else
+                    this.createPaymentModal(res.data.order)
+            } catch (err) {
+                handleAjaxError(err, this)
+            }
+        },
+        createPaymentModal(order) {
+            const callback = async () => {
+                const link = `${import.meta.env.VITE_ORDER_CONFIRM_PAYMENT}${this.orderData.id}`
+
+                try {
+                    const res = await axios.post(link)
+                    if (res.data && res.data.paid > 0)
+                        this.createCheckoutSuccessModal()
+                    else
+                        throw new Error()
+                } catch (err) {
+                    useNotificationsStore().addNotification({
+                        message: 'Произошла ошибка',
+                        timeout: 5000
+                    })
+                }
+            }
+            const component = h(ConfirmModal, {
+                title: `К оплате: ${order.total_price} ₽`,
+                text: 'Оплатить? (после нажатия кнопки произойдет имитация оплаты)',
+                confirmProps: {
+                    text: 'Оплатить',
+                    callback
+                },
+                declineProps: {
+                    text: 'Вернуться'
+                }
+            })
+
+            useModalsStore().addModal({ component })
+        },
+        createCheckoutSuccessModal() {
+            const store = useIndexStore()
+            store.loadEntity('cart')
+
+            const callback = () => {
+                this.$router.push({ name: 'Home' })
+            }
+            const component = h(ConfirmModal, {
+                onlyConfirm: true,
+                title: 'Заказ успешно оформлен',
+                confirmProps: {
+                    text: 'Вернуться на сайт',
+                    callback
+                }
+            })
+            useModalsStore().addModal({ component })
         }
     },
     watch: {
@@ -245,6 +346,12 @@ export default {
         }
     }
 
+    &__radios {
+        .error {
+            margin-bottom: 20px;
+        }
+    }
+
     &__radio-item {
         margin-bottom: 25px;
 
@@ -265,7 +372,7 @@ export default {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        min-height: 200px;
+        min-height: 80px;
     }
 
     &__total-position {
