@@ -41,21 +41,6 @@
                     Статус
                 </template>
             </ValueSelect>
-            <!-- <TextInputWrapper name="brand" id="brand" v-model="filters.brands">
-                <template v-slot:label>
-                    Бренд
-                </template>
-            </TextInputWrapper>
-            <TextInputWrapper name="category" id="category" v-model="filters.categories">
-                <template v-slot:label>
-                    Категория
-                </template>
-            </TextInputWrapper>
-            <TextInputWrapper name="type" id="type" v-model="filters.types">
-                <template v-slot:label>
-                    Тип
-                </template>
-            </TextInputWrapper> -->
         </div>
         <div class="admin-page__listing">
             <AdminListTable v-model="list" v-model:selectedItems="selectedItems" :columnsCount="7"

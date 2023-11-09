@@ -17,7 +17,8 @@ class CartProduct extends Model
         'product_id',
         'variations',
         'quantity',
-        'is_oneclick'
+        'is_oneclick',
+        'order_id'
     ];
 
     public static function scopeMainData(Builder $builder)
@@ -29,5 +30,15 @@ class CartProduct extends Model
             'cart_product.variations',
             'cart_product.quantity'
         )->leftJoin('products', 'products.id', '=', 'cart_product.product_id');
+    }
+
+    public static function scopeNotOrdered(Builder $builder)
+    {
+        $builder->whereNull('cart_product.order_id');
+    }
+
+    public static function scopeOrdered(Builder $builder)
+    {
+        $builder->whereNotNull('cart_product.order_id');
     }
 }

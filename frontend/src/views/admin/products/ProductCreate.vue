@@ -1,6 +1,37 @@
 <template>
     <div class="admin-page__creation">
         <LoadingScreen v-if="isLoading"></LoadingScreen>
+        <div class="admin-page__creation-table" v-if="productData">
+            <h3 class="admin-page__title">
+                Статистика
+            </h3>
+            <div class="admin-page__info-table-container">
+                <table class="admin-page__info-table">
+                    <tr>
+                        <th>
+                            Продано шт.
+                        </th>
+                        <th>
+                            Общий заработок
+                        </th>
+                        <th>
+                            Добавили в "Избранное"
+                        </th>
+                    </tr>
+                    <tr>
+                        <td>
+                            {{ productData.sold || 0 }}
+                        </td>
+                        <td>
+                            {{ productData.income || 0 }}
+                        </td>
+                        <td>
+                            {{ productData.in_favorites || 0 }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
         <RouterLink class="admin-page__to-result link" v-if="this.productData"
             :to="{ name: 'Product', params: { productId: this.productData.id } }">
             <ChevronIcon></ChevronIcon>
@@ -218,7 +249,8 @@ export default {
 
             try {
                 const link = `${import.meta.env.VITE_PRODUCT_GET_LINK}${productId}`
-                const res = await axios(link)
+                const res = await axios(link, { params: { statistics: true } })
+                console.log(res);
                 if (res.data.id) {
                     this.productData = res.data
                 } else {

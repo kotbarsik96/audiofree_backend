@@ -16,6 +16,7 @@ use App\Models\UserEntities\Cart;
 use App\Models\UserEntities\CartProduct;
 use App\Exceptions\CommonExceptions;
 use App\Exceptions\RolesExceptions;
+use App\Models\Products\ProductStatistics;
 
 class OrdersController extends Controller
 {
@@ -163,7 +164,7 @@ class OrdersController extends Controller
             'comment' => $fields['comment'],
         ]);
 
-        $this->clearCart($order);
+        $this->verifySale($order);
 
         return [
             'order' => $order,
@@ -187,25 +188,32 @@ class OrdersController extends Controller
         return $order;
     }
 
-    /* удалить из корзины записи; отнять количества товаров, которые были указаны в корзине */
-    public function clearCart($order)
+    /* удалить из корзины записи; отнять количества товаров, которые были указаны в корзине; зачесть проданное количество */
+    public function verifySale($order)
     {
         $userCart = Cart::where('user_id', $order->user_id)->first();
         $cartRows = CartProduct::where('is_oneclick', $order->is_oneclick)
             ->where('cart_id', $userCart->id)
             ->get();
 
-        foreach($cartRows as $cartRow) {
-            $product = Product::find($cartRow->product_id);
-            if(empty($product)) {
+        foreach ($cartRows as $cartRow) {
+            $product = Product::mainData()->find($cartRow->product_id);
+            if (empty($product)) {
                 $cartRow->delete();
                 continue;
             }
 
+            ProductStatistics::updateColumns([
+                'sold' => $cartRow->quantity,
+                'income' => $cartRow->quantity * $product->current_price
+            ], $product->id);
+
             $product->update([
                 'quantity' => $product->quantity - $cartRow->quantity
             ]);
-            $cartRow->delete();
+            $cartRow->update([
+                'order_id' => $order->id
+            ]);
         }
     }
 }

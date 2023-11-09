@@ -108,12 +108,14 @@ class Product extends FilterableModel
         return $res->current_price;
     }
 
-    public static function singleFullData($id, $selectTimestamps = false)
+    public static function singleFullData($id, $selectTimestamps = false, $selectStatistics = false)
     {
         $product = self::mainData()
             ->taxonomies();
         if ($selectTimestamps)
             $product->timestamps();
+        if($selectStatistics)
+            $product->statistics();
 
         $product = $product->find($id);
 
@@ -127,6 +129,13 @@ class Product extends FilterableModel
     public static function scopeTimestamps(Builder $builder)
     {
         $builder->addSelect('products.updated_at', 'products.created_at');
+    }
+
+    public static function scopeStatistics(Builder $builder)
+    {
+        $builder->addSelect('product_statistics.sold', 'product_statistics.in_favorites', 'product_statistics.income')
+            ->leftJoin('product_statistics', 'products.id', '=', 'product_statistics.product_id')
+            ->groupBy('product_statistics.id');
     }
 
     /* добавляет данные из других таблиц: характеристики, вариации, галерея */

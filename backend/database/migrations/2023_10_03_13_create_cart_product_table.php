@@ -19,6 +19,10 @@ return new class extends Migration
             $table->foreignId('product_id')
                 ->constrained(table: 'products')
                 ->onDelete('cascade');
+            $table->foreignId('order_id')
+                ->nullable()
+                ->constrained(table: 'orders')
+                ->nullOnDelete();
             $table->integer('quantity');
             $table->string('variations');
             $table->boolean('is_oneclick');

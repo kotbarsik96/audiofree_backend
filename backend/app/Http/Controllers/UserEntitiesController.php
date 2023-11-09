@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use App\Exceptions\UserEntitiesExceptions;
 use App\Models\UserEntities\Cart;
 use App\Models\UserEntities\Favorite;
 use App\Models\UserEntities\FavoritesProduct;
@@ -12,6 +10,7 @@ use App\Models\User;
 use App\Exceptions\AuthExceptions;
 use App\Models\Products\Product;
 use App\Models\UserEntities\CartProduct;
+use App\Models\Products\ProductStatistics;
 
 class UserEntitiesController extends Controller
 {
@@ -61,6 +60,8 @@ class UserEntitiesController extends Controller
             'product_id' => $productId
         ]);
 
+        ProductStatistics::updateColumns(['in_favorites' => 1], $productId);
+
         return [
             'success' => true,
             'favorites' => $this->getUserFavorites($request, $user->id)
@@ -85,6 +86,7 @@ class UserEntitiesController extends Controller
             return ['success' => false];
 
         $row->delete();
+        ProductStatistics::updateColumns(['in_favorites' => -1], $productId);
         return [
             'success' => true,
             'favorites' => $this->getUserFavorites($request, $user->id)
@@ -283,6 +285,7 @@ class UserEntitiesController extends Controller
         $isOneClick = $request->isOneClick ? '1' : '0';
 
         $productsInCart = CartProduct::mainData()
+            ->notOrdered()
             ->where('cart_id', $userCart->id)
             ->where('is_oneclick', $isOneClick)
             ->get();

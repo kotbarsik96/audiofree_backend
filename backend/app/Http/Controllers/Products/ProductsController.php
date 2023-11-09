@@ -13,13 +13,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Http\Controllers\TaxonomiesController;
+use App\Models\Products\ProductStatistics;
 
 class ProductsController extends Controller
 {
     public function index(Request $request, $id)
     {
         $product = Product::find($id);
-        if(empty($product))
+        if (empty($product))
             return null;
 
         // загрузит только внешние данные товара (характеристики, вариации и др.)
@@ -30,10 +31,15 @@ class ProductsController extends Controller
             return $productObj::addOuterData($productObj);
         }
 
-        $timestampsQuery = $request->query('timestamps');
-        $selectTimestamps = $timestampsQuery === 'true'
+        $selectTimestamps = $request->query('timestamps');
+        $selectStatistics = $request->query('statistics');
+        $selectTimestamps = $selectTimestamps && $selectTimestamps !== 'false'
             ? true : false;
-        $product = Product::singleFullData($id, $selectTimestamps);
+        $selectStatistics = $selectStatistics
+            && $selectStatistics !== 'false'
+            && ProductStatistics::userCanSeeStatistics($request, $id)
+            ? true : false;
+        $product = Product::singleFullData($id, $selectTimestamps, $selectStatistics);
         $product->available_quantity = Product::getAvailableQuantity(
             $product,
             $request->cookie('user')
