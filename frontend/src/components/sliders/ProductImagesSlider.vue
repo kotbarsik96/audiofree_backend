@@ -1,11 +1,11 @@
 <template>
     <div>
         <template v-if="isMobile">
-            <swiper-container ref="swiperContainer">
-                <swiper-slide v-for="path in images" :key="path">
+            <Swiper ref="swiperContainer">
+                <SwiperSlide v-for="path in images" :key="path">
                     <img :src="getImagePath(path)" :alt="path" ref="sliderSlideImage">
-                </swiper-slide>
-            </swiper-container>
+                </SwiperSlide>
+            </Swiper>
         </template>
         <template v-else>
             <div class="product-page__main-image">
@@ -22,13 +22,17 @@
 
 <script>
 import { setMatchMedia, getImagePath } from '@/assets/js/methods.js'
-import { register } from 'swiper/element/bundle'
-register()
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import 'swiper/css'
 
 export default {
     name: 'ProductImagesSlider',
     props: {
         images: Array,
+    },
+    components: {
+        Swiper,
+        SwiperSlide
     },
     data() {
         return {
@@ -54,12 +58,12 @@ export default {
             if (!this.selectedImage && this.images[0])
                 this.selectedImage = this.images[0]
 
-            const swiperInst = this.$refs.swiperContainer 
+            const swiperInst = this.$refs.swiperContainer
                 ? this.$refs.swiperContainer.swiper : null
             if (swiperInst) {
                 const imageIndex = this.$refs.sliderSlideImage
                     .findIndex(img => img.getAttribute('src').includes(this.selectedImage))
-                if(imageIndex >= 0)
+                if (imageIndex >= 0)
                     swiperInst.slideTo(imageIndex)
             }
         }
@@ -118,32 +122,32 @@ export default {
     }
 
     @media (max-width: 849px) {
-        swiper-container {
+        .swiper {
             width: 500px;
             margin-right: 20px;
         }
 
-        swiper-slide {
+        .swiper-slide {
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        swiper-slide img {
+        .swiper-slide img {
             width: 500px;
             height: 465px;
             object-fit: contain;
         }
 
-        &__image-item{
+        &__image-item {
             &:last-child {
                 margin-right: 20px;
             }
         }
     }
 
-    @media (max-width: 659px){
-        swiper-container {
+    @media (max-width: 659px) {
+        .swiper-container {
             margin-right: 0;
         }
 
@@ -152,12 +156,12 @@ export default {
         }
     }
 
-    @media (max-width: 519px){
-        swiper-container {
+    @media (max-width: 519px) {
+        .swiper-container {
             width: 100%;
         }
 
-        swiper-slide img {
+        .swiper-slide img {
             width: 85vw;
             height: 81vw;
         }
