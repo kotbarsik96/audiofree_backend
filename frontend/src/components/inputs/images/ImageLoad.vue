@@ -65,7 +65,7 @@ export default {
         }
     },
     computed: {
-        src(){
+        src() {
             return `${import.meta.env.VITE_LINK}${this.modelValue}`
         }
     },
@@ -108,11 +108,9 @@ export default {
             this.isLoading = true
             this.nullifyErrors()
 
-            const path = this.modelValue.replace(import.meta.env.VITE_LINK, '')
+            const link = `${import.meta.env.VITE_IMAGE_DELETE_LINK}${this.id}`
             try {
-                const res = await axios.delete(import.meta.env.VITE_IMAGE_DELETE_LINK, {
-                    data: { path }
-                })
+                const res = await axios.delete(link)
                 if (res.data.success)
                     this.$emit('update:modelValue', '')
                 this.$emit('update:id', 0)
@@ -199,7 +197,7 @@ export default {
         display: none;
     }
 
-    @media (max-width: 767px){
+    @media (max-width: 767px) {
         width: 100%;
 
         &__remove {

@@ -64,13 +64,15 @@
         margin-bottom: 30px;
     }
 
-    &__creation-save {
+    &__creation-buttons {
         display: flex;
         justify-content: center;
+        flex-wrap: wrap;
 
         .button {
             font-size: 19px;
             line-height: 21px;
+            margin: 0 15px 15px 0;
         }
     }
 

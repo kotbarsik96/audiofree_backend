@@ -18,6 +18,10 @@ class ProductsController extends Controller
 {
     public function index(Request $request, $id)
     {
+        $product = Product::find($id);
+        if(empty($product))
+            return null;
+
         // загрузит только внешние данные товара (характеристики, вариации и др.)
         $isOnlyOuter = $request->query('onlyOuterData');
         if ($isOnlyOuter && $isOnlyOuter !== 'false') {
@@ -140,7 +144,6 @@ class ProductsController extends Controller
         if ($validator->fails())
             return response(['errors' => $validator->errors()], 400);
 
-
         $variationsController = new VariationsController();
         $productImagesController = new ProductImagesController();
         $productInfoController = new ProductInfoController();
@@ -248,6 +251,8 @@ class ProductsController extends Controller
                 return ['error' => ProductsExceptions::noProduct()->getMessage(), 'code' => 400];
 
             $prodName = $product->name;
+            $productImagesController = new ProductImagesController();
+            $productImagesController->destroy($product->id);
             $product->delete();
             return [
                 'success' => true,
@@ -290,5 +295,7 @@ class ProductsController extends Controller
                 'errors' => $errors
             ];
         }
+
+        return ['success' => true];
     }
 }

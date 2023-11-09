@@ -139,6 +139,18 @@ class ImagesController extends Controller
                 $image = Image::where('path', $requestQueries['path'])->first();
         }
 
+        return $this->deleteByIdOrImage($image);
+    }
+
+    /* используется только из других контроллеров, т.к. не проверяет права пользователя. Подразумевается, что права были проверены ранее в других методах */
+    public function deleteByIdOrImage($idOrImage)
+    {
+        $image = null;
+        if (is_numeric($idOrImage))
+            $image = Image::find($idOrImage);
+        else
+            $image = $idOrImage;
+
         if (empty($image))
             return response(['error' => ImagesExceptions::noImage()->getMessage()], 400);
 
@@ -146,6 +158,10 @@ class ImagesController extends Controller
         unlink($path);
 
         $image->delete();
+
+        if (count(scandir(dirname($path))) <= 2) {
+            rmdir(dirname($path));
+        }
 
         return ['success' => true];
     }

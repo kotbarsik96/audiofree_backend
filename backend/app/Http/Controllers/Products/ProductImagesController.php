@@ -8,6 +8,7 @@ use App\Models\Products\ProductImage;
 use App\Models\Image;
 use App\Models\Products\Product;
 use App\Filesystem\FilesystemActions;
+use App\Http\Controllers\ImagesController;
 
 class ProductImagesController extends Controller
 {
@@ -18,7 +19,12 @@ class ProductImagesController extends Controller
 
         $this->moveToProductsFolder(Image::find($product->image_id), $product->id);
 
-        foreach ($idsToStore as $id) {
+        foreach ($idsToStore as $idOrObj) {
+            $id = $idOrObj;
+            if (!is_numeric($id)) {
+                $id = $idOrObj['id'];
+            }
+
             $storedId = $this->store($id, $product->id);
             $errors = array_merge($errors, $storedId['errors']);
             if ($storedId['stored']) {
@@ -95,7 +101,7 @@ class ProductImagesController extends Controller
         if (empty($productImage)) {
             $productImage = ProductImage::create([
                 'image_id' => $imageId,
-                'product_id' => $productId
+                'product_id' => $productId,
             ]);
         }
 
@@ -125,6 +131,26 @@ class ProductImagesController extends Controller
                 continue;
 
             $productImageModel->delete();
+        }
+    }
+
+    public function destroy($productId)
+    {
+        $product = Product::find($productId);
+        if (empty($product))
+            return;
+
+        $mainImage = Image::find($product->image_id);
+        $images = ProductImage::where('product_id', $productId)->get();
+
+        $imagesController = new ImagesController();
+        if ($mainImage)
+            $imagesController->deleteByIdOrImage($mainImage->id);
+
+        foreach ($images as $row) {
+            if (empty($row))
+                continue;
+            $imagesController->deleteByIdOrImage($row->image_id);
         }
     }
 }

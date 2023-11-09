@@ -24,5 +24,8 @@ class BrandsSeeder extends Seeder
         DB::table('brands')->insert([
             'name' => 'Honor',
         ]);
+        DB::table('brands')->insert([
+            'name' => 'JBL',
+        ]);
     }
 }

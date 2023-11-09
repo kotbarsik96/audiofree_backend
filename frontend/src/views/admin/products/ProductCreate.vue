@@ -68,7 +68,7 @@
         <div class="admin-page__creation-table">
             <AdminTable multivalues :headers="['Вариация', 'Значения']" v-model="input.variations"></AdminTable>
         </div>
-        <div class="admin-page__creation-block" @keydown.ctrl.s.prevent="saveEditor" @keyup="onDescriptionInput">
+        <div class="admin-page__creation-block" @keyup="onDescriptionInput">
             <h3 class="admin-page__title">
                 Описание товара
             </h3>
@@ -82,7 +82,7 @@
         <div class="admin-page__creation-image">
             <ImageLoad v-model="input.image.path" v-model:id="input.image.id">
                 <template v-slot:title>
-                    Главное изображение
+                    Главное изображение (рекомендуется без фона)
                 </template>
             </ImageLoad>
         </div>
@@ -94,11 +94,19 @@
                 {{ errorMessage }}
             </div>
         </TransitionGroup>
-        <div class="admin-page__creation-save">
+        <div class="admin-page__creation-buttons">
             <button class="button button--colored" type="submit" @click.prevent="saveProduct">
                 {{ productData ? 'Сохранить изменения' : 'Создать товар' }}
             </button>
+            <button class="button" v-if="productData" type="button" @click="deleteProduct">
+                Удалить товар
+            </button>
         </div>
+        <Transition name="grow">
+            <div class="error" v-if="error">
+                {{ error }}
+            </div>
+        </Transition>
     </div>
 </template>
 
@@ -110,8 +118,12 @@ import ImageLoad from '@/components/inputs/images/ImageLoad.vue'
 import ImagesGallery from '@/components/inputs/images/ImagesGallery.vue'
 import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import axios from 'axios'
-import { getNumber } from '@/assets/js/scripts.js'
+import { getNumber, handleAjaxError } from '@/assets/js/scripts.js'
 import { useIndexStore } from '@/stores/'
+import { useNotificationsStore } from '@/stores/notifications.js'
+import { useModalsStore } from '@/stores/modals.js'
+import ConfirmModal from '@/components/modals/ConfirmModal.vue'
+import { h } from 'vue'
 import EditorJS from '@editorjs/editorjs'
 
 export default {
@@ -156,7 +168,12 @@ export default {
                     path: '',
                     id: 0
                 },
-                images: []
+                images: [],
+                imageHomepage: {
+                    path: '',
+                    id: 0,
+                    tag: 'homepage'
+                }
             },
             descriptionEditor: null,
             descriptionTimeout: null,
@@ -177,6 +194,12 @@ export default {
         }
     },
     methods: {
+        onKeydown(event) {
+            if (event.code === 'KeyS' && event.ctrlKey) {
+                event.preventDefault()
+                this.saveProduct()
+            }
+        },
         async loadTaxonomies() {
             useIndexStore().loadTaxonomies(this.taxonomies, true)
         },
@@ -276,7 +299,8 @@ export default {
                 type: this.input.taxonomies.type,
                 description: JSON.stringify(this.input.description),
                 image_id: this.input.image.id,
-                images: this.input.images.map(obj => obj.id),
+                images: [...this.input.images.map(obj => obj.id), this.input.imageHomepage]
+                    .filter(i => i),
                 info: this.input.info.map(obj => {
                     return { name: obj.name, value: obj.values[0] }
                 }),
@@ -305,12 +329,52 @@ export default {
 
             this.isLoading = false
         },
+        deleteProduct() {
+            if (!this.productData) {
+                useNotificationsStore().addNotification({
+                    message: 'Ошибка'
+                })
+                return
+            }
+
+            const callback = async () => {
+                const link = `${import.meta.env.VITE_PRODUCT_DELETE_LINK}${this.productData.id}`
+                try {
+                    const res = await axios.delete(link)
+                    if (res.data.success) {
+                        if (res.data.message) {
+                            useNotificationsStore().addNotification({
+                                message: res.data.message
+                            })
+                        }
+
+                        this.$router.push({ name: 'ProductCreate' })
+                    } else {
+                        throw new Error()
+                    }
+                } catch (err) {
+                    handleAjaxError(err, this)
+                }
+            }
+
+            const component = h(ConfirmModal, {
+                title: `Удалить товар ${this.productData.name}?`,
+                confirmProps: {
+                    text: 'Удалить',
+                    callback
+                },
+                declineProps: {
+                    text: 'Не удалять'
+                }
+            })
+            useModalsStore().addModal({ component })
+        },
         nullifyErrors() {
             this.errors = []
             this.error = ''
         },
         onDescriptionInput() {
-            if(!this.$route.params.productId)
+            if (!this.$route.params.productId)
                 return
 
             if (this.descriptionTimeout)
@@ -340,9 +404,15 @@ export default {
             this.$emit('updateRouteKey')
         }
     },
+    created() {
+        document.addEventListener('keydown', this.onKeydown)
+    },
     mounted() {
         this.loadTaxonomies()
         this.loadProductData()
     },
+    beforeUnmount() {
+        document.removeEventListener('keydown', this.onKeydown)
+    }
 }
 </script>
