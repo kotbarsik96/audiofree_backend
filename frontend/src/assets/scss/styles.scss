@@ -11,7 +11,8 @@
     --hover_color: #97d413;
     --error_color: #b81c1c;
 
-    --container_width: 1200px;
+    --container_width: 1200;
+    --container_width_px: 1200px;
     --header_height: 51px;
 
     font-family: 'Roboto';
@@ -36,7 +37,7 @@
 
 .container {
     width: 100%;
-    max-width: var(--container_width);
+    max-width: var(--container_width_px);
     box-sizing: border-box;
     padding: 0 10px;
     margin: 0 auto;
@@ -239,6 +240,26 @@ button:disabled {
     padding-bottom: 30px;
 }
 
+.pdb-50 {
+    padding-bottom: 50px;
+}
+
+.pdb-55 {
+    padding-bottom: 55px;
+}
+
+.pdb-70 {
+    padding-bottom: 70px;
+}
+
+.pdb-85 {
+    padding-bottom: 85px;
+}
+
+.pdb-105 {
+    padding-bottom: 105px;
+}
+
 .pdt-10 {
     padding-bottom: 10px;
 }
@@ -253,6 +274,30 @@ button:disabled {
 
 .pdt-30 {
     padding-bottom: 30px;
+}
+
+.pdt-50 {
+    padding-top: 50px;
+}
+
+.pdt-55 {
+    padding-top: 55px;
+}
+
+.pdt-70 {
+    padding-top: 70px;
+}
+
+.pdt-85 {
+    padding-top: 85px;
+}
+
+.pdt-90 {
+    padding-top: 90px;
+}
+
+.pdt-105 {
+    padding-top: 105px;
 }
 
 /* <MARGINS, PADDINGS etc>====================================================================== */
@@ -510,7 +555,7 @@ button:disabled {
     color: #3a3a3a;
     font-weight: 700;
 
-    @media (max-width: 499px){
+    @media (max-width: 499px) {
         font-size: 24px;
         line-height: 28px;
     }
@@ -537,6 +582,13 @@ button:disabled {
 }
 
 /* <SECTION-TITLE>============================================================================== */
+
+/* <SECTION>==================================================================================== */
+.section--theme-colored {
+    background-color: var(--theme_color);
+}
+
+/* <SECTION>==================================================================================== */
 
 /* <CONTACT-BLOCK>============================================================================== */
 .contact-block {

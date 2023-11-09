@@ -117,4 +117,12 @@ class ProductsFilter extends QueryFilter
             $this->builder->whereIn('products.id', $subQueryCallback);
         }
     }
+
+    public function bestsellers_first($value = null)
+    {
+        if (empty($value) || $value === 'false')
+            return;
+
+        $this->builder->statistics()->orderBy('product_statistics.sold', 'desc');
+    }
 }
