@@ -56,18 +56,15 @@
 import injectShared from '@/components/inject-shared.js'
 import shared from './shared.js'
 import InStockPlaceholder from '@/components/misc/InStockPlaceholder.vue'
-import StarRating from '@/components/misc/StarRating.vue'
+
 
 const componentData = injectShared(shared, {
     name: 'ProductCard',
     components: {
         InStockPlaceholder,
-        StarRating
     },
     data() {
-        return Object.assign({
-            rating: 0
-        }, shared.data)
+        return Object.assign({}, shared.data)
     },
 })
 export default componentData

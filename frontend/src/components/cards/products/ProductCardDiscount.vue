@@ -4,32 +4,37 @@
             <div class="product-card__circle-discount circle-text circle-text--discount">
                 {{ discountValue }}
             </div>
-            <button class="product-card__expand-top circle-wrapper circle-wrapper--gray" :class="{ '__active': isTopExpanded }" type="button"
-                @click="expandTop">
+            <button class="product-card__expand-top circle-wrapper circle-wrapper--gray"
+                :class="{ '__active': isTopExpanded }" type="button" @click="expandTop">
                 <PlusIcon></PlusIcon>
             </button>
             <div class="product-card__top" :class="{ '__expanded': isTopExpanded }">
                 <div data-prodcard-mobile-buttons></div>
             </div>
             <div class="product-card__image-container">
-                <img class="product-card__image" :src="imageSrc" :alt="product.name">
+                <RouterLink :to="{ name: 'Product', params: { productId: product.id } }">
+                    <img class="product-card__image" :src="imageSrc" :alt="product.name">
+                </RouterLink>
             </div>
             <div class="product-card__star-rating-container">
                 <StarRating :stars="5" :rating="product.rating_value || 0" v-model="rating"></StarRating>
             </div>
             <div class="product-card__title">
-                {{ product.name }}
+                <RouterLink class="link" :to="{ name: 'Product', params: { productId: product.id } }">
+                    {{ product.name }}
+                </RouterLink>
             </div>
-            <div v-if="product.description" class="product-card__description">
-                {{ getExcerpt(product.description, { after: '...' }) }}
+            <div class="product-card__description">
+                {{ getExcerpt(getDescription(product), { after: '...' }) }}
             </div>
             <div class="product-card__flex">
                 <div class="product-card__flex-item">
                     <DynamicAdaptive class="product-card__buttons" destinationSelector="[data-prodcard-mobile-buttons]"
                         query="max-width: 599px">
-                        <button class="button button--colored" type="button">
+                        <RouterLink class="button button--colored"
+                            :to="{ name: 'Product', params: { productId: product.id } }">
                             Купить
-                        </button>
+                        </RouterLink>
                     </DynamicAdaptive>
                 </div>
                 <div class="product-card__flex-item product-card__price">

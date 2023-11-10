@@ -11,7 +11,6 @@ use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\OrderTypesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\Products\ProductsController;
-use App\Models\UserEntities\CartProduct;
 
 Route::get('/product/{id}', [ProductsController::class, 'index']);
 Route::get('/products', [ProductsController::class, 'filter']);

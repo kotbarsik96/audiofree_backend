@@ -23,6 +23,7 @@ import PlusIcon from '@/components/icons/PlusIcon.vue'
 import SaveIcon from '@/components/icons/SaveIcon.vue'
 import SearchIcon from '@/components/icons/SearchIcon.vue'
 import StarIcon from '@/components/icons/StarIcon.vue'
+import SwipeIcon from '@/components/icons/SwipeIcon.vue'
 import TelegramIcon from '@/components/icons/TelegramIcon.vue'
 import TrashCanCircleIcon from '@/components/icons/TrashCanCircleIcon.vue'
 import UserIcon from '@/components/icons/UserIcon.vue'
@@ -53,6 +54,7 @@ export default [
     { component: SaveIcon, name: 'SaveIcon' },
     { component: SearchIcon, name: 'SearchIcon' },
     { component: StarIcon, name: 'StarIcon' },
+    { component: SwipeIcon, name: 'SwipeIcon' },
     { component: TelegramIcon, name: 'TelegramIcon' },
     { component: TrashCanCircleIcon, name: 'TrashCanCircleIcon' },
     { component: UserIcon, name: 'UserIcon' },

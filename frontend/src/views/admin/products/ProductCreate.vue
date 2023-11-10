@@ -250,7 +250,6 @@ export default {
             try {
                 const link = `${import.meta.env.VITE_PRODUCT_GET_LINK}${productId}`
                 const res = await axios(link, { params: { statistics: true } })
-                console.log(res);
                 if (res.data.id) {
                     this.productData = res.data
                 } else {

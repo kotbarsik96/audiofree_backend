@@ -84,6 +84,7 @@ class TaxonomiesController extends Controller
         }
 
         $request = $queryFilter->request;
+        $queryFilter->taxonomyName = $taxonomyTitle;
         $limit = $request->query('limit') ?? null;
         $offset = $request->query('offset') ?? null;
 

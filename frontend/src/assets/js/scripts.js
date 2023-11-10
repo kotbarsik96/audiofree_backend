@@ -192,7 +192,7 @@ export function getExcerpt(longText, options = {}) {
     if (match)
         cut = match[0]
 
-    if (options.after)
+    if (options.after && cut.length > 0)
         cut += options.after
 
     return cut

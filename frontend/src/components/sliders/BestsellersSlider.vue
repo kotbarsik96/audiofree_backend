@@ -1,5 +1,5 @@
 <template>
-    <div class="section section--theme-colored pdt-90 pdb-55" v-if="!hideSection">
+    <section class="section section--theme-colored pdt-90 pdb-55" v-if="!hideSection">
         <div class="bestsellers-slider">
             <Swiper :modules="[Pagination, EffectFlip]" effect="flip" :pagination="{
                 clickable: true,
@@ -33,7 +33,7 @@
                 </SwiperSlide>
             </Swiper>
         </div>
-    </div>
+    </section>
 </template>
 
 <script>

@@ -3,6 +3,7 @@ import { checkIfFavorite, toggleFavorite } from '@/assets/js/methods.js'
 import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import QuantityInput from '@/components/inputs/QuantityInput.vue'
 import SelectProductVariations from '@/components/page/sections/SelectProductVariations.vue'
+import StarRating from '@/components/misc/StarRating.vue'
 import { useModalsStore } from '@/stores/modals.js'
 import { useNotificationsStore } from '@/stores/notifications.js'
 import { useIndexStore } from '@/stores/'
@@ -16,7 +17,8 @@ export default {
         DynamicAdaptive,
         ConfirmModal,
         SelectProductVariations,
-        QuantityInput
+        QuantityInput,
+        StarRating
     },
     props: {
         productData: {
@@ -27,7 +29,8 @@ export default {
     data: {
         isTopExpanded: false,
         isInFavorites: null,
-        product: null
+        product: null,
+        rating: 0
     },
     methods: {
         async updateProductData() {
@@ -101,6 +104,17 @@ export default {
             }
 
             store.toggleLoading('addToCartCard', false)
+        },
+        getDescription(product) {
+            if (!product.description)
+                return ''
+
+            const json = JSON.parse(product.description)
+            if (!json.blocks)
+                return ''
+            const firstParagraph = json.blocks[0]
+
+            return firstParagraph ? firstParagraph.data.text : '' || ''
         }
     },
     computed: {

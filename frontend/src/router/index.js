@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomePage from '@/views/index/HomePage.vue'
 import { useIndexStore } from '@/stores'
 import axios from 'axios'
 
@@ -10,7 +9,7 @@ const router = createRouter({
         {
             path: '/',
             name: 'Home',
-            component: HomePage
+            component: () => import('@/views/index/HomePage.vue')
         },
         // folder: admin
         {

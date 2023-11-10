@@ -42,10 +42,12 @@ class ProductsFilter extends QueryFilter
         if (empty($value) || $value === 'no_matter')
             return;
 
-        if ($value === 'yes')
-            $this->builder->whereNotNull('discount_price');
-        elseif ($value === 'no')
-            $this->builder->whereNull('discount_price');
+        if ($value === 'yes' || $value === 'true')
+            $this->builder->whereNotNull('discount_price')
+                ->where('discount_price', '>', '0');
+        elseif ($value === 'no' || $value === 'false')
+            $this->builder->whereNull('discount_price')
+                ->orWhere('discount_price', '<=', '0');
     }
 
     public function filterByTaxonomy($titles = null, $whereIn, $select, $from, $subWhereIn)
@@ -84,6 +86,14 @@ class ProductsFilter extends QueryFilter
     public function product_statuses($titles = null)
     {
         $this->filterByTaxonomy($titles, 'product_status_id', 'product_statuses.id', 'product_statuses', 'product_statuses.name');
+    }
+
+    public function product_status_active($value = null)
+    {
+        if (empty($value) || $value === 'false')
+            return;
+
+        $this->product_Statuses(['Активен']);
     }
 
     public function in_stock($value = null)

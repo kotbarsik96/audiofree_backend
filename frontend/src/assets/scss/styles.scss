@@ -10,6 +10,7 @@
     --theme_color_3: #00667f;
     --hover_color: #97d413;
     --error_color: #b81c1c;
+    --inactive_color: #dfdfdf;
 
     --container_width: 1200;
     --container_width_px: 1200px;
@@ -579,6 +580,11 @@ button:disabled {
     &--centered {
         text-align: center;
     }
+
+    @media (max-width: 499px) {
+        font-size: 34px;
+        line-height: 43px;
+    }
 }
 
 /* <SECTION-TITLE>============================================================================== */
@@ -644,10 +650,17 @@ button:disabled {
 
 /* <CARDS-LISTS>================================================================================ */
 .product-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, 270px);
-    grid-gap: 30px;
-    margin: 25px 0;
+
+    &__wrapper {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, 270px);
+        grid-gap: 30px;
+        margin: 25px 0;
+    }
+
+    &__swipe {
+        display: none;
+    }
 
     .card {
         margin-right: 10px;
@@ -658,12 +671,32 @@ button:disabled {
     }
 
     @media (max-width: 599px) {
-        display: flex;
-        justify-content: flex-start;
-        padding: 20px 10px;
-        grid-gap: 0;
-        overflow: auto;
         width: 100%;
+
+        &__wrapper {
+            display: flex;
+            justify-content: flex-start !important;
+            padding: 20px 10px;
+            grid-gap: 0;
+            overflow: auto;
+            width: 100%;
+        }
+
+        &__swipe {
+            display: flex;
+            box-shadow: 0 6px 15px rgb(141, 122, 199, .3);
+            margin: 0 auto 0 auto;
+
+            svg {
+                width: 21px;
+                height: 21px;
+                color: var(--theme_color);
+            }
+        }
+
+        .card {
+            flex: 0 0 auto;
+        }
     }
 }
 
@@ -726,6 +759,7 @@ button:disabled {
 
     &__container {
         padding: 12px;
+        height: 100%;
     }
 
     &__expand-top {
@@ -933,6 +967,10 @@ button:disabled {
             .button {
                 margin: 0;
             }
+        }
+
+        &__description {
+            min-height: 28px;
         }
     }
 

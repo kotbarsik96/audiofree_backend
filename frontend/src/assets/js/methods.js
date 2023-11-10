@@ -139,3 +139,9 @@ export function getImagePath(path) {
 
     return `${import.meta.env.VITE_LINK}${path}`
 }
+
+export function capitalizeFirstLetter(string){
+    return string.split('')
+        .map((letter, i) => i === 0 ? letter.toUpperCase() : letter)
+        .join('')
+}

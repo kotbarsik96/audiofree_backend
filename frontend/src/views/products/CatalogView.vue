@@ -5,7 +5,8 @@
                 <div class="catalog__wrapper">
                     <LoadingScreen v-if="isLoading"></LoadingScreen>
                     <div class="catalog__filter-container">
-                        <ProductsFilter ref="productsFilter" v-model="filters" :sections="filterSections" :unclearableFilters="unclearableFilters"></ProductsFilter>
+                        <ProductsFilter ref="productsFilter" v-model="filters" :sections="filterSections"
+                            :unclearableFilters="unclearableFilters"></ProductsFilter>
                     </div>
                     <div class="catalog__page-heading page-heading">
                         <div class="breadcrumbs">
@@ -81,14 +82,14 @@ export default {
                 brands: [],
                 types: [],
                 has_discount: '',
-                product_statuses: 'Активен',
+                product_status_active: true,
                 in_stock: 'true',
                 price_range: {
                     min: 0,
                     max: 0
                 }
             },
-            unclearableFilters: ['product_statuses', 'in_stock'],
+            unclearableFilters: ['product_status', 'in_stock'],
             filterSections: [
                 {
                     title: 'Бренд',
@@ -163,9 +164,9 @@ export default {
                 })
             }
         },
-        setPriceRange(){
+        setPriceRange() {
             const priceObj = this.filterSections.find(obj => obj.name === 'price_range')
-            if(!priceObj)
+            if (!priceObj)
                 return
 
             priceObj.minValue = this.paginationMeta.cheapest_price
@@ -173,7 +174,7 @@ export default {
         }
     },
     watch: {
-        paginationMeta(){
+        paginationMeta() {
             this.setPriceRange()
         }
     },
@@ -235,6 +236,7 @@ export default {
     }
 
     &__list-item {
+
         .card,
         .card__container {
             height: 100%;
