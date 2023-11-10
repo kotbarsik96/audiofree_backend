@@ -32,6 +32,8 @@ class ProductStatistics extends Model
             if (array_key_exists($columnName, $fields)) {
                 $currentValue = $row->$columnName ?? 0;
                 $fields[$columnName] = $currentValue + $fields[$columnName];
+                if ($fields[$columnName] < 0)
+                    $fields[$columnName] = 0;
             }
         }
 
