@@ -143,7 +143,8 @@ class UserEntitiesController extends Controller
             'product_id' => $productId,
             'variations' => $this->variationsToString($variations),
             'quantity' => $quantity,
-            'is_oneclick' => false
+            'is_oneclick' => false,
+            'purchased' => false
         ];
         if ($request->isOneClick && $request->isOneClick !== 'false') {
             // если "в 1 клик", удалить предыдущ(ую/ие) запис(ь/и) с пометкой "в 1 клик" и добавить эту, новую
@@ -341,6 +342,9 @@ class UserEntitiesController extends Controller
     {
         $obj = [];
         foreach (explode($this->propertyDelimeter, $variations) as $property) {
+            if(empty($property))
+                continue;
+            
             $keyAndValue = explode($this->valueDelimeter, $property);
             $subObj = ['name' => $keyAndValue[0], 'value' => $keyAndValue[1]];
             array_push($obj, $subObj);

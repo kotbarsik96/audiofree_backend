@@ -2,93 +2,60 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Validator;
 use App\Exceptions\TaxonomiesExceptions;
 use Illuminate\Http\Request;
-use App\Models\Taxonomies\Brand;
-use App\Models\Taxonomies\Category;
-use App\Models\Taxonomies\Type;
+use App\Models\Taxonomies\Taxonomy;
 use App\Models\Taxonomies\ProductStatus;
 use App\Exceptions\RolesExceptions;
-use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Filters\TaxonomiesFilter;
+use App\Models\Taxonomies\TaxonomyType;
 
 class TaxonomiesController extends Controller
 {
-    public function taxonomyValidationReq(Request $request, $name, $title, $taxId = null)
+    /* $fields: ['brand' => 'Apple']. Проверяет, что Apple существует именно с taxonomy_type === brand. Так, если Apple существует в taxonomies, но у него, например, taxonomy_type === category, будет возвращен массив с ошибкой. В случае успешной проверки, будет возвращен тот же массив, что и зашел на входе ($fields)
+
+    Этот метод нужен, т.к. валидатор проверяет просто наличие строки с такой колонкой, но не проеряет taxonomy_type */
+    public function checkTaxonomies($fields)
     {
-        return Validator::make($request->all(), [
-            'name' => ['required', 'string', Rule::unique($name, 'name')->ignore($taxId)]
-        ], [
-            'name.required' => 'Не указано название для таксономии "' . $title . '"',
-            'name.unique' => $title . ' с таким названием уже существует'
-        ]);
+        foreach ($fields as $taxType => $name) {
+            if (empty(Taxonomy::where('taxonomy_type', $taxType)->where('name', $name))) {
+                $errors = [];
+                $errors[$name] = $this->getTaxonomyTypeTitle($taxType) . ' ' . $name . ' не существует';
+                return ['errors' => $errors];
+            }
+        }
+        return $fields;
     }
 
-    /* применяется после того, как прошла проверка через Validator::make(). Принимает названия под ключами в $taxs, возвращает id в поля 'brand_id' и т.д. */
-    public function translateTaxonomiesToIds($fields)
+    public function getTaxonomyTypeTitle($taxonomyType)
     {
-        $taxs = [
-            'brand' => Brand::class,
-            'category' => Category::class,
-            'type' => Type::class,
-            'product_status' => ProductStatus::class
-        ];
+        $tt = TaxonomyType::where('type', $taxonomyType)->first();
+        if (empty($tt))
+            return '<таксономия не существует>';
 
-        foreach ($taxs as $name => $model) {
-            if (!array_key_exists($name, $fields))
-                continue;
-
-            $fieldTaxName = $fields[$name];
-
-            if (empty($fieldTaxName))
-                continue;
-
-            $taxonomyData = $model::where('name', $fieldTaxName)->first();
-            if (empty($taxonomyData))
-                continue;
-
-            $fields[$name . '_id'] = $taxonomyData->id;
-        }
-
-        return $fields;
+        return $tt->title;
     }
 
     public function all()
     {
         return [
-            'brands' => Brand::all(['id', 'name']),
-            'categories' => Category::all(['id', 'name']),
-            'types' => Type::all(['id', 'name']),
-            'product_statuses' => ProductStatus::all(['id', 'name'])
+            'brands' => Taxonomy::where('taxonomy_type', 'brand')->get(['id', 'name']),
+            'categories' => Taxonomy::where('taxonomy_type', 'category')->get(['id', 'name']),
+            'types' => Taxonomy::where('taxonomy_type', 'type')->get(['id', 'name']),
+            'product_statuses' => Taxonomy::where('taxonomy_type', 'product_status')->get(['id', 'name'])
         ];
     }
 
-    public function filter(TaxonomiesFilter $queryFilter, $taxonomyTitle)
+    public function filter(TaxonomiesFilter $queryFilter, $taxType)
     {
-        $model = null;
-        switch ($taxonomyTitle) {
-            case 'brand':
-                $model = Brand::class;
-                break;
-            case 'category':
-                $model = Category::class;
-                break;
-            case 'type':
-                $model = Type::class;
-                break;
-            case 'product_status':
-                $model = ProductStatus::class;
-                break;
-        }
-
         $request = $queryFilter->request;
-        $queryFilter->taxonomyName = $taxonomyTitle;
+        $queryFilter->taxonomyName = $taxType;
         $limit = $request->query('limit') ?? null;
         $offset = $request->query('offset') ?? null;
 
-        $filtered = $model::filter($queryFilter)
+        $filtered = Taxonomy::where('taxonomy_type', $taxType)
+            ->filter($queryFilter)
             ->select(['id', 'name']);
         $count = $filtered->count();
         return [
@@ -97,83 +64,61 @@ class TaxonomiesController extends Controller
         ];
     }
 
-    public function getTaxData($taxName)
+    public function storeOrUpdate(Request $request, $taxType, $id = null)
     {
-        $model = null;
-        switch ($taxName) {
-            default:
-                throw TaxonomiesExceptions::notExists();
-            case 'brands':
-            case 'brand':
-                $name = 'brands';
-                $title = 'Бренд';
-                $model = Brand::class;
-                break;
-            case 'categories':
-            case 'category':
-                $name = 'categories';
-                $title = 'Категория';
-                $model = Category::class;
-                break;
-            case 'types':
-            case 'type':
-                $name = 'types';
-                $title = 'Тип';
-                $model = Type::class;
-                break;
-            case 'product_status':
-            case 'product_statuses':
-                $name = 'product_statuses';
-                $title = 'Статус товара';
-                $model = ProductStatus::class;
-                break;
-        }
+        $taxTypeExists = TaxonomyType::where('type', $taxType)->first();
+        if (empty($taxTypeExists))
+            return response(['error' => 'Тип таксономии ' . $taxType . ' не найден'], 404);
 
-        return [
-            'name' => $name,
-            'model' => $model,
-            'title' => $title
-        ];
-    }
+        // обновить название, если передан id
+        if (!empty($id)) {
+            if (!User::hasRight($request->cookie('user'), 'update_taxonomy', $request))
+                return RolesExceptions::noRightsResponse();
 
-    public function storeOrUpdate(Request $request, $taxName, $id = null)
-    {
-        $taxData = null;
-        try {
-            $taxData = $this->getTaxData($taxName);
-        } catch (TaxonomiesExceptions $err) {
-            return ['error' => $err->getMessage()];
-        }
+            $taxonomy = Taxonomy::find($id);
+            if (!empty($taxonomy)) {
+                $nameIsNotUnique = Taxonomy::where('taxonomy_type', $taxType)
+                    ->where('name', $request->name)
+                    ->whereNot('id', $id)
+                    ->first();
+                if ($nameIsNotUnique) {
+                    $taxonomyTypeTitle = $this->getTaxonomyTypeTitle($taxType);
+                    return TaxonomiesExceptions::alreadyExistsResponse($taxonomyTypeTitle, $request->name);
+                }
 
-        $validator = $this->taxonomyValidationReq($request, $taxData['name'], $taxData['title'], $id);
-        if ($validator->fails())
-            return response(['errors' => $validator->errors()], 400);
-
-        if ($id) {
-            $taxModelInst = $taxData['model']::find($id);
-            if ($taxModelInst) {
-                if (!User::hasRight($request->cookie('user'), 'update_taxonomy', $request))
-                    return RolesExceptions::noRightsResponse();
-
-                $taxModelInst->update($validator->validated());
-                return $taxModelInst;
+                $taxonomy->update(['name' => $request->name]);
+                return $taxonomy;
             }
         }
 
+        // создать новую таксономию
         if (!User::hasRight($request->cookie('user'), 'add_taxonomy', $request))
             return RolesExceptions::noRightsResponse();
 
-        return $taxData['model']::create($validator->validated());
+        $exists = Taxonomy::where('taxonomy_type', $taxType)
+            ->where('name', $request->name)
+            ->first();
+        if ($exists) {
+            return TaxonomiesExceptions::alreadyExistsResponse(
+                $this->getTaxonomyTypeTitle($taxType),
+                $request->name
+            );
+        }
+
+        return Taxonomy::create([
+            'taxonomy_type' => $taxType,
+            'name' => $request->name,
+        ]);
     }
 
-    public function handleDelete(Request $request, $taxName, $id = null)
+    public function handleDelete(Request $request, $taxType, $id = null)
     {
         if (!User::hasRight($request->cookie('user'), 'delete_taxonomy', $request))
             return RolesExceptions::noRightsResponse();
 
         // удалить одну
         if ($id) {
-            $res = $this->delete($taxName, $id);
+            $res = $this->delete($taxType, $id);
             $code = array_key_exists('code', $res) ? $res['code'] : 200;
             return response($res, $code);
         }
@@ -184,7 +129,7 @@ class TaxonomiesController extends Controller
             $queries = $request->all();
             $list = array_key_exists('idsList', $queries) ? $queries['idsList'] : [];
             foreach ($list as $id) {
-                $res = $this->delete($taxName, $id);
+                $res = $this->delete($taxType, $id);
                 if ($res['error'])
                     array_push($errors, $res['error']);
                 else
@@ -198,21 +143,18 @@ class TaxonomiesController extends Controller
         }
     }
 
-    public function delete($taxName, $id)
+    public function delete($taxType, $id)
     {
-        $taxData = null;
-        try {
-            $taxData = $this->getTaxData($taxName);
-        } catch (TaxonomiesExceptions $err) {
-            return ['error' => $err->getMessage(), 'code' => 400];
-        }
-
-        $taxonomy = $taxData['model']::find($id);
+        $taxonomy = Taxonomy::find($id);
         if (empty($taxonomy))
             return ['error' => TaxonomiesExceptions::notExists(), 'code' => 400];
 
-        $taxDeletedMessage = 'Успешно удалено: ' . $taxData['title'] . ' "' . $taxonomy->name . '"';
+        $taxDeletedMessage = 'Успешно удалено: ' . $this->getTaxonomyTypeTitle($taxType) . ' "' . $taxonomy->name . '"';
         $taxonomy->delete();
-        return ['success' => true, 'message' => $taxDeletedMessage, 'error' => false];
+        return [
+            'success' => true,
+            'message' => $taxDeletedMessage,
+            'error' => false
+        ];
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Filters;
 
-use App\Models\Taxonomies\ProductStatus;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use App\Models\Taxonomies\Taxonomy;
 
 class TaxonomiesFilter extends QueryFilter
 {
@@ -21,21 +21,19 @@ class TaxonomiesFilter extends QueryFilter
     /* корректно сработает, если таксономия === 'brand'. Выберет только те бренды, к которым принадлежит товаров >= $productsMin, причем, эти товары должны иметь статус "Активен" */
     public function brand_with_products($productsMin)
     {
-        $activeStatusId = ProductStatus::where('name', 'Активен')->first()->id;
-
         $productsMin = (int) $productsMin;
         if ($this->taxonomyName !== 'brand' || is_nan($productsMin))
             return;
 
-        $this->builder->whereIn('brands.id', function (Builder $query) use ($productsMin, $activeStatusId) {
-            $query->select('brand')->from(function (Builder $subquery) use ($productsMin, $activeStatusId) {
-                $subquery->selectRaw('brands.id as brand, count(products.id) as count')
-                    ->from('brands')
-                    ->leftJoin('products', function ($join) use ($activeStatusId) {
-                        $join->on('products.brand_id', '=', 'brands.id')
-                            ->where('products.product_status_id', $activeStatusId);
+        $this->builder->whereIn('taxonomies.id', function (Builder $query) use ($productsMin) {
+            $query->select('brand')->from(function (Builder $subquery) use ($productsMin) {
+                $subquery->selectRaw('taxonomies.id as brand, count(products.id) as count')
+                    ->from('taxonomies')
+                    ->leftJoin('products', function ($join) {
+                        $join->on('products.brand', '=', 'taxonomies.name')
+                            ->where('products.product_status', 'Активен');
                     })
-                    ->groupBy('brands.id')
+                    ->groupBy('taxonomies.id')
                     ->having('count', '>=', $productsMin);
             });
         });

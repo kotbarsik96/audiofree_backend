@@ -217,7 +217,7 @@ router.beforeEach(async (to) => {
         try {
             const res = await axios.get(link)
             if (!res.data.id)
-                return { name: 'NotFound' }
+                throw new Error()
 
             to.meta.product = res.data
         } catch (err) {

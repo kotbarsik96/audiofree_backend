@@ -11,7 +11,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'status_id',
+        'status',
         'quantity',
         'total_price',
         'is_oneclick',
@@ -26,9 +26,5 @@ class Order extends Model
         'delivery_type',
         'payment_type',
         'cart_rows'
-    ];
-
-    protected $hidden = [
-        'hash'
     ];
 }

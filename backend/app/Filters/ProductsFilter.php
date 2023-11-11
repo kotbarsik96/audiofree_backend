@@ -50,7 +50,7 @@ class ProductsFilter extends QueryFilter
                 ->orWhere('discount_price', '<=', '0');
     }
 
-    public function filterByTaxonomy($titles = null, $whereIn, $select, $from, $subWhereIn)
+    public function filterByTaxonomy($titles = null, $whereIn)
     {
         $array = is_array($titles)
             ? $titles
@@ -58,34 +58,27 @@ class ProductsFilter extends QueryFilter
         if (count($array) < 1)
             return;
 
-        $this->builder->whereIn(
-            $whereIn,
-            function (Builder $subquery) use ($array, $select, $from, $subWhereIn) {
-                $subquery->select($select)
-                    ->from($from)
-                    ->whereIn($subWhereIn, $array);
-            }
-        );
+        $this->builder->whereIn($whereIn, $titles);
     }
 
     public function brands($titles = null)
     {
-        $this->filterByTaxonomy($titles, 'brand_id', 'brands.id', 'brands', 'brands.name');
+        $this->filterByTaxonomy($titles, 'products.brand');
     }
 
     public function categories($titles = null)
     {
-        $this->filterByTaxonomy($titles, 'category_id', 'categories.id', 'categories', 'categories.name');
+        $this->filterByTaxonomy($titles, 'products.category');
     }
 
     public function types($titles = null)
     {
-        $this->filterByTaxonomy($titles, 'type_id', 'types.id', 'types', 'types.name');
+        $this->filterByTaxonomy($titles, 'products.type');
     }
 
     public function product_statuses($titles = null)
     {
-        $this->filterByTaxonomy($titles, 'product_status_id', 'product_statuses.id', 'product_statuses', 'product_statuses.name');
+        $this->filterByTaxonomy($titles, 'products.product_status');
     }
 
     public function product_status_active($value = null)
@@ -93,7 +86,7 @@ class ProductsFilter extends QueryFilter
         if (empty($value) || $value === 'false')
             return;
 
-        $this->product_Statuses(['Активен']);
+        $this->product_statuses(['Активен']);
     }
 
     public function in_stock($value = null)

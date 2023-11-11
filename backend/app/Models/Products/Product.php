@@ -20,10 +20,10 @@ class Product extends FilterableModel
         'discount_price',
         'description',
         'quantity',
-        'product_status_id',
-        'type_id',
-        'brand_id',
-        'category_id',
+        'product_status',
+        'type',
+        'brand',
+        'category',
         'image_id'
     ];
     protected $casts = [
@@ -42,11 +42,14 @@ class Product extends FilterableModel
         $builder->currentPrice()
             ->addSelect(
                 'products.id',
+                'products.brand',
+                'products.type',
+                'products.category',
                 'products.name',
                 'products.price',
                 'products.discount_price',
                 'products.quantity',
-                'products.product_status_id',
+                'products.product_status',
                 'products.description',
                 'images.path AS image_path',
                 'images.id AS image_id',
@@ -68,20 +71,6 @@ class Product extends FilterableModel
         $sortType = array_key_exists(1, $split) ? $split[1] : 'asc' ?? 'desc';
 
         $builder->orderBy($sortBy, $sortType);
-    }
-
-    public static function scopeTaxonomies(Builder $builder)
-    {
-        $builder->addSelect(
-            'types.name AS type',
-            'brands.name AS brand',
-            'categories.name AS category',
-            'product_statuses.name AS product_status'
-        )
-            ->leftJoin('types', 'products.type_id', '=', 'types.id')
-            ->leftJoin('brands', 'products.brand_id', '=', 'brands.id')
-            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
-            ->leftJoin('product_statuses', 'products.product_status_id', '=', 'product_statuses.id');
     }
 
     public static function scopeCheapest(Builder $builder)
@@ -110,11 +99,10 @@ class Product extends FilterableModel
 
     public static function singleFullData($id, $selectTimestamps = false, $selectStatistics = false)
     {
-        $product = self::mainData()
-            ->taxonomies();
+        $product = self::mainData();
         if ($selectTimestamps)
             $product->timestamps();
-        if($selectStatistics)
+        if ($selectStatistics)
             $product->statistics();
 
         $product = $product->find($id);
@@ -183,6 +171,8 @@ class Product extends FilterableModel
 
             $currentProductInCart = CartProduct::where('cart_id', $userCart->id)
                 ->where('product_id', $product->id)
+                ->notPurchased()
+                ->notOrdered()
                 ->get();
             foreach ($currentProductInCart as $prodData) {
                 $quantity = $quantity - $prodData->quantity;

@@ -332,7 +332,7 @@ class AuthController extends Controller
             return response(['error' => AuthExceptions::incorrectVerifyingEmailCode()->getMessage()], 422);
 
         $verifyingCode = $verifyingCodeModel->code;
-        if(!Hash::check($code, $verifyingCode))
+        if (!Hash::check($code, $verifyingCode))
             return response(['error' => AuthExceptions::incorrectVerifyingEmailCode()->getMessage()], 422);
 
         $user->update([

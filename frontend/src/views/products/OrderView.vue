@@ -35,7 +35,7 @@
                             </template>
                         </TextInputWrapper>
                         <TextInputWrapper name="phone_number" id="phone_number" placeholder="Телефон"
-                            v-model="input.phone_number" mask="phone">
+                            v-model="input.phone_number" mask="phone" numberonly>
                             <template v-if="errors.phone_number" v-slot:error>
                                 {{ errors.phone_number[0] }}
                             </template>
@@ -68,7 +68,10 @@
                                 </li>
                             </Transition>
                         </ul>
-                        <TextareaWrapper name="delivery_address" placeholder="Адрес доставки" v-model="input.address">
+                        <TextareaWrapper name="delivery_address" id="address" placeholder="Адрес доставки" v-model="input.address">
+                            <template v-slot:error v-if="errors.address">
+                                {{ errors.address[0] }}
+                            </template>
                         </TextareaWrapper>
                     </div>
                 </div>
@@ -200,7 +203,9 @@ export default {
             try {
                 const link = `${import.meta.env.VITE_ORDER_CHECKOUT}${this.orderData.id}`
                 const data = Object.assign({}, this.input)
-                data.phone_number = this.input.phone_number.replace(/[^\+0-9]/g, '')
+                data.phone_number = this.input.phone_number 
+                    ? this.input.phone_number.replace(/[^\+0-9]/g, '')
+                    : ''
                 const res = await axios.post(link, data)
                 if (!res.data.order)
                     throw new Error()

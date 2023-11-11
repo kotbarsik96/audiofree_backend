@@ -50,7 +50,7 @@
                         </div>
                     </div>
                     <div class="product-page__quantity">
-                        <QuantityInput v-model="cart.quantity" name="product-quantity" id="product-quantity" :min="1"
+                        <QuantityInput v-if="product.available_quantity > 0" v-model="cart.quantity" name="product-quantity" id="product-quantity" :min="1"
                             :max="product.available_quantity">
                             Количество
                         </QuantityInput>
@@ -368,7 +368,7 @@ export default {
     },
     mounted() {
         this.product = this.$route.meta.product
-        this.loadBrandOtherProducts()
+        // this.loadBrandOtherProducts()
     },
     beforeRouteUpdate() {
         this.$emit('updateRouteKey')

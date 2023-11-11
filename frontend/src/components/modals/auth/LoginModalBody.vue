@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent @input="removeErrorsOnInput" @keyup.enter="login">
+    <form @submit.prevent @input="removeErrorsOnInput">
         <Transition name="grow">
             <div v-if="errorMessage" class="auth-modal__error">
                 {{ errorMessage }}

@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent @input="onFormInput" @keyup.enter="register">
+    <form @submit.prevent @input="onFormInput">
         <Transition name="grow">
             <div v-if="errorMessage" class="auth-modal__error">
                 {{ errorMessage }}
@@ -52,7 +52,8 @@ export default {
             password: '',
             password_confirmation: '',
             errors: {},
-            errorMessage: ''
+            errorMessage: '',
+            isRegistering: false
         }
     },
     computed: {

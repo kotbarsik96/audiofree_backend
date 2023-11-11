@@ -97,7 +97,7 @@ class ProductsController extends Controller
             ->offsetLimit($limit, $offset)
             ->mainData();
         if ($request->query('allData') === 'true' || $request->query('allData') === true)
-            $productQuery->taxonomies()->timestamps();
+            $productQuery->timestamps();
 
         $products = getAvailableQuantity($productQuery->get(), $request);
 
@@ -117,10 +117,10 @@ class ProductsController extends Controller
             'discount_price' => 'nullable|numeric',
             'description' => 'string',
             'quantity' => 'numeric',
-            'product_status' => 'exists:product_statuses,name|required',
-            'brand' => 'exists:brands,name|required',
-            'category' => 'exists:categories,name|required',
-            'type' => 'exists:types,name|required',
+            'product_status' => 'exists:taxonomies,name|required',
+            'brand' => 'exists:taxonomies,name|required',
+            'category' => 'exists:taxonomies,name|required',
+            'type' => 'exists:taxonomies,name|required',
             'image_id' => 'nullable|numeric|exists:images,id'
         ];
         return Validator::make(
@@ -155,8 +155,12 @@ class ProductsController extends Controller
         $productInfoController = new ProductInfoController();
 
         // создать товар
+        $fields = $validator->validated();
         $taxonomiesController = new TaxonomiesController();
-        $fields = $taxonomiesController->translateTaxonomiesToIds($validator->validated());
+        $taxCheck = $taxonomiesController->checkTaxonomies($fields);
+        if (array_key_exists('errors', $taxCheck))
+            return response(['errors' => $taxCheck['errors']], 400);
+
         $product = Product::create($fields);
         // создать вариации товара и добавить для каждого из них значения
         $storedVariations = $variationsController->storeArray($request->variations, $product);
@@ -207,7 +211,9 @@ class ProductsController extends Controller
         $productInfoController = new ProductInfoController();
 
         $taxonomiesController = new TaxonomiesController();
-        $fields = $taxonomiesController->translateTaxonomiesToIds($fields);
+        $taxCheck = $taxonomiesController->checkTaxonomies($fields);
+        if (array_key_exists('errors', $taxCheck))
+            return response(['errors' => $taxCheck['errors']], 400);
 
         $product->update($fields);
         // создать/обновить вариации товара и их значения

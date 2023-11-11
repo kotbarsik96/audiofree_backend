@@ -24,6 +24,8 @@ export const useModalsStore = defineStore('modals', {
         // удалит первый в списке this.modals окно, ЕСЛИ НЕ передан ИЛИ передан НЕЧИСЛОВОЙ modalId. Если передан ЧИСЛОВОЙ modalId, удалит окно с этим modalId
         removeModal(modalId = null) {
             if (isNaN(parseInt(modalId))) {
+                if(!this.modals[0])
+                    return
                 const id = this.modals[0].id
                 document.dispatchEvent(new CustomEvent('modal-deleted', { detail: { id } }))
                 this.modals.splice(0, 1)
