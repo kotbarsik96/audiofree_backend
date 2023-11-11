@@ -8,7 +8,7 @@
                 <slot name="icon"></slot>
             </div>
             <textarea class="textarea__input text-input__input" :style="textareaStyle" :name="name" :id="id"
-                :value="modelValue" :placeholder="placeholder" @input="onInput"></textarea>
+                :value="modelValue" :placeholder="placeholder" @keydown="onInput"></textarea>
         </div>
         <Transition name="grow">
             <div v-if="$slots.error" class="text-input__error">
@@ -46,7 +46,7 @@ export default {
             }
         }
     },
-    metohds: {
+    methods: {
         onInput(event) {
             this.$emit('update:modelValue', event.target.value)
         }

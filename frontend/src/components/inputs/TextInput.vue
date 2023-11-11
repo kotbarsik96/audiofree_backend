@@ -63,8 +63,17 @@ export default {
         }
     },
     computed: {
+        isNumberOnly(){
+            if(this.numberonly)
+                return true
+
+            if(this.mask && this.mask.match(/phone/i))
+                return true
+
+            return false
+        },
         scopeSymbolsRegexp() {
-            if (!this.numberonly && !this.allowSymbols)
+            if (!this.isNumberOnly && !this.allowSymbols)
                 return null
 
             let allowSymbols = this.allowSymbols ?
@@ -85,7 +94,7 @@ export default {
             let regexpStr = ''
             if (allowSymbols)
                 regexpStr += allowSymbols
-            if (this.numberonly)
+            if (this.isNumberOnly)
                 regexpStr += '0-9'
 
             if (regexpStr.length > 0)
@@ -100,7 +109,7 @@ export default {
             if (!this.max)
                 return null
 
-            if (this.numberonly) {
+            if (this.isNumberOnly) {
                 const length = this.max.toString().length
                 return length + Math.floor(length / 3)
             }
@@ -123,13 +132,13 @@ export default {
         onInput() {
             if (this.maxlength) {
                 const value = this.value.toString().replace(/\D/g, '')
-                if (this.numberonly && parseInt(value) > parseInt(this.max))
+                if (this.isNumberOnly && parseInt(value) > parseInt(this.max))
                     this.value = this.max
             }
 
             this.doScopeSymbols()
             this.doApplyModifiers()
-            this.doApplyMask(event)
+            this.doApplyMask()
         },
         doScopeSymbols() {
             if (!this.scopeSymbolsRegexp)
@@ -202,7 +211,7 @@ export default {
     watch: {
         value() {
             let value = this.value || ''
-            if (this.numberonly && !this.scopeSymbolsRegexp)
+            if (this.isNumberOnly && !this.scopeSymbolsRegexp)
                 value = parseInt(value.toString().replace(/\D/g, '')) || 0
             this.$emit('update:modelValue', value)
         },
