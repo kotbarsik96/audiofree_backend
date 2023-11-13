@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Exceptions\TaxonomiesExceptions;
 use Illuminate\Http\Request;
 use App\Models\Taxonomies\Taxonomy;
-use App\Models\Taxonomies\ProductStatus;
 use App\Exceptions\RolesExceptions;
 use App\Models\User;
 use App\Filters\TaxonomiesFilter;
 use App\Models\Taxonomies\TaxonomyType;
+use App\Models\Taxonomies\TaxonomiesMeta;
+use enshrined\svgSanitize\Sanitizer;
 
 class TaxonomiesController extends Controller
 {
@@ -56,11 +57,13 @@ class TaxonomiesController extends Controller
 
         $filtered = Taxonomy::where('taxonomy_type', $taxType)
             ->filter($queryFilter)
-            ->select(['id', 'name']);
+            ->select(['id', 'name', 'taxonomy_type']);
         $count = $filtered->count();
+        $filtered = $this->getMeta($filtered->offsetLimit($limit, $offset)->get());
         return [
-            'result' => $filtered->offsetLimit($limit, $offset)->get(),
-            'total_count' => $count
+            'result' => $filtered,
+            'total_count' => $count,
+            'taxonomy_type' => $taxType
         ];
     }
 
@@ -87,6 +90,7 @@ class TaxonomiesController extends Controller
                 }
 
                 $taxonomy->update(['name' => $request->name]);
+                $this->storeMeta($taxonomy, $request->meta);
                 return $taxonomy;
             }
         }
@@ -105,10 +109,73 @@ class TaxonomiesController extends Controller
             );
         }
 
-        return Taxonomy::create([
+        $taxonomy = Taxonomy::create([
             'taxonomy_type' => $taxType,
             'name' => $request->name,
         ]);
+        $this->storeMeta($taxonomy, $request->meta);
+        return $taxonomy;
+    }
+
+    /* metaValues: ['name' => 'value', 'name2' => 'value2'].
+        если нужно удалить: ['name' => null]
+        */
+    public function storeMeta($taxonomy, $metaValues)
+    {
+        foreach ($metaValues as $key => $value) {
+            if (!is_array($value))
+                continue;
+            if (!array_key_exists('store', $value))
+                continue;
+
+            $metaRow = TaxonomiesMeta::where('taxonomy_type', $taxonomy->taxonomy_type)
+                ->where('taxonomy_name', $taxonomy->name)
+                ->where('meta_name', $key)
+                ->first();
+
+            $valueToStore = $value['store'];
+            if(empty($valueToStore)) {
+                if($metaRow)
+                    $metaRow->delete();
+                return;
+            }
+
+            if (preg_match('/svg/i', $valueToStore)) {
+                $sanitizer = new Sanitizer();
+                $valueToStore = $sanitizer->sanitize($valueToStore);
+            }
+
+            if (empty($metaRow)) {
+                $metaRow = TaxonomiesMeta::create([
+                    'taxonomy_type' => $taxonomy->taxonomy_type,
+                    'taxonomy_name' => $taxonomy->name,
+                    'meta_name' => $key,
+                    'meta_value' => $valueToStore,
+                ]);
+            } else {
+                $metaRow->update([
+                    'meta_name' => $key,
+                    'meta_value' => $valueToStore
+                ]);
+            }
+
+            return $metaRow;
+        }
+    }
+
+    public function getMeta($taxonomies)
+    {
+        foreach ($taxonomies as $taxItemModel) {
+            $properties = TaxonomiesMeta::where('taxonomy_type', $taxItemModel->taxonomy_type)
+                ->where('taxonomy_name', $taxItemModel->name)
+                ->get(['meta_name', 'meta_value']);
+            $meta = [];
+            foreach ($properties as $prop) {
+                $meta[$prop->meta_name] = ['value' => $prop->meta_value];
+            }
+            $taxItemModel->meta = (object) $meta;
+        }
+        return $taxonomies;
     }
 
     public function handleDelete(Request $request, $taxType, $id = null)
@@ -148,6 +215,13 @@ class TaxonomiesController extends Controller
         $taxonomy = Taxonomy::find($id);
         if (empty($taxonomy))
             return ['error' => TaxonomiesExceptions::notExists(), 'code' => 400];
+
+        $meta = TaxonomiesMeta::where('taxonomy_type', $taxType)
+            ->where('taxonomy_name', $taxonomy->name)
+            ->get();
+        foreach ($meta as $row) {
+            $row->delete();
+        }
 
         $taxDeletedMessage = 'Успешно удалено: ' . $this->getTaxonomyTypeTitle($taxType) . ' "' . $taxonomy->name . '"';
         $taxonomy->delete();

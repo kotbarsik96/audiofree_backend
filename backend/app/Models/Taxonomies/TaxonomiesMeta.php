@@ -11,5 +11,10 @@ class TaxonomiesMeta extends Model
 
     protected $table = 'taxonomies_meta';
 
-    
+    protected $fillable = [
+        'taxonomy_type',
+        'taxonomy_name',
+        'meta_name',
+        'meta_value',
+    ];
 }

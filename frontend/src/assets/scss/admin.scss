@@ -380,9 +380,34 @@
         margin: 0 auto;
 
         svg {
-            width: 20px;
-            height: 20px;
+            width: 20px !important;
+            height: 20px !important;
             margin-right: 5px;
+        }
+    }
+
+    &__file-add {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &__label {
+            cursor: pointer;
+            display: inline-flex;
+        }
+
+        svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        span {
+            display: inline-block;
+            margin: 5px;
+        }
+
+        input {
+            display: none;
         }
     }
 
@@ -429,6 +454,13 @@
         .price-old {
             font-size: 17px;
             line-height: 19px;
+        }
+    }
+
+    td {
+        svg {
+            width: 30px;
+            height: 30px;
         }
     }
 

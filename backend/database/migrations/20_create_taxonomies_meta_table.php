@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('taxonomy_type');
             $table->string('taxonomy_name');
             $table->string('meta_name');
-            $table->string('meta_value');
+            $table->longText('meta_value');
             $table->timestamps();
 
             $table->foreign('taxonomy_type')

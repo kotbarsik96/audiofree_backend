@@ -55,7 +55,7 @@ const router = createRouter({
                     }
                 },
                 {
-                    path: 'taxonomies-control/:taxonomyName/:pageNumber?',
+                    path: 'taxonomies-control/:taxonomyType/:pageNumber?',
                     name: 'TaxonomiesControl',
                     component: () => import('@/views/admin/taxonomies/TaxonomiesControl.vue'),
                     meta: {
@@ -201,7 +201,7 @@ router.beforeEach(async (to) => {
             'category',
             'product_status'
         ]
-        if (!taxonomies.includes(to.params.taxonomyName))
+        if (!taxonomies.includes(to.params.taxonomyType))
             return { name: 'NotFound' }
     }
 

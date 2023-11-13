@@ -26,6 +26,7 @@ import StarIcon from '@/components/icons/StarIcon.vue'
 import SwipeIcon from '@/components/icons/SwipeIcon.vue'
 import TelegramIcon from '@/components/icons/TelegramIcon.vue'
 import TrashCanCircleIcon from '@/components/icons/TrashCanCircleIcon.vue'
+import TurnBackIcon from '@/components/icons/TurnBackIcon.vue'
 import UserIcon from '@/components/icons/UserIcon.vue'
 
 export default [
@@ -57,5 +58,6 @@ export default [
     { component: SwipeIcon, name: 'SwipeIcon' },
     { component: TelegramIcon, name: 'TelegramIcon' },
     { component: TrashCanCircleIcon, name: 'TrashCanCircleIcon' },
+    { component: TurnBackIcon, name: 'TurnBackIcon' },
     { component: UserIcon, name: 'UserIcon' },
 ]

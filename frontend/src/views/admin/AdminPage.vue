@@ -25,24 +25,24 @@
                             Таксономии
                         </template>
                         <li class="admin-page__nav-subitem">
-                            <RouterLink class="link" :to="{ name: 'TaxonomiesControl', params: { taxonomyName: 'brand' } }">
+                            <RouterLink class="link" :to="{ name: 'TaxonomiesControl', params: { taxonomyType: 'brand' } }">
                                 Бренды
                             </RouterLink>
                         </li>
                         <li class="admin-page__nav-subitem">
                             <RouterLink class="link"
-                                :to="{ name: 'TaxonomiesControl', params: { taxonomyName: 'category' } }">
+                                :to="{ name: 'TaxonomiesControl', params: { taxonomyType: 'category' } }">
                                 Категории
                             </RouterLink>
                         </li>
                         <li class="admin-page__nav-subitem">
-                            <RouterLink class="link" :to="{ name: 'TaxonomiesControl', params: { taxonomyName: 'type' } }">
+                            <RouterLink class="link" :to="{ name: 'TaxonomiesControl', params: { taxonomyType: 'type' } }">
                                 Типы
                             </RouterLink>
                         </li>
                         <li class="admin-page__nav-subitem">
                             <RouterLink class="link"
-                                :to="{ name: 'TaxonomiesControl', params: { taxonomyName: 'product_status' } }">
+                                :to="{ name: 'TaxonomiesControl', params: { taxonomyType: 'product_status' } }">
                                 Статусы товара
                             </RouterLink>
                         </li>

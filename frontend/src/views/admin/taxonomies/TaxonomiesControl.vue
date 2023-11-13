@@ -9,8 +9,8 @@
             </TextInputWrapper>
         </div>
         <div class="admin-page__listing" ref="tableContainer">
-            <AdminListTable v-model="list" v-model:selectedItems="selectedItems" :columnsCount="3" addable
-                ref="adminListTable" @deleteSelected="deleteAllSelected">
+            <AdminListTable v-model="list" v-model:selectedItems="selectedItems" :columnsCount="3 + metaFields.length"
+                addable ref="adminListTable" @deleteSelected="deleteAllSelected">
                 <template v-slot:containerHeading>
                     <span>
                         Список {{ taxonomyTitle.titleGenitive }} (всего: {{ totalCount }})
@@ -24,6 +24,9 @@
                 <template v-slot:thead>
                     <th></th>
                     <th>Название</th>
+                    <th v-for="field in metaFields">
+                        {{ field.title }}
+                    </th>
                     <th>Действие</th>
                 </template>
                 <tr v-for="(item, index) in list" :key="item.id" :class="{ '__not-saved': isCreated(item.id) }" ref="tr">
@@ -34,6 +37,20 @@
                     <td>
                         <textarea placeholder="Введите значение" v-model="list[index].name"
                             @keyup="adjustTextarea"></textarea>
+                    </td>
+                    <td v-for="field in metaFields">
+                        <div v-if="field.input.type === 'file'" class="admin-list-table__file-add">
+                            <label>
+                                <span v-if="hasMetaValue(index, field)" v-html="list[index].meta[field.name].value"></span>
+                                <PlusCircleIcon v-else></PlusCircleIcon>
+                                <input :type="field.input.type" @change="onMetaFileChange($event, field, index)">
+                            </label>
+                            <button v-if="hasMetaValue(index, field)"
+                                class="admin-list-table__control-button admin-list-table__control-button--delete ml-15"
+                                type="button" @click="removeMeta(field, index)">
+                                <TrashCanCircleIcon></TrashCanCircleIcon>
+                            </button>
+                        </div>
                     </td>
                     <td>
                         <button v-if="isUnsaved(item.id)"
@@ -50,7 +67,7 @@
             </AdminListTable>
             <ListPagination ref="paginationComponent" @updateLoaded="getSavedList" v-model="list" v-model:error="error"
                 v-model:isLoading="isLoading" v-model:count="totalCount" :loadLink="loadLink" :pagesLimit="8" :limit="10"
-                :filters="filters" allData>
+                :filters="filters" v-model:meta="taxonomyTypeData" allData>
             </ListPagination>
         </div>
     </div>
@@ -90,18 +107,19 @@ export default {
             error: '',
             selectedItems: [],
             list: [],
-            listSaved: {}
+            listSaved: {},
+            taxonomyTypeData: {}
         }
     },
     computed: {
         loadLink() {
-            return `${import.meta.env.VITE_TAXONOMIES_GET_LINK}/${this.taxonomyName}`
+            return `${import.meta.env.VITE_TAXONOMIES_GET_LINK}/${this.taxonomyType}`
         },
-        taxonomyName() {
-            return this.$route.params.taxonomyName
+        taxonomyType() {
+            return this.$route.params.taxonomyType
         },
         taxonomyTitle() {
-            switch (this.$route.params.taxonomyName) {
+            switch (this.taxonomyType) {
                 case 'brand':
                     return { title: 'Бренд', titleGenitive: 'брендов' }
                 case 'type':
@@ -112,6 +130,22 @@ export default {
                     return { title: 'Статус товара', titleGenitive: 'статусов товра' }
             }
         },
+        /* метаполя для таксономии */
+        metaFields() {
+            switch (this.taxonomyType) {
+                case 'brand':
+                    return [
+                        {
+                            name: 'icon',
+                            title: 'Иконка',
+                            input: { type: 'file' },
+                            filetype: 'image/svg+xml'
+                        }
+                    ]
+                default:
+                    return []
+            }
+        }
     },
     methods: {
         isCreated,
@@ -120,6 +154,11 @@ export default {
         adjustTextarea,
         getSavedList,
         isUnsaved,
+        hasMetaValue(index, field) {
+            return this.list[index].meta
+                && this.list[index].meta[field.name]
+                && this.list[index].meta[field.name].value
+        },
         async saveItem(id) {
             this.error = ''
 
@@ -130,10 +169,10 @@ export default {
             this.isLoading = true
             // добавить новый
             if (this.isCreated(id)) {
-                const link = `${import.meta.env.VITE_TAXONOMY_CREATE_LINK}${this.taxonomyName}`
+                const link = `${import.meta.env.VITE_TAXONOMY_CREATE_LINK}${this.taxonomyType}`
 
                 try {
-                    await axios.post(link, { name: item.name })
+                    await axios.post(link, item)
                     this.deleteFromArrays(id)
                     this.updateList()
                 } catch (err) {
@@ -143,10 +182,10 @@ export default {
             }
             // обновить существующий
             else {
-                const link = `${import.meta.env.VITE_TAXONOMY_UPDATE_LINK}${this.taxonomyName}/${id}`
+                const link = `${import.meta.env.VITE_TAXONOMY_UPDATE_LINK}${this.taxonomyType}/${id}`
 
                 try {
-                    await axios.post(link, { name: item.name })
+                    await axios.post(link, item)
                     this.updateList()
                 } catch (err) {
                     handleAjaxError(err, this)
@@ -163,7 +202,7 @@ export default {
                 }
                 // если это элемент из БД, удалить через бекенд
                 else {
-                    const link = `${import.meta.env.VITE_TAXONOMY_DELETE_LINK}${this.taxonomyName}/${itemId}`
+                    const link = `${import.meta.env.VITE_TAXONOMY_DELETE_LINK}${this.taxonomyType}/${itemId}`
 
                     try {
                         const res = await axios.delete(link)
@@ -213,7 +252,7 @@ export default {
                 })
 
                 if (idsList.length > 0) {
-                    const link = `${import.meta.env.VITE_TAXONOMY_DELETE_LINK}${this.taxonomyName}`
+                    const link = `${import.meta.env.VITE_TAXONOMY_DELETE_LINK}${this.taxonomyType}`
 
                     try {
                         const res = await axios.delete(link, { data: { idsList } })
@@ -241,6 +280,33 @@ export default {
                     }
                 )
             })
+        },
+        onMetaFileChange(event, field, index) {
+            const files = event.target.files || event.dataTransfer.files
+            if (!files[0]) {
+                delete this.list[index].meta[field.name]
+                return
+            }
+
+            if (!this.list[index].meta)
+                this.list[index].meta = {}
+            this.list[index].meta[field.name] = {}
+
+            if (field.filetype === 'image/svg+xml') {
+                const reader = new FileReader()
+                reader.onload = (event) => {
+                    const metaField = this.list[index].meta[field.name]
+                    metaField.value = event.target.result
+                    metaField.store = event.target.result
+                    const dt = new DataTransfer()
+                    event.target.files = dt.files
+                }
+                reader.readAsText(files[0])
+            }
+        },
+        removeMeta(field, index) {
+            this.list[index].meta[field.name].value = null
+            this.list[index].meta[field.name].store = null
         }
     },
     watch: {
