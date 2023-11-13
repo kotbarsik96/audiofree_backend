@@ -119,9 +119,6 @@ export default {
     },
     computed: {
         ...mapState(useIndexStore, ['favoritesCount']),
-        imageSrc() {
-            return `${import.meta.env.VITE_LINK}${this.product.image_path}`
-        },
         isSmallQuantity() {
             return this.product.available_quantity < 9 && this.product.available_quantity > 0
         },

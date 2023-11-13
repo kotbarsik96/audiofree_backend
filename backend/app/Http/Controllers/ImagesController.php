@@ -35,17 +35,24 @@ class ImagesController extends Controller
         $movePath = public_path('images');
 
         $uploaded = $request->image;
-        $imageName = substr(md5(time()), -8) . '_' . $uploaded->getClientOriginalName();
+        $nameWithoutExtension = pathinfo($uploaded->getClientOriginalName(), PATHINFO_FILENAME);
+        $imageNamePrefix = substr(md5(time()), -8) . '_';
+        $imageName = $imageNamePrefix . $uploaded->getClientOriginalName();
+        $imageNameWebp = $imageNamePrefix . $nameWithoutExtension . '.webp';
         $uploaded->move($movePath, $imageName);
 
         $image = ImageManager::make($movePath . '/' . $imageName);
         $filesizeKb = (int) ($image->filesize() / 1024);
 
-        $path = 'images/';
-        $path .= $imageName;
+        $path = 'images/' . $imageName;
+        $webpPath = 'images/' . $imageNameWebp;
+
+        $image->save(public_path($path), 50);
+        $image->save(public_path($webpPath), 100);
 
         return [
             'path' => $path,
+            'webp_path' => $webpPath,
             'size_kb' => $filesizeKb,
             'width' => $image->width(),
             'height' => $image->height(),
@@ -155,7 +162,9 @@ class ImagesController extends Controller
             return response(['error' => ImagesExceptions::noImage()->getMessage()], 400);
 
         $path = public_path() . '/' . $image->path;
+        $webpPath = public_path() . '/' . $image->webp_path;
         unlink($path);
+        unlink($webpPath);
 
         $image->delete();
 

@@ -5,7 +5,7 @@
                 {{ discountValue }}
             </div>
             <button class="product-card__expand-top circle-wrapper circle-wrapper--gray"
-                :class="{ '__active': isTopExpanded }" type="button" @click="expandTop">
+                :class="{ '__active': isTopExpanded }" aria-label="Показать дополнительную информацию и кнопки" type="button" @click="expandTop">
                 <PlusIcon></PlusIcon>
             </button>
             <div class="product-card__top" :class="{ '__expanded': isTopExpanded }">
@@ -13,7 +13,7 @@
             </div>
             <div class="product-card__image-container">
                 <RouterLink :to="{ name: 'Product', params: { productId: product.id } }">
-                    <img class="product-card__image" :src="imageSrc" :alt="product.name">
+                    <ImagePicture class="product-card__image" :obj="product" :alt="product.name"></ImagePicture>
                 </RouterLink>
             </div>
             <div class="product-card__star-rating-container">
@@ -68,7 +68,7 @@ export default injectShared(shared, {
                 return '-0%';
 
             const diff = this.product.price - this.product.discount_price
-            const diffPercent = diff / (this.product.price / 100)
+            const diffPercent = Math.floor(diff / (this.product.price / 100))
             return `-${diffPercent}%`
         }
     }

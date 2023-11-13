@@ -13,6 +13,7 @@ class Image extends Model
 
     protected $fillable = [
         'path',
+        'webp_path',
         'size_kb',
         'width',
         'height',
@@ -25,7 +26,6 @@ class Image extends Model
         return [
             'product_images',
             'products',
-            // 'users', позже будет добавлено
         ];
     }
 }

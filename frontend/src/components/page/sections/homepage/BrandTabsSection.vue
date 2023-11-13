@@ -251,10 +251,6 @@ export default {
         .product-cards__wrapper {
             margin-top: 0;
         }
-
-        .card {
-            max-height: 450px;
-        }
     }
 
     @media (max-width: 1199px) {

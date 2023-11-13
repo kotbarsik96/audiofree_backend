@@ -45,7 +45,7 @@
             <div class="container">
                 <div class="contact-block">
                     <DynamicAdaptive destinationSelector="#header-mobile-phone" :query="mobileMediaQuery">
-                        <a class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive" href="tel:81111111">
+                        <a class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive" href="tel:81111111" aria-label="Телефон">
                             <PhoneCallIcon></PhoneCallIcon>
                         </a>
                     </DynamicAdaptive>
@@ -55,7 +55,7 @@
                                 Бесплатный звонок по РФ
                             </div>
                             <div class="contact-block__value contact-block__value--bigger link">
-                                <a href="tel:81111111">8 111 111-11-11</a>
+                                <a href="tel:81111111" aria-label="Телефон">8 111 111-11-11</a>
                             </div>
                         </div>
                     </DynamicAdaptive>
@@ -69,7 +69,7 @@
                     <ul class="header__body-nav-list">
                         <li class="header__body-nav-item">
                             <DynamicAdaptive destinationSelector="#header-mobile-favorites" :query="mobileMediaQuery">
-                                <RouterLink class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive" :to="{ name: 'Favorites' }">
+                                <RouterLink class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive" :to="{ name: 'Favorites' }" aria-label="В избранное">
                                     <span class="circle-wrapper__number" v-if="favoritesCountComputed">
                                         {{ favoritesCountComputed }}
                                     </span>
@@ -79,7 +79,7 @@
                         </li>
                         <li class="header__body-nav-item">
                             <DynamicAdaptive destinationSelector="#header-mobile-cart" :query="mobileMediaQuery">
-                                <RouterLink :to="{ name: 'Cart' }" class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive">
+                                <RouterLink :to="{ name: 'Cart' }" class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive" aria-label="В корзину">
                                     <div class="circle-wrapper__number" v-if="cartCountComputed">
                                         {{ cartCountComputed }}
                                     </div>

@@ -22,7 +22,7 @@
                             {{ titles[index] }}
                         </h3>
                         <div class="bestsellers-slider__slide-image">
-                            <img :src="getImagePath(product.image_path)">
+                            <ImagePicture :obj="product" :alt="product.name"></ImagePicture>
                         </div>
                         <div class="bestsellers-slider__button-container">
                             <RouterLink class="button" :to="{ name: 'Product', params: { productId: product.id } }">

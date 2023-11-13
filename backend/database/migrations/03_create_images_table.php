@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('images', function (Blueprint $table) {
             $table->id();
             $table->string('path');
+            $table->string('webp_path');
             $table->integer('size_kb');
             $table->integer('width');
             $table->integer('height');

@@ -58,7 +58,7 @@ class ProductsFilter extends QueryFilter
         if (count($array) < 1)
             return;
 
-        $this->builder->whereIn($whereIn, $titles);
+        $this->builder->whereIn($whereIn, $array);
     }
 
     public function brands($titles = null)

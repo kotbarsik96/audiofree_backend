@@ -1,6 +1,6 @@
 <template>
     <main>
-        <!-- <BestsellersSlider></BestsellersSlider> -->
+        <BestsellersSlider></BestsellersSlider>
         <BrandTabsSection></BrandTabsSection>
     </main>
 </template>

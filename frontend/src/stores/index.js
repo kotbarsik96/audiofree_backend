@@ -8,6 +8,7 @@ axios.defaults.withCredentials = true
 export const useIndexStore = defineStore('index', {
     state: () => {
         return {
+            supportsWebp: false,
             isUserLogged: false,
             loadings: [],
             role: 999,
@@ -19,6 +20,18 @@ export const useIndexStore = defineStore('index', {
         }
     },
     actions: {
+        checkWebpSupport() {
+            let elem = document.createElement('canvas')
+
+            if (!!(elem.getContext && elem.getContext('2d'))) {
+                this.supportsWebp = elem.toDataURL('image/webp').indexOf('data:image/webp') == 0
+                return this.supportsWebp
+            }
+            else {
+                this.supportsWebp = false
+                return this.supportsWebp
+            }
+        },
         async getCsrfToken() {
             await axios.get(import.meta.env.VITE_TOKEN_LINK, { withCredentials: true })
             return true

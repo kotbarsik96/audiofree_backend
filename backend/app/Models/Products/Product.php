@@ -52,6 +52,7 @@ class Product extends FilterableModel
                 'products.product_status',
                 'products.description',
                 'images.path AS image_path',
+                'images.webp_path AS image_webp_path',
                 'images.id AS image_id',
                 DB::raw('avg(ratings.value) as rating_value'),
                 DB::raw('count(*) as rating_count')
@@ -136,7 +137,7 @@ class Product extends FilterableModel
             ->get(['product_info.id', 'product_info.name', 'product_info.value']);
         $images = ProductImage::leftJoin('images', 'product_images.image_id', '=', 'images.id')
             ->where('product_id', $product->id)
-            ->get(['product_images.id', 'images.id as image_id', 'images.path']);
+            ->get(['product_images.id', 'images.id as image_id', 'images.path', 'images.webp_path']);
         $variations = Variation::where('product_id', $product->id)
             ->get(['variations.id', 'variations.name']);
 

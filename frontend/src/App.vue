@@ -37,7 +37,9 @@ export default {
         }
     },
     async created() {
-        await useIndexStore().checkAuth()
+        const store = useIndexStore()
+        store.checkWebpSupport()
+        await store.checkAuth()
     },
     computed: {
         ...mapState(useIndexStore, ['isUserLogged', 'isPageLoading']),

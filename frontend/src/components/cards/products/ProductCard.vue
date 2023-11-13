@@ -1,7 +1,7 @@
 <template>
     <div class="card product-card">
         <div class="card__container product-card__container" v-if="product">
-            <button class="product-card__expand-top circle-wrapper" :class="{ '__active': isTopExpanded }" type="button"
+            <button class="product-card__expand-top circle-wrapper" :class="{ '__active': isTopExpanded }" aria-label="Показать дополнительную информацию и кнопки" type="button"
                 @click="expandTop">
                 <PlusIcon></PlusIcon>
             </button>
@@ -9,7 +9,7 @@
                 <InStockPlaceholder class="product-card__stock" type="in-stock"></InStockPlaceholder>
                 <div class="product-card__circle-buttons">
                     <button class="circle-wrapper circle-wrapper--shadow circle-wrapper--gray"
-                        :class="{ '__active': isInFavorites }" type="button" :disabled="isInFavorites === null"
+                        :class="{ '__active': isInFavorites }" aria-label="Добавить в избранное" type="button" :disabled="isInFavorites === null"
                         @click="toggleFavorite">
                         <HeartIcon></HeartIcon>
                     </button>
@@ -18,7 +18,7 @@
             </div>
             <div class="product-card__image-container">
                 <RouterLink class="link" :to="{ name: 'Product', params: { productId: product.id } }">
-                    <img class="product-card__image" :src="imageSrc" :alt="product.name">
+                    <ImagePicture class="product-card__image" :obj="product" :alt="product.name"></ImagePicture>
                 </RouterLink>
             </div>
             <div class="product-card__title">
