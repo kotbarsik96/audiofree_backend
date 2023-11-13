@@ -15,6 +15,15 @@ class ProductsFilter extends QueryFilter
         $this->builder->where('name', 'like', '%' . $value . '%');
     }
 
+    public function nameOrBrand($value = null)
+    {
+        if (empty($value))
+            return;
+
+        $this->builder->where('brand', 'like', '%' . $value . '%')
+            ->orWhere('name', 'like', '%' . $value . '%');
+    }
+
     public function current_price($value = null)
     {
         if (empty($value))

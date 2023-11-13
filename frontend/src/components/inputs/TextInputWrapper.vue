@@ -1,5 +1,5 @@
 <template>
-    <div class="text-input" :class="[containerClass, { '__focused': isFocused }]" :style="{
+    <div class="text-input" :class="[containerClass, { '__focused': isFocused, '__has-results': showResults }]" :style="{
         'width': computedWidth,
         'height': computedHeight
     }">
@@ -10,12 +10,16 @@
             <div v-if="$slots.icon" class="text-input__icon" ref="icon">
                 <slot name="icon"></slot>
             </div>
-            <TextInput v-model="value" :class="inputClass" ref="input" :style="inputStyle" :mask="mask" :maskSymbol="maskSymbol" :name="name"
-                :placeholder="placeholder" :type="type" :id="id" :autocomplete="autocomplete" :allowSymbols="allowSymbols"
-                :numberonly="numberonly" :regexpFlags="regexpFlags" :max="max" :modifiers="modifiers"></TextInput>
+            <TextInput v-model="value" :class="inputClass" ref="input" :style="inputStyle" :mask="mask"
+                :maskSymbol="maskSymbol" :name="name" :placeholder="placeholder" :type="type" :id="id"
+                :autocomplete="autocomplete" :allowSymbols="allowSymbols" :numberonly="numberonly"
+                :regexpFlags="regexpFlags" :max="max" :modifiers="modifiers" @focus="onFocus" @blur="onBlur"></TextInput>
             <div v-if="$slots.modsButton" class="text-input__mods" ref="modsButton">
                 <slot name="modsButton"></slot>
             </div>
+            <ul v-if="$slots.results" class="text-input__results">
+                <slot name="results"></slot>
+            </ul>
         </div>
         <Transition name="grow">
             <div v-if="$slots.error" class="text-input__error">
@@ -49,7 +53,9 @@ export default {
         width: String,
         height: String,
         max: [Number, String],
-        modifiers: [String, Array]
+        modifiers: [String, Array],
+        /* нужен для корректного вычисления computed.showResults. Рендер самих результатов делается через slot */
+        results: Array
     },
     components: {
         TextInput
@@ -59,7 +65,7 @@ export default {
             value: '',
             isFocused: false,
             modsButtonWidth: 15,
-            iconWidth: 15
+            iconWidth: 15,
         }
     },
     mounted() {
@@ -97,6 +103,9 @@ export default {
                 'padding-left': `${this.iconWidth}px` || null,
                 'padding-right': `${this.modsButtonWidth}px` || null,
             }
+        },
+        showResults() {
+            return Boolean(this.results && this.results.length > 0 && this.isFocused)
         }
     },
     methods: {
@@ -106,11 +115,9 @@ export default {
         },
         onFocus() {
             this.isFocused = true
-            this.doApplyModifiers()
         },
         onBlur() {
             this.isFocused = false
-            this.doApplyModifiers()
         },
         focus() {
             this.$refs.input.focus()
@@ -142,9 +149,9 @@ export default {
         value() {
             this.$emit('update:modelValue', this.value)
         },
-        modelValue(){
+        modelValue() {
             this.value = this.modelValue
-        }
+        },
     },
 }
 </script>
@@ -217,6 +224,65 @@ export default {
         font-size: 16px;
         margin-top: 10px;
         padding-left: 25px;
+    }
+}
+
+// results 
+.text-input {
+    &.__has-results &__input {
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    &.__has-results &__results {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    &__results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        max-height: 250px;
+        overflow: auto;
+        border-bottom-left-radius: var(--border_radius);
+        border-bottom-right-radius: 3px;
+        border: 1px solid #d9d9d9;
+        border-top: 0;
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    &__result-item {
+        display: flex;
+        font-size: 14px;
+        line-height: 16px;
+        font-weight: 500;
+        background-color: #fff;
+        padding: 10px 5px 5px 5px;
+        border-bottom: 1px solid #d9d9d9;
+        
+        &:last-child {
+            border-bottom: 0px;
+        }
+    }
+
+    &__result-item-image {
+        display: inline-block;
+        margin-right: 15px;
+        width: 50px;
+        height: 50px;
+    }
+
+    &__result-item-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .star-rating {
+        margin: 10px 0;
     }
 }
 </style>

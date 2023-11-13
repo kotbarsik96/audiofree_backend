@@ -9,7 +9,7 @@ import { nextTick } from 'vue'
 
 export default {
     name: 'TextInput',
-    emits: ['update:modelValue'],
+    emits: ['update:modelValue', 'focus', 'blur'],
     props: {
         name: {
             type: String,
@@ -59,7 +59,8 @@ export default {
     },
     data() {
         return {
-            value: ''
+            value: '',
+            isFocused: false
         }
     },
     computed: {
@@ -128,6 +129,12 @@ export default {
     methods: {
         focus() {
             this.$refs.input.focus()
+        },
+        onFocus(){
+            this.isFocused = true
+        },
+        onBlur(){
+            this.isFocused = false
         },
         onInput() {
             if (this.maxlength) {
@@ -220,6 +227,12 @@ export default {
                 this.value = this.modelValue
                 this.onInput()
             }
+        },
+        isFocused() {
+            if(this.isFocused)
+                return this.$emit('focus')
+            else 
+                return this.$emit('blur')
         }
     },
 }
