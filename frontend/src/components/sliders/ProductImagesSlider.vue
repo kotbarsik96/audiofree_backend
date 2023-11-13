@@ -1,20 +1,21 @@
 <template>
     <div>
         <template v-if="isMobile">
-            <Swiper ref="swiperContainer">
-                <SwiperSlide v-for="path in images" :key="path">
-                    <img :src="getImagePath(path)" :alt="path" ref="sliderSlideImage">
+            <Swiper ref="swiperContainer" @swiper="onSwiper">
+                <SwiperSlide v-for="(obj, index) in product.images" :key="obj.id" :data-index="index">
+                    <ImagePicture :obj="obj" :alt="obj.path" ref="sliderSlideImage"></ImagePicture>
                 </SwiperSlide>
             </Swiper>
         </template>
         <template v-else>
             <div class="product-page__main-image">
-                <img :src="getImagePath(selectedImage)" :alt="selectedImage || ''">
+                <ImagePicture :obj="selectedImage" :alt="selectedImage.path"></ImagePicture>
             </div>
         </template>
         <ul class="product-page__images-list">
-            <li class="product-page__image-item" v-for="path in images" :key="path" @click="selectedImage = path">
-                <img :src="getImagePath(path)" :alt="path">
+            <li class="product-page__image-item" v-for="(obj, index) in product.images" :key="obj.id"
+                @click="selectedImageIndex = index">
+                <ImagePicture :obj="obj" :alt="obj.path" ref="sliderSlideImage"></ImagePicture>
             </li>
         </ul>
     </div>
@@ -29,6 +30,10 @@ export default {
     name: 'ProductImagesSlider',
     props: {
         images: Array,
+        product: {
+            type: Object,
+            required: true
+        }
     },
     components: {
         Swiper,
@@ -36,7 +41,8 @@ export default {
     },
     data() {
         return {
-            selectedImage: this.images[0],
+            selectedImageIndex: 0,
+            swiper: null,
             matchMediaMatches: {
                 max: {
                     '849': false
@@ -48,23 +54,23 @@ export default {
         isMobile() {
             return this.matchMediaMatches.max['849']
         },
+        selectedImage() {
+            return this.product.images[this.selectedImageIndex] || {}
+        }
     },
     methods: {
         setMatchMedia,
-        getImagePath
+        getImagePath,
+        onSwiper(swiper) {
+            this.swiper = swiper
+        }
     },
     watch: {
-        selectedImage() {
-            if (!this.selectedImage && this.images[0])
-                this.selectedImage = this.images[0]
-
+        selectedImageIndex(index) {
             const swiperInst = this.$refs.swiperContainer
-                ? this.$refs.swiperContainer.swiper : null
             if (swiperInst) {
-                const imageIndex = this.$refs.sliderSlideImage
-                    .findIndex(img => img.getAttribute('src').includes(this.selectedImage))
-                if (imageIndex >= 0)
-                    swiperInst.slideTo(imageIndex)
+                if (index >= 0 && this.swiper)
+                    this.swiper.slideTo(index)
             }
         }
     },

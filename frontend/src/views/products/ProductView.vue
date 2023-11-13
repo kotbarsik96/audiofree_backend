@@ -2,7 +2,7 @@
     <div class="container">
         <div class="product-page" v-if="product">
             <div class="product-page__main">
-                <ProductImagesSlider class="product-page__images-container" :images="gallery"></ProductImagesSlider>
+                <ProductImagesSlider class="product-page__images-container" :product="product"></ProductImagesSlider>
                 <div class="product-page__breadcrumbs breadcrumbs">
                     <RouterLink class="breadcrumbs__link link" :to="{ name: 'Home' }">
                         Главная
@@ -112,7 +112,9 @@
                     Другие товары бренда
                 </h3>
                 <div class="product-cards">
-                    <ProductCard v-for="product in brandOtherProducts" :productData="product"></ProductCard>
+                    <div class="product-cards__wrapper">
+                        <ProductCard v-for="product in brandOtherProducts" :productData="product"></ProductCard>
+                    </div>
                 </div>
             </div>
         </div>
@@ -236,13 +238,14 @@ export default {
                 const res = await axios.get(link, {
                     params: {
                         except: [this.product.id],
-                        brand: this.product.brand,
+                        brands: this.product.brand,
                         limit: 4
                     }
                 })
                 if (Array.isArray(res.data.result))
                     this.brandOtherProducts = res.data.result
-            } catch (err) { }
+            } catch (err) { 
+            }
         },
         async updateProduct() {
             try {
@@ -368,7 +371,7 @@ export default {
     },
     mounted() {
         this.product = this.$route.meta.product
-        // this.loadBrandOtherProducts()
+        this.loadBrandOtherProducts()
     },
     beforeRouteUpdate() {
         this.$emit('updateRouteKey')
