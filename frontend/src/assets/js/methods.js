@@ -133,14 +133,23 @@ export async function addToCart(productId, cart = {}) {
     store.toggleLoading('addToCart', false)
 }
 
-export function getImagePath(path) {
-    if (!path)
+export function getImagePath(pathOrObject, extension = null) {
+    if (!pathOrObject)
         return '#'
 
-    return `${import.meta.env.VITE_LINK}${path}`
+    let path = pathOrObject
+    if (typeof pathOrObject === 'object') {
+        path = pathOrObject.image_path || pathOrObject.path
+        if (!extension)
+            extension = pathOrObject.image_extension || pathOrObject.extension
+    }
+    if (!path || !extension)
+        return '#'
+
+    return `${import.meta.env.VITE_LINK}${path}.${extension}`
 }
 
-export function capitalizeFirstLetter(string){
+export function capitalizeFirstLetter(string) {
     return string.split('')
         .map((letter, i) => i === 0 ? letter.toUpperCase() : letter)
         .join('')

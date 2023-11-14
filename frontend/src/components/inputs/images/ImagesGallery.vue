@@ -18,7 +18,7 @@
                         <button class="images-gallery__edit" type="button" @click="openExplorer(obj)">
                             <PencilIcon></PencilIcon>
                         </button>
-                        <img class="images-gallery__image" :src="getSrc(obj.path)" :alt="obj.id">
+                        <ImagePicture class="images-gallery__image" :obj="obj" :alt="obj.id.toString()"></ImagePicture>
                     </div>
                     <div class="images-gallery__image-path">
                         {{ obj.path }}
@@ -216,9 +216,6 @@ export default {
             const dt = new DataTransfer()
             this.$refs.input.files = dt.files
         },
-        getSrc(path) {
-            return `${import.meta.env.VITE_LINK}${path}`
-        }
     },
     mounted() {
         document.addEventListener('click', this.onDocumentClick)

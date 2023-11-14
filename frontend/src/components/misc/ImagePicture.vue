@@ -34,25 +34,13 @@ export default {
             if (this.path)
                 return this.path
 
-            const keys = ['image_path', 'path', 'image']
-            for (let key of keys) {
-                if (this.obj[key])
-                    return getImagePath(this.obj[key])
-            }
-
-            return '#'
+            return getImagePath(this.obj)
         },
         webpSrc() {
             if (this.webpPath)
                 return this.webpPath
 
-            const keys = ['image_webp_path', 'webp_path', 'image_webp']
-            for (let key of keys) {
-                if (this.obj[key])
-                    return getImagePath(this.obj[key])
-            }
-
-            return this.noWebpSrc
+            return getImagePath(this.obj, 'webp')
         }
     },
 }

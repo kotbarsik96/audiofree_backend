@@ -89,9 +89,10 @@ export default {
         width: 470px;
         height: 470px;
         padding: 20px;
-        align-items: flex-start;
+        display: flex;
+        align-items: center;
 
-        img {
+        picture, img {
             width: 100%;
             height: 100%;
             object-fit: contain;
@@ -115,6 +116,8 @@ export default {
         padding: 15px;
         margin-right: 17px;
         margin-bottom: 20px;
+        display: flex;
+        align-items: center;
 
         &:last-child {
             margin-right: 0;
@@ -139,7 +142,7 @@ export default {
             justify-content: center;
         }
 
-        .swiper-slide img {
+        .swiper-slide picture {
             width: 500px;
             height: 465px;
             object-fit: contain;

@@ -1,7 +1,7 @@
 <template>
     <section class="section section--theme-colored pdt-90 pdb-55" v-if="!hideSection">
         <div class="bestsellers-slider">
-            <Swiper :modules="[Pagination, EffectFlip]" effect="flip" :pagination="{
+            <Swiper :class="{ 'swiper-container--one-slide': bestsellers.length <= 1 }" :modules="[Pagination, EffectFlip]" effect="flip" :pagination="{
                 clickable: true,
                 bulletClass: 'bestsellers-slider__bullet',
                 bulletActiveClass: 'bestsellers-slider__bullet--active',

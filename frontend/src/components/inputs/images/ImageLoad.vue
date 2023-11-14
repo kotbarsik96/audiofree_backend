@@ -11,11 +11,11 @@
         <div class="image-load__wrapper" @click="openExplorer">
             <LoadingScreen v-if="isLoading"></LoadingScreen>
             <Transition name="scale-up" mode="out-in">
-                <div v-if="modelValue" class="image-load__container">
+                <div v-if="modelValue.path" class="image-load__container">
                     <button class="image-load__remove" type="button" @click.stop="removeImage">
                         <TrashCanCircleIcon></TrashCanCircleIcon>
                     </button>
-                    <img class="image-load__image" :src="src" :alt="alt">
+                    <ImagePicture class="image-load__image" :obj="this.modelValue" :alt="alt"></ImagePicture>
                 </div>
                 <div v-else class="image-load__icon">
                     <PlusCircleIcon></PlusCircleIcon>
@@ -40,7 +40,7 @@ export default {
     emits: ['update:modelValue', 'update:id'],
     props: {
         modelValue: {
-            type: String,
+            type: Object,
             required: true
         },
         id: {
@@ -64,11 +64,6 @@ export default {
             isLoading: false
         }
     },
-    computed: {
-        src() {
-            return `${import.meta.env.VITE_LINK}${this.modelValue}`
-        }
-    },
     methods: {
         openExplorer() {
             this.$refs.input.click()
@@ -90,7 +85,7 @@ export default {
             try {
                 const res = await axios.post(import.meta.env.VITE_IMAGE_LOAD_LINK, data)
                 if (res.data.path) {
-                    this.$emit('update:modelValue', res.data.path)
+                    this.$emit('update:modelValue', res.data)
                     this.$emit('update:id', res.data.id)
                 }
             } catch (err) {
@@ -112,7 +107,7 @@ export default {
             try {
                 const res = await axios.delete(link)
                 if (res.data.success)
-                    this.$emit('update:modelValue', '')
+                    this.$emit('update:modelValue', {})
                 this.$emit('update:id', 0)
             } catch (err) {
                 this.error = err.response.data.error

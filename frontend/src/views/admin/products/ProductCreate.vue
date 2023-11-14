@@ -111,7 +111,7 @@
             </Transition>
         </div>
         <div class="admin-page__creation-image">
-            <ImageLoad v-model="input.image.path" v-model:id="input.image.id">
+            <ImageLoad v-model="input.image" v-model:id="input.image.id">
                 <template v-slot:title>
                     Главное изображение (рекомендуется без фона)
                 </template>
@@ -294,14 +294,16 @@ export default {
                 })
             this.input.description = JSON.parse(this.productData.description)
             this.input.image = {
+                id: this.productData.image_id || 0,
                 path: this.productData.image_path,
-                id: this.productData.image_id
+                extension: this.productData.image_extension,
             }
             this.input.images = this.productData.images
                 .map(obj => {
                     return {
                         id: obj.image_id,
-                        path: obj.path
+                        path: obj.image_path,
+                        extension: obj.image_extension
                     }
                 })
 

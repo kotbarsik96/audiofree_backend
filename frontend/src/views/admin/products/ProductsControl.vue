@@ -82,7 +82,7 @@
                             :value="item.id" v-model="selectedItems"></CheckboxLabel>
                     </td>
                     <td>
-                        <img :src="getImageSrc(item.image_path)" :alt="item.image_path">
+                        <ImagePicture :obj="item" :alt="item.image_path"></ImagePicture>
                     </td>
                     <td>
                         {{ item.name }}
