@@ -53,7 +53,14 @@ class ImagesController extends Controller
 
     public function uploadImage(Request $request)
     {
-        $movePath = public_path('images');
+        $user = User::authenticate($request);
+        if (empty($user))
+            return;
+
+        $movePathRelative = 'images/gallery/' . $user->id;
+        $movePath = public_path($movePathRelative) . '/';
+        if (!is_dir($movePath))
+            mkdir($movePath, 0777, true);
         $warning = null;
 
         $canUploadToSubpath = User::hasRight(
@@ -69,22 +76,25 @@ class ImagesController extends Controller
         $imageNameWebp = $imageNamePrefix . $nameWithoutExtension . '.webp';
         $uploaded->move($movePath, $imageName);
 
-        $image = ImageManager::make($movePath . '/' . $imageName);
+        $image = ImageManager::make($movePath . $imageName);
         $filesizeKb = (int) ($image->filesize() / 1024);
 
         $path
-            = $webpPath = 'images/';
+            = $webpPath = $movePathRelative . '/';
 
         // попытка загрузить в subpath, если у пользователя есть на это права и если это не запрещенный путь из Image::$forbiddenPaths
         if ($request->subpath && $canUploadToSubpath) {
-            if (Image::isForbiddenSubpath($path . $request->subpath))
+            $subpath = 'images/' . $request->subpath;
+            if (!preg_match('/\/$/', $subpath))
+                $subpath .= '/';
+            if (Image::isForbiddenSubpath($subpath))
                 $warning = 'Невозможно добавить изображение в этот каталог';
             else {
-                $path .= $request->subpath . $imageName;
-                $webpPath .= $request->subpath . $imageNameWebp;
+                $path = $subpath . $imageName;
+                $webpPath = $subpath . $imageNameWebp;
             }
         } else {
-            $warning = 'У вас нет прав для добавления изображения в этот каталог. Оно будет сохранено по пути images/' . $imageName;
+            $warning = 'У вас нет прав для добавления изображения в этот каталог. Оно будет сохранено по пути ' . $movePathRelative;
             $path .= $imageName;
             $webpPath .= $imageNameWebp;
         }
@@ -239,8 +249,10 @@ class ImagesController extends Controller
 
         $image->delete();
 
-        if (count(scandir(dirname($path))) <= 2) {
-            rmdir(dirname($path));
+        if (is_dir(dirname($path))) {
+            if (count(scandir(dirname($path))) <= 2) {
+                rmdir(dirname($path));
+            }
         }
 
         return ['success' => true];
