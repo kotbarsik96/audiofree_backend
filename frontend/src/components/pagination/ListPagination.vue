@@ -113,10 +113,23 @@ export default {
             return this.pagesLimit
         },
         currentPageNumber() {
-            if (this.noRouter)
-                return parseInt(this.noRouterPageNumber) || 1
+            const num = this.noRouter
+                ? parseInt(this.noRouterPageNumber)
+                : parseInt(this.$route.params.pageNumber)
 
-            return parseInt(this.$route.params.pageNumber) || 1
+            if (isNaN(num))
+                return 1
+            if (this.pagesCount < num) {
+                if (!this.noRouter) {
+                    this.$router.push({
+                        name: this.$route.name,
+                        params: { pageNumber: this.pagesCount || 1 }
+                    })
+                }
+                return this.pagesCount || 1
+            }
+
+            return num
         },
         visiblePages() {
             const array = []
@@ -186,7 +199,6 @@ export default {
                     this.$emit('update:error', 'Произошла ошибка')
                 }
             } catch (err) {
-                console.log(err);
                 const data = err.response.data
                 if (data.error)
                     this.$emit('update:error', data.error)
