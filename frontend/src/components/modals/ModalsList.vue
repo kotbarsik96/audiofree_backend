@@ -1,7 +1,7 @@
 <template>
     <Transition name="modals-list">
-        <div v-if="firstModal" class="modals-list">
-            <Transition name="modal">
+        <div v-if="firstModal" class="modals-list" ref="modalsList">
+            <Transition name="modal" mode="out-in">
                 <component :is="firstModal.component" :modalId="firstModal.id" ref="modalComponent"></component>
             </Transition>
         </div>
@@ -13,6 +13,7 @@ import RegisterModal from '@/components/modals/auth/AuthModal.vue'
 import { mapState, mapActions } from 'pinia'
 import { useModalsStore } from '@/stores/modals.js'
 import { nextTick } from 'vue'
+import { useIndexStore } from '@/stores/'
 
 export default {
     name: 'ModalsList',
@@ -21,7 +22,7 @@ export default {
     },
     data() {
         return {
-
+            observer: null
         }
     },
     created() {
@@ -51,6 +52,15 @@ export default {
                 modalEl.style.alignSelf = 'flex-start'
             else
                 modalEl.style.alignSelf = 'center'
+        }
+    },
+    watch: {
+        async firstModal() {
+            if (this.firstModal) {
+                useIndexStore().toggleScroll('modals-list', true, true)
+            } else {
+                useIndexStore().toggleScroll('modals-list', false)
+            }
         }
     },
     mounted() {
@@ -101,6 +111,7 @@ export default {
     align-items: center;
     justify-content: center;
     padding: 20px;
+    overflow: auto;
     background-color: rgba(0, 0, 0, .5);
 }
 

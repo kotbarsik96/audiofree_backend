@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { currentRoute } from '@/router/'
 import axios from 'axios'
 import { useNotificationsStore } from '@/stores/notifications.js'
+import { getScrollWidth } from '@/assets/js/scripts.js'
 
 axios.defaults.withCredentials = true
 
@@ -16,7 +17,8 @@ export const useIndexStore = defineStore('index', {
             products: [],
             cart: [],
             cartOneClick: [],
-            favorites: []
+            favorites: [],
+            lockScrollBy: []
         }
     },
     actions: {
@@ -254,6 +256,22 @@ export const useIndexStore = defineStore('index', {
             }
 
             this.toggleLoading(`loadEntity_${entityName}`, false)
+        },
+        toggleScroll(by, isLock = false, isUniqueBy = false) {
+            if (isLock) {
+                const scrollWidth = getScrollWidth()
+                document.body.classList.add('__locked-scroll')
+                if (!isUniqueBy || (isUniqueBy && !this.lockScrollBy.includes(by)))
+                    this.lockScrollBy.push(by)
+                document.body.style.paddingRight = `${scrollWidth}px`
+            } else {
+                this.lockScrollBy = this.lockScrollBy.filter(s => s !== by)
+            }
+
+            if (this.lockScrollBy.length < 1) {
+                document.body.classList.remove('__locked-scroll')
+                document.body.style.removeProperty('padding-right')
+            }
         }
     },
     getters: {
