@@ -79,6 +79,7 @@ export default {
         /* фильтры: { name: value } */
         filters: Object,
         allData: Boolean,
+        noRouter: Boolean
     },
     data() {
         return {
@@ -93,12 +94,13 @@ export default {
                     '479': false,
                     '399': false
                 }
-            }
+            },
+            noRouterPageNumber: 1
         }
     },
     computed: {
         pagesCount() {
-            return Math.floor(this.totalCount / this.limit)
+            return Math.ceil(this.totalCount / this.limit)
         },
         pagesLimitComputed() {
             if (this.matchMediaMatches.max['399'])
@@ -111,6 +113,9 @@ export default {
             return this.pagesLimit
         },
         currentPageNumber() {
+            if (this.noRouter)
+                return parseInt(this.noRouterPageNumber) || 1
+
             return parseInt(this.$route.params.pageNumber) || 1
         },
         visiblePages() {
@@ -181,6 +186,7 @@ export default {
                     this.$emit('update:error', 'Произошла ошибка')
                 }
             } catch (err) {
+                console.log(err);
                 const data = err.response.data
                 if (data.error)
                     this.$emit('update:error', data.error)
@@ -198,7 +204,11 @@ export default {
                     value = 1
                 if (value > this.pagesCount)
                     value = this.pagesCount
-                this.$router.push({ name, params: { pageNumber: value } })
+
+                if (this.noRouter)
+                    this.noRouterPageNumber = value
+                else
+                    this.$router.push({ name, params: { pageNumber: value } })
             }
             else {
                 let newNumber = this.currentPageNumber
@@ -213,8 +223,15 @@ export default {
                         if (newNumber > this.pagesCount)
                             newNumber = this.pagesCount
                         break
+                    case 'last':
+                        newNumber = this.pagesCount
+                        break
                 }
-                this.$router.push({ name, params: { pageNumber: newNumber } })
+
+                if (this.noRouter)
+                    this.noRouterPageNumber = newNumber
+                else
+                    this.$router.push({ name, params: { pageNumber: newNumber } })
             }
         },
         trimList() {
@@ -230,7 +247,7 @@ export default {
         showPaginationEllipsis(side) {
             switch (side) {
                 case 'start':
-                    return this.visiblePages[0] > 1
+                    return this.visiblePages[0] > 1 && this.pagesCount >= this.pagesLimitComputed
                 case 'end':
                     return this.pagesCount > this.pagesLimitComputed
                         && this.visiblePages[this.visiblePages.length - 1] !== this.pagesCount
@@ -271,7 +288,7 @@ export default {
 
                 this.filtersApplyTimeout = setTimeout(() => {
                     this.loadList()
-                    this.$router.push({ name: this.$route.name, params: { pageNumber: 1 } })
+                    this.setPage(1)
                 }, 1500)
             }
         }

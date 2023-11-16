@@ -5,6 +5,14 @@
                 {{ errorMessage }}
             </div>
         </Transition>
+        <Transition name="grow">
+            <div class="images-gallery__buttons" v-if="modelValue.length > 0">
+                <button class="images-gallery__remove-multiple" v-if="selectedItems.length > 0 && modelValue.length > 0"
+                    type="button" @click.stop="removeSelected">
+                    <TrashCanCircleIcon></TrashCanCircleIcon>
+                </button>
+            </div>
+        </Transition>
         <ul class="images-gallery__list" ref="galleryList">
             <LoadingScreen v-if="isLoading"></LoadingScreen>
             <TransitionGroup name="grow">
@@ -20,13 +28,19 @@
                         </button>
                         <ImagePicture class="images-gallery__image" :obj="obj" :alt="obj.id.toString()"></ImagePicture>
                     </div>
-                    <div class="images-gallery__image-path">
-                        {{ obj.path }}
+                    <div class="images-gallery__image-original-name">
+                        <span>
+                            {{ obj.original_name }}
+                        </span>
+                        <span v-if="obj.uploader_email">
+                            <br>
+                            ({{ obj.uploader_email }})
+                        </span>
                     </div>
                 </li>
             </TransitionGroup>
             <li class="images-gallery__add-image">
-                <button type="button" @click="openExplorer(null)">
+                <button type="button" @click="onAddClick()">
                     <PlusCircleIcon></PlusCircleIcon>
                 </button>
             </li>
@@ -40,28 +54,35 @@
 import axios from 'axios'
 import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import { nextTick } from 'vue'
+import { handleAjaxError } from '@/assets/js/scripts.js'
+import { useModalsStore } from '@/stores/modals.js'
+import ConfirmModal from '@/components/modals/ConfirmModal.vue'
+import { h } from 'vue'
 
 export default {
     name: 'ImagesGallery',
     props: {
-        /* modelValue[i]: { id: Number, path: String,  } */
         modelValue: {
             type: Array,
-            required: true,
             validator(arr) {
                 for (let obj of arr) {
                     if (!obj.id || typeof obj.id !== 'number')
                         return false
-                    if (!obj.path || typeof obj.path !== 'string')
+                    if (!obj.original_name || typeof obj.original_name !== 'string')
                         return false
                 }
                 return true
-            }
+            },
+            default: []
         },
+        isSubgallery: Boolean,
+        selected: Array,
+        singleSelect: Boolean
     },
     components: {
         LoadingScreen
     },
+    emits: ['update:modelValue', 'update:selected'],
     data() {
         return {
             error: '',
@@ -71,23 +92,15 @@ export default {
             updatingImage: null
         }
     },
-    computed: {
-        errorMessage() {
-            if (this.error.length > 0)
-                return this.error
-
-            if (Array.isArray(this.errors.image) && this.errors.image[0])
-                return this.errors.image[0]
-
-            return ''
-        },
-        selectedItemsData() {
-            return this.selectedItems
-                .map(id => this.modelValue.find(obj => obj.id === id))
-                .filter(obj => obj)
-        }
-    },
     methods: {
+        nullifyFileList() {
+            const dt = new DataTransfer()
+            this.$refs.input.files = dt.files
+        },
+        nullifyErrors() {
+            this.errors = []
+            this.error = ''
+        },
         onDocumentClick(event) {
             const gallItem = event.target.closest('.images-gallery__item')
             if (!gallItem)
@@ -96,7 +109,7 @@ export default {
         onItemPointerdown(event, imageId) {
             const index = this.selectedItems.indexOf(imageId)
 
-            if (!event.ctrlKey)
+            if (!event.ctrlKey || this.singleSelect)
                 this.selectedItems = []
 
             if (index >= 0) {
@@ -105,14 +118,52 @@ export default {
                 this.selectedItems.push(imageId)
             }
         },
+        onAddClick() {
+            if (this.isSubgallery) {
+                const component = h(ConfirmModal, {
+                    onlyConfirm: true,
+                    confirmProps: {
+                        text: 'Загрузить из галереи на сайте',
+                        callback: this.createModalGallery
+                    },
+                    confirmButtons: [
+                        {
+                            text: 'Загрузить с устройства',
+                            callback: () => this.openExplorer()
+                        }
+                    ]
+                })
+                useModalsStore().addModal({ component })
+            } else
+                this.openExplorer()
+        },
+        async createModalGallery() {
+            const callback = (modalCtx, selectedIds, selectedGallery) => {
+                if (selectedIds.length < 1)
+                    return
+
+                const updatedModelValue = this.concatToModelValue({ result: selectedGallery })
+                this.$emit('update:modelValue', updatedModelValue)
+            }
+
+            useModalsStore().addModal({
+                component: 'GalleryModal',
+                props: {
+                    title: 'Изображение для товара',
+                    confirmData: { callback }
+                }
+            })
+        },
         openExplorer(obj = null) {
             this.updatingImage = obj
             // nextTick(), чтобы успел примениться атрибут multiple
             nextTick().then(() => this.$refs.input.click())
         },
-        nullifyErrors() {
-            this.errors = []
-            this.error = ''
+        concatToModelValue(resData) {
+            const array = Array.isArray(resData.result) ? resData.result : [resData]
+            return this.modelValue
+                .filter(obj => !array.find(o => o.id === obj.id))
+                .concat(array)
         },
         async onChange() {
             if (this.updatingImage) {
@@ -131,50 +182,16 @@ export default {
 
             try {
                 const res = await axios.post(import.meta.env.VITE_IMAGE_LOAD_LINK, data)
-                if (Array.isArray(res.data.images))
-                    this.$emit('update:modelValue', this.modelValue.concat(res.data.images))
-                if (res.data.error) {
-                    if (typeof res.data.error === 'string')
-                        this.error = res.data.error
-                    else if (typeof res.data.error === 'object')
-                        this.errors = res.data.error
-                }
-            } catch (err) {
-                const data = err.response.data
-                if (data.errors && typeof data.errors === 'object')
-                    this.errors = data.errors
+                if (res.data.error)
+                    throw new Error({ response: res })
 
-                if (data.error)
-                    this.error = data.error
+                const updatedModelValue = this.concatToModelValue(res.data)
+                this.$emit('update:modelValue', updatedModelValue)
+            } catch (err) {
+                handleAjaxError(err, this)
             }
 
             this.nullifyFileList()
-            this.isLoading = false
-        },
-        async removeImage(obj) {
-            this.nullifyErrors()
-            this.isLoading = true
-            const link = `${import.meta.env.VITE_IMAGE_DELETE_LINK}${obj.id}`
-            try {
-                const res = await axios.delete(link)
-                if (res.data.success) {
-                    const updatedModelValue = [...this.modelValue]
-                    const index = updatedModelValue.findIndex(o => o.id === obj.id)
-                    if (index >= 0) {
-                        updatedModelValue.splice(index, 1)
-                        this.$emit('update:modelValue', updatedModelValue)
-                    }
-                }
-            } catch (err) {
-                const data = err.response.data
-                if (data.error)
-                    this.error = data.error
-                else if (data.errors && typeof data.errors === 'object')
-                    this.errors = data.errors
-                else
-                    this.error = 'Произошла ошибка'
-            }
-
             this.isLoading = false
         },
         async updateImage() {
@@ -191,31 +208,97 @@ export default {
             const link = `${import.meta.env.VITE_IMAGE_UPDATE_LINK}${this.updatingImage.id}`
             try {
                 const res = await axios.post(link, data)
-                if (res.data.id) {
-                    const updatedModelValue = this.modelValue.map(obj => {
-                        if (obj.id !== res.data.id)
-                            return obj
-                        return res.data
-                    })
-                    this.$emit('update:modelValue', updatedModelValue)
-                }
+                const updatedModelValue = this.concatToModelValue(res.data)
+                this.$emit('update:modelValue', updatedModelValue)
             } catch (err) {
-                const data = err.response.data
-                if (data.error)
-                    this.error = data.error
-
-                if (data.errors)
-                    this.errors = data.errors
+                handleAjaxError(err, this)
             }
 
             this.nullifyFileList()
             this.isLoading = false
             this.updatingImage = null
         },
-        nullifyFileList() {
-            const dt = new DataTransfer()
-            this.$refs.input.files = dt.files
+        async removeSelected() {
+            this.nullifyErrors()
+
+            const updatedModelValue = this.modelValue
+                .filter(obj => !this.selectedItems.includes(obj.id))
+            // если подгалерея - уберет только из подгалереи
+            if (this.isSubgallery)
+                this.$emit('update:modelValue', updatedModelValue)
+            // в обычной галерее пошлет запрос на бекенд на удаление изображения с сервера
+            else {
+                this.isLoading = true
+
+                const link = `${import.meta.env.VITE_IMAGE_DELETE_LINK}`
+                try {
+                    const res = await axios.delete(link, {
+                        data: {
+                            idsList: this.selectedItems
+                        }
+                    })
+                    if (!res.data.success)
+                        throw new Error()
+
+                    this.$emit('update:modelValue', updatedModelValue)
+                } catch (err) {
+                    handleAjaxError(err, this)
+                }
+
+                this.isLoading = false
+            }
+
+            this.selectedItems = []
         },
+        async removeImage(obj) {
+            const updatedModelValue = this.modelValue.filter(o => o.id !== obj.id)
+            // в подгалерее удалит только из подгалереи, НЕ удалит с сервера
+            if (this.isSubgallery) {
+                this.$emit('update:modelValue', updatedModelValue)
+                return
+            }
+
+            // в обычной галерее пошлет запрос на удаление на сервер
+            this.nullifyErrors()
+            this.isLoading = true
+
+            const link = `${import.meta.env.VITE_IMAGE_DELETE_LINK}${obj.id}`
+            try {
+                const res = await axios.delete(link)
+                if (!res.data.success)
+                    throw new Error()
+
+                this.$emit('update:modelValue', updatedModelValue)
+            } catch (err) {
+                handleAjaxError(err, this)
+            }
+
+            this.isLoading = false
+        },
+    },
+    computed: {
+        errorMessage() {
+            if (this.error.length > 0)
+                return this.error
+
+            if (Array.isArray(this.errors.image) && this.errors.image[0])
+                return this.errors.image[0]
+
+            return ''
+        },
+        selectedItemsData() {
+            return this.selectedItems
+                .map(id => this.modelValue.find(obj => obj.id === id))
+                .filter(obj => obj)
+        },
+    },
+    watch: {
+        selectedItems: {
+            deep: true,
+            handler() {
+                this.$emit('update:selected', this.selectedItems)
+            }
+        }
     },
     mounted() {
         document.addEventListener('click', this.onDocumentClick)
@@ -229,17 +312,25 @@ export default {
 <style lang="scss">
 .images-gallery {
     --background_color: #f4f4f4;
+    position: relative;
+    display: inline-block;
+    min-width: 700px;
 
     &__list {
         overflow: hidden;
         position: relative;
         background-color: var(--background_color);
-        padding: 20px;
+        padding: 50px 20px 20px 20px;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(0, 200px));
         grid-gap: 30px;
         max-width: 700px;
+        width: 100%;
         min-height: 280px;
+    }
+
+    &__error {
+        margin-bottom: 5px;
     }
 
     &__item {
@@ -281,13 +372,41 @@ export default {
         }
     }
 
+    &__buttons {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        position: absolute;
+        top: 0;
+        width: 100%;
+        padding: 10px;
+        z-index: 20;
+
+        button {
+            display: block;
+            width: 30px;
+            height: 30px;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    &__remove-multiple {
+        svg {
+            color: var(--error_color);
+        }
+    }
+
     &__image {
         width: 100%;
         height: 100%;
         object-fit: contain;
     }
 
-    &__image-path {
+    &__image-original-name {
         margin-top: 5px;
         font-size: 16px;
         line-height: 19px;
@@ -313,17 +432,27 @@ export default {
         display: none;
     }
 
+    @media (max-width: 719px) {
+        min-width: unset;
+    }
+
     @media (max-width: 499px) {
         &__list {
-            padding: 10px;
+            padding: 50px 10px 10px 10px;
             grid-template-columns: repeat(auto-fit, minmax(0, 125px));
             grid-gap: 15px;
             min-height: 170px;
         }
 
         &__image-container {
-            width: 125px;
-            height: 125px;
+            width: 115px;
+            height: 115px;
+        }
+    }
+
+    @media (max-width: 399px) {
+        &__list {
+            justify-content: center;
         }
     }
 }

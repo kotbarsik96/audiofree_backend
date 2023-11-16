@@ -61,6 +61,14 @@ const router = createRouter({
                     meta: {
                         hasPageNumber: true
                     }
+                },
+                {
+                    path: 'gallery-control/:pageNumber?',
+                    name: 'GalleryControl',
+                    component: () => import('@/views/admin/gallery/GalleryControl.vue'),
+                    meta: {
+                        hasPageNumber: true
+                    }
                 }
             ]
         },

@@ -4,6 +4,7 @@ namespace App\Models\Products;
 
 use App\Exceptions\ProductsExceptions;
 use App\Models\FilterableModel;
+use App\Models\Image;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
@@ -51,9 +52,9 @@ class Product extends FilterableModel
                 'products.quantity',
                 'products.product_status',
                 'products.description',
-                'images.path AS image_path',
-                'images.webp_path AS image_webp_path',
-                'images.id AS image_id',
+                'images.id as image_id',
+                'images.extension as image_extension',
+                DB::raw('concat(images.path, images.name) AS image_path'),
                 DB::raw('avg(ratings.value) as rating_value'),
                 DB::raw('count(*) as rating_count')
             )
@@ -128,16 +129,29 @@ class Product extends FilterableModel
     }
 
     /* добавляет данные из других таблиц: характеристики, вариации, галерея */
-    public static function addOuterData(Product $product)
+    public static function addOuterData(Product $product, $request = null)
     {
         if (empty($product))
             return $product;
 
         $info = ProductInfo::where('product_id', $product->id)
             ->get(['product_info.id', 'product_info.name', 'product_info.value']);
-        $images = ProductImage::leftJoin('images', 'product_images.image_id', '=', 'images.id')
-            ->where('product_id', $product->id)
-            ->get(['product_images.id', 'images.id as image_id', 'images.path', 'images.webp_path']);
+        // $images = ProductImage::leftJoin('images', 'product_images.image_id', '=', 'images.id')
+        //     ->where('product_id', $product->id)
+        //     ->get([
+        //         'product_images.id',
+        //         'images.id as image_id',
+        //         'images.extension as image_extension',
+        //         DB::raw('concat(images.path, images.name) as image_path'),
+        //     ]);
+        $images = Image::forGallery($request)
+            ->whereIn('images.id', function ($query) use ($product) {
+                $query->select('image_id')
+                    ->from('product_images')
+                    ->where('product_images.product_id', $product->id);
+            })->get();
+
+
         $variations = Variation::where('product_id', $product->id)
             ->get(['variations.id', 'variations.name']);
 

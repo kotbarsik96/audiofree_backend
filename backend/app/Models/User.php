@@ -76,6 +76,16 @@ class User extends Authenticatable
         ])->leftJoin('roles', 'roles.id', '=', 'users.role_id');
     }
 
+    public function scopeGalleryUploaders(Builder $builder)
+    {
+        $builder->select('users.id', 'users.email')
+            ->whereIn('users.id', function ($query) {
+                $query->select('images.user_id')
+                    ->from('images')
+                    ->groupBy('images.user_id');
+            });
+    }
+
     public static function authenticate($request)
     {
         $userId = $request->cookie('user');

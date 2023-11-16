@@ -12,7 +12,7 @@ class ProductsFilter extends QueryFilter
         if (empty($value))
             return;
 
-        $this->builder->where('name', 'like', '%' . $value . '%');
+        $this->builder->where('products.name', 'like', '%' . $value . '%');
     }
 
     public function nameOrBrand($value = null)
@@ -20,8 +20,8 @@ class ProductsFilter extends QueryFilter
         if (empty($value))
             return;
 
-        $this->builder->where('brand', 'like', '%' . $value . '%')
-            ->orWhere('name', 'like', '%' . $value . '%');
+        $this->builder->where('products.brand', 'like', '%' . $value . '%')
+            ->orWhere('products.name', 'like', '%' . $value . '%');
     }
 
     public function current_price($value = null)

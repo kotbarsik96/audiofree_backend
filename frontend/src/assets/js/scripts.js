@@ -139,6 +139,8 @@ export function handleAjaxError(err, ctx) {
         if (Array.isArray(values[0]) && values[0][0])
             ctx.error = values[0][0]
     }
+    else
+        ctx.error = 'Произошла ошибка'
 }
 
 /* работает только в массивах вида: array: [{ id: some }, { id: some2 }] */
@@ -203,4 +205,18 @@ export function getNumber(string) {
         return 0
 
     return parseFloat(string.toString().replace(/[^0-9,\.]/g, ''))
+}
+
+export function getScrollWidth() {
+    const outer = createElement('div', {
+        style: 'overflow: scroll; z-index: -999; position: absolute; top: -100vh; left: -100vw; width: 100px'
+    })
+    const inner = createElement('div')
+    outer.append(inner)
+    document.body.append(outer)
+    
+    const width = outer.offsetWidth - inner.offsetWidth
+    outer.remove()
+
+    return width
 }

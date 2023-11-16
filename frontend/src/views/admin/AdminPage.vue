@@ -47,6 +47,11 @@
                             </RouterLink>
                         </li>
                     </SpoilerElem>
+                    <li class="admin-page__nav-item">
+                        <RouterLink class="link" :to="{ name: 'GalleryControl' }">
+                            Галерея
+                        </RouterLink>
+                    </li>
                 </ul>
             </nav>
         </aside>

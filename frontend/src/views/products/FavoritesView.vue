@@ -14,7 +14,7 @@
                     Избранное
                 </h1>
             </div>
-            <div class="favorites-page__filtering">
+            <div class="filtering">
                 <div class="inputs-flex">
                     <TextInputWrapper name="product-search-name" id="product-search-name" placeholder="Название товара"
                         v-model="filters.name" width="300">
@@ -104,14 +104,6 @@ export default {
 
     &__page-heading {
         margin-bottom: 20px;
-    }
-
-    &__filtering {
-        margin-bottom: 30px;
-        padding: 15px 10px 1px 10px;
-        background-color: #f8f8f8;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, .1);
-        border-radius: 5px;
     }
 
     &__list {

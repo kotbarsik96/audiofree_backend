@@ -118,7 +118,7 @@
             </ImageLoad>
         </div>
         <div class="admin-page__creation-image admin-page__creation-image--gallery">
-            <ImagesGallery v-model="input.images"></ImagesGallery>
+            <ImagesGallery v-model="input.images" isSubgallery></ImagesGallery>
         </div>
         <TransitionGroup v-if="errorsList.length > 0" name="grow">
             <div v-for="(errorMessage, i) in errorsList" :key="i" class="error admin-page__error">
@@ -295,17 +295,10 @@ export default {
             this.input.description = JSON.parse(this.productData.description)
             this.input.image = {
                 id: this.productData.image_id || 0,
-                path: this.productData.image_path,
+                image_path: this.productData.image_path,
                 extension: this.productData.image_extension,
             }
             this.input.images = this.productData.images
-                .map(obj => {
-                    return {
-                        id: obj.image_id,
-                        path: obj.image_path,
-                        extension: obj.image_extension
-                    }
-                })
 
             if (!this.descriptionEditor) {
                 this.descriptionEditor = new EditorJS({

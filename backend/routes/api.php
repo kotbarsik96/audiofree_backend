@@ -65,6 +65,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/image/delete/{id}', [ImagesController::class, 'delete']);
     Route::delete('/image/delete', [ImagesController::class, 'delete']);
 
+    Route::get('/gallery', [ImagesController::class, 'getGallery']);
+
     Route::get('/order/{orderId}', [OrdersController::class, 'authenticate']);
     Route::post('/order/new', [OrdersController::class, 'storeNew']);
     Route::post('/order/checkout/{orderId}', [OrdersController::class, 'checkout']);

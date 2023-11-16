@@ -21,14 +21,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            TaxonomyTypes::class,
-            TaxonomiesSeeder::class,
-            TaxonomiesMetaSeeder::class,
-            RolesSeeder::class,
-            DeliveryTypesSeeder::class,
-            PaymentTypesSeeder::class,
-            OrderStatusesSeeder::class,
-            UsersSeeder::class
+            // TaxonomyTypes::class,
+            // TaxonomiesSeeder::class,
+            // TaxonomiesMetaSeeder::class,
+            // RolesSeeder::class,
+            // DeliveryTypesSeeder::class,
+            // PaymentTypesSeeder::class,
+            // OrderStatusesSeeder::class,
+            // UsersSeeder::class
         ]);
     }
 }

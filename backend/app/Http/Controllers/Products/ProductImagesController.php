@@ -56,24 +56,19 @@ class ProductImagesController extends Controller
         if (!file_exists($fullpathToProductFolder))
             mkdir($fullpathToProductFolder, 0777, true);
 
-        $oldPathToImage = public_path() . '/' . $imageModel->path;
-        $oldPathToImageWebp = public_path() . '/' . $imageModel->webp_path;
-        $imageName = basename($oldPathToImage);
-        $imageNameWebp = basename($oldPathToImageWebp);
+        $oldPathToImage = public_path() . '/' . $imageModel->path . $imageModel->name;
+        $renameTo = $fullpathToProductFolder . '/' . $imageModel->name;
+        rename(
+            $oldPathToImage . '.' . $imageModel->extension,
+            $renameTo . '.' . $imageModel->extension
+        );
+        rename($oldPathToImage . '.webp',  $renameTo . '.webp');
 
-        // переместить товар в папку с названием этого товара
-        rename($oldPathToImage, $fullpathToProductFolder . '/' . $imageName);
-        rename($oldPathToImageWebp, $fullpathToProductFolder . '/' . $imageNameWebp);
-
-        if (count(scandir(dirname($oldPathToImage))) < 3)
-            rmdir(dirname($oldPathToImage));
-        if (count(scandir(dirname($oldPathToImageWebp))) < 3)
+        if (count(scandir(dirname($oldPathToImage))) <= 2)
             rmdir(dirname($oldPathToImage));
 
-        // обновить запись в бд в соответствии с новым путем к файлу
         $imageModel->update([
-            'path' => $pathToProductFolder . '/' . $imageName,
-            'webp_path' => $pathToProductFolder . '/' . $imageNameWebp
+            'path' => $pathToProductFolder . '/',
         ]);
     }
 

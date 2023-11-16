@@ -15,6 +15,10 @@
                 <button class="modal__button button button--colored" type="button" @click="removeModal(confirmData)">
                     {{ confirmData.text || defaultConfirmText }}
                 </button>
+                <button v-for="otherConfirmData in confirmButtons" class="modal__button button button--colored"
+                    type="button" @click="removeModal(otherConfirmData)">
+                    {{ otherConfirmData.text || defaultConfirmText }}
+                </button>
                 <button class="modal__button button" v-if="!onlyConfirm" type="button" @click="removeModal(declineData)">
                     {{ declineData.text || defaultDeclineText }}
                 </button>
@@ -36,13 +40,16 @@ export default {
         /* ЕСЛИ В confirmProps ИЛИ declineProps передаются callbackArgs, ТО НУЖНО УЧИТЫВАТЬ, ЧТО ПРИ ВЫЗОВЕ МЕТОДА ПЕРВЫМ В ЭТОТ МЕТОД БУДЕТ ПЕРЕДАН КОНТЕКСТ МОДАЛЬНОГО ОКНА this */
         confirmProps: Object,
         declineProps: Object,
+        /* массив объектов, подобных this.confirmProps (когда нужно несколько подтверждающих кнопок) */
+        confirmButtons: Array,
         modalId: [String, Number],
         onlyConfirm: Boolean
     },
     data() {
         return {
             defaultConfirmText: 'Подтвердить',
-            defaultDeclineText: 'Отменить'
+            defaultDeclineText: 'Отменить',
+            closed: false
         }
     },
     computed: {
@@ -50,7 +57,7 @@ export default {
             return this.confirmProps || { text: this.defaultConfirmText }
         },
         declineData() {
-            if (this.onlyConfirm)
+            if (this.onlyConfirm && !Array.isArray(this.confirmButtons))
                 return { callback: this.confirmData.callback }
 
             return this.declineProps || { text: this.defaultDeclineText }
@@ -72,6 +79,10 @@ export default {
             this.applyCallbacks(data)
         },
         applyCallbacks(data) { // data === this.confirmData|this.declineData
+            if (this.closed)
+                return
+
+            this.closed = true
             const callback = data.callback
             const callbackArgs = Array.isArray(data.callbackArgs)
                 ? data.callbackArgs
@@ -94,7 +105,7 @@ export default {
     created() {
         document.addEventListener('modal-deleted', this.onModalDeleted)
     },
-    beforeUnmount(){
+    beforeUnmount() {
         document.removeEventListener('modal-deleted', this.onModalDeleted)
     }
 }
