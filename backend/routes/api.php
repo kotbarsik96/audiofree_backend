@@ -30,6 +30,8 @@ Route::post('/auth/logout', [AuthController::class, 'logout']);
 
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 
+Route::get('/gallery', [ImagesController::class, 'getGallery']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user-favorites', [UserEntitiesController::class, 'getUserFavorites']);
     Route::post('/user-favorites/{productId}', [UserEntitiesController::class, 'storeToFavorites']);
@@ -62,10 +64,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/image/load', [ImagesController::class, 'handleStoreRequest']);
     Route::post('/image/update/{id}', [ImagesController::class, 'update']);
+    Route::post('/images/tag', [ImagesController::class, 'tagImages']);
     Route::delete('/image/delete/{id}', [ImagesController::class, 'delete']);
     Route::delete('/image/delete', [ImagesController::class, 'delete']);
-
-    Route::get('/gallery', [ImagesController::class, 'getGallery']);
 
     Route::get('/order/{orderId}', [OrdersController::class, 'authenticate']);
     Route::post('/order/new', [OrdersController::class, 'storeNew']);

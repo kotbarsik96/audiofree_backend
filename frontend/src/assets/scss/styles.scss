@@ -60,6 +60,7 @@ button:disabled {
 .__locked-scroll {
     overflow: hidden;
 }
+
 /* <GENERAL>==================================================================================== */
 
 /* <TRANSITION-NAMES (TRANSITIONS) ============================================================= */
@@ -498,10 +499,18 @@ button:disabled {
     font-weight: 700;
     box-shadow: 0px 8px 30px 0px rgba(139, 117, 200, .5);
     transition-property: background-color, color, box-shadow;
+    border-color: transparent;
 
     &:hover {
         box-shadow: 0px 2px 30px 0px rgba(139, 117, 200, .5);
     }
+}
+
+.button--second-color{ 
+    background-color: var(--theme_color_3);
+    color: #fff;
+    font-weight: 700;
+    border-color: transparent;
 }
 
 // close button
@@ -605,6 +614,14 @@ button:disabled {
 /* <SECTION>==================================================================================== */
 .section--theme-colored {
     background-color: var(--theme_color);
+
+    .section-title {
+        color: #fff;
+
+        &__highlighted {
+            color: #fff;
+        }
+    }
 }
 
 /* <SECTION>==================================================================================== */
@@ -1267,7 +1284,7 @@ button:disabled {
     background-color: #f8f8f8;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, .1);
     border-radius: 5px;
-    
+
     .text-input {
         min-width: 300px;
     }

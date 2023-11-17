@@ -12,8 +12,6 @@ return new class extends Migration {
     {
         Schema::create('product_images', function (Blueprint $table) {
             $table->id();
-            $table->string('tag')
-                ->nullable();
             $table->foreignId('product_id')
                 ->constrained(table: 'products')
                 ->onDelete('cascade');

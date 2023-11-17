@@ -41,4 +41,12 @@ class ImagesFilter extends QueryFilter
 
         return $this->builder->whereIn('images.id', $values);
     }
+
+    public function tag($value = null)
+    {
+        if(empty($value) || $value === 'false')
+            return;
+
+        $this->builder->where('images.tag', $value);
+    }
 }

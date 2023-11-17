@@ -32,7 +32,8 @@ class Role extends FilterableModel
         'update_image' => ['ADMINISTRATOR', 'USER'],
         'update_rating' => ['ADMINISTRATOR', 'USER'],
         'delete_image' => ['ADMINISTRATOR', 'USER'],
-        'upload_image_to_subpath' => ['ADMINISTRATOR']
+        'upload_image_to_subpath' => ['ADMINISTRATOR'],
+        'tag_image' => ['ADMINISTRATOR']
     ];
     public static $allowedPages = [
         'ADMINISTRATOR' => [

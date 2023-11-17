@@ -1,9 +1,10 @@
 <template>
     <Transition name="modals-list">
         <div v-if="firstModal" class="modals-list" ref="modalsList">
-            <Transition name="modal" mode="out-in">
-                <component :is="firstModal.component" :modalId="firstModal.id" ref="modalComponent"></component>
-            </Transition>
+            <TransitionGroup name="modal">
+                <component v-for="(modal, index) in modals" v-show="index === 0" :is="modal.component" :modalId="modal.id"
+                    :key="modal.id" ref="modalComponent"></component>
+            </TransitionGroup>
         </div>
     </Transition>
 </template>
@@ -22,7 +23,9 @@ export default {
     },
     data() {
         return {
-            observer: null
+            observer: null,
+            refreshKey: 1,
+            alignTimeout: null
         }
     },
     created() {
@@ -40,12 +43,18 @@ export default {
     },
     methods: {
         ...mapActions(useModalsStore, ['removeModal']),
-        async onResize() {
+        onResize() {
+            if(this.alignTimeout)
+                clearTimeout(this.alignTimeout)
+
+            this.alignTimeout = setTimeout(this.alignModals, 500);
+        },
+        async alignModals() {
             await nextTick()
-            if (!this.$refs.modalComponent)
+            if (!this.$refs.modalsList)
                 return
 
-            const modalEl = this.$refs.modalComponent.$el
+            const modalEl = this.$refs.modalsList.querySelector('.modal')
             const height = modalEl.offsetHeight
             const windowHeight = document.documentElement.clientHeight
             if (height > windowHeight - 40)
@@ -61,10 +70,19 @@ export default {
             } else {
                 useIndexStore().toggleScroll('modals-list', false)
             }
+        },
+        modals: {
+            deep: true,
+            handler() {
+                setTimeout(() => {
+
+                }, 500);
+            }
         }
     },
     mounted() {
         window.addEventListener('resize', this.onResize)
+        document.addEventListener('click', this.onResize)
         this.onResize()
     }
 }
@@ -124,7 +142,7 @@ export default {
     overflow: hidden;
     max-width: 100%;
     min-width: 500px;
-    position: relative;
+    position: absolute;
 
     &__close {
         display: flex;

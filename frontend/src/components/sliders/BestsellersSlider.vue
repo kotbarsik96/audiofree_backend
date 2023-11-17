@@ -180,7 +180,7 @@ export default {
         position: relative;
         z-index: 15;
 
-        img {
+        img, picture {
             width: 500px;
             height: 350px;
             object-fit: contain;

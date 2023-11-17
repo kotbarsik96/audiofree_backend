@@ -19,7 +19,7 @@
                 </TextInputWrapper>
             </div>
         </div>
-        <ImagesGallery :singleSelect="singleSelect" v-model="gallery" v-model:selected="selectedItems"
+        <ImagesGallery :singleSelect="singleSelect" :isSubgallery="isSubgallery" v-model="gallery" v-model:selected="selectedItems" :imageTag="imageTag"
             @update:modelValue="onGalleryUpdate">
         </ImagesGallery>
         <ListPagination ref="listPagination" :noRouter="noRouter" :loadLink="loadLink" :filters="filters" :limit="9"
@@ -42,7 +42,9 @@ export default {
         noRouter: Boolean,
         selected: Array,
         modelValue: Array,
-        singleSelect: Boolean
+        singleSelect: Boolean,
+        imageTag: [Boolean, String],
+        isSubgallery: Boolean
     },
     components: {
         LoadingScreen,
@@ -60,6 +62,7 @@ export default {
             filters: {
                 user_email: 'self',
                 original_name: '',
+                tag: this.imageTag
             },
             selectedItems: []
         }

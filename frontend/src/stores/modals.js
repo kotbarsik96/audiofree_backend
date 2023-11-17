@@ -27,7 +27,7 @@ export const useModalsStore = defineStore('modals', {
                 }
             }
 
-            this.modals.push(modalData)
+            this.modals.unshift(modalData)
             return modalData.id
         },
         // удалит первый в списке this.modals окно, ЕСЛИ НЕ передан ИЛИ передан НЕЧИСЛОВОЙ modalId. Если передан ЧИСЛОВОЙ modalId, удалит окно с этим modalId

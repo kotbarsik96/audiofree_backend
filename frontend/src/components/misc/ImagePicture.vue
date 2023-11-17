@@ -32,13 +32,13 @@ export default {
         ...mapState(useIndexStore, ['supportsWebp']),
         noWebpSrc() {
             if (this.path)
-                return this.path
+                return getImagePath(this.path)
 
             return getImagePath(this.obj)
         },
         webpSrc() {
             if (this.webpPath)
-                return this.webpPath
+                return getImagePath(this.webpPath, 'webp')
 
             return getImagePath(this.obj, 'webp')
         }

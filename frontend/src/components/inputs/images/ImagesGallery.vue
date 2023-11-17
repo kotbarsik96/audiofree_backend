@@ -77,7 +77,7 @@ export default {
         },
         isSubgallery: Boolean,
         selected: Array,
-        singleSelect: Boolean
+        singleSelect: Boolean,
     },
     components: {
         LoadingScreen
@@ -149,9 +149,10 @@ export default {
             useModalsStore().addModal({
                 component: 'GalleryModal',
                 props: {
-                    title: 'Изображение для товара',
+                    title: 'Выбрать изображение',
+                    withPagination: true,
                     confirmData: { callback }
-                }
+                },
             })
         },
         openExplorer(obj = null) {
@@ -224,8 +225,10 @@ export default {
             const updatedModelValue = this.modelValue
                 .filter(obj => !this.selectedItems.includes(obj.id))
             // если подгалерея - уберет только из подгалереи
-            if (this.isSubgallery)
+            if (this.isSubgallery) {
+                this.untagImages(this.selectedItems)
                 this.$emit('update:modelValue', updatedModelValue)
+            }
             // в обычной галерее пошлет запрос на бекенд на удаление изображения с сервера
             else {
                 this.isLoading = true
@@ -254,6 +257,7 @@ export default {
             const updatedModelValue = this.modelValue.filter(o => o.id !== obj.id)
             // в подгалерее удалит только из подгалереи, НЕ удалит с сервера
             if (this.isSubgallery) {
+                this.untagImages([obj.id])
                 this.$emit('update:modelValue', updatedModelValue)
                 return
             }
@@ -275,6 +279,16 @@ export default {
 
             this.isLoading = false
         },
+        async untagImages(idsList) {
+            const link = import.meta.env.VITE_IMAGES_TAG_LINK
+
+            try {
+                const res = await axios.post(link, {
+                    images: idsList,
+                    tag: null
+                })
+            } catch (err) { }
+        }
     },
     computed: {
         errorMessage() {

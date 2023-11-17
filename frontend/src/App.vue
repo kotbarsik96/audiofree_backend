@@ -38,6 +38,8 @@ export default {
     },
     async created() {
         const store = useIndexStore()
+        store.checkIfIsMobileBrowser()
+        window.addEventListener('resize', store.checkIfIsMobileBrowser)
         store.checkWebpSupport()
         await store.checkAuth()
     },

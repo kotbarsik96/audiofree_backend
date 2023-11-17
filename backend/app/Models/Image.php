@@ -17,6 +17,7 @@ class Image extends FilterableModel
         'path', // images/products/
         'name', // be5ba3ba_4,
         'original_name', // airdots1,
+        'tag',
         'extension',
         'size_kb',
         'width',
@@ -73,7 +74,7 @@ class Image extends FilterableModel
 
     public static function scopeForGallery(Builder $builder, Request $request = null)
     {
-        $userId = $request ? $request->cookie('user') : 0;
+        $userId = $request ? (int) $request->cookie('user') : 0;
         $user = User::find($userId);
         $role = empty($user) ? null : Role::where('id', $user->role_id)->first();
 

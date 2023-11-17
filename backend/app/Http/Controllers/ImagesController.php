@@ -257,4 +257,22 @@ class ImagesController extends Controller
 
         return ['success' => true];
     }
+
+    /* если передать $request->tag == false, тег будет удален */
+    public function tagImages(Request $request)
+    {
+        if (!User::hasRight($request->cookie('user'), 'tag_image'))
+            return RolesExceptions::noRightsResponse();
+
+        $tag = $request->tag;
+        if (!is_string($tag))
+            $tag = null;
+
+        $idsList = $request->images;
+        if (!is_array($idsList))
+            return response(['error' => 'Не переданы изображения'], 400);
+
+        Image::whereIn('images.id', $idsList)->update(['tag' => $tag]);
+        return ['success' => true];
+    }
 }

@@ -9,6 +9,7 @@ axios.defaults.withCredentials = true
 export const useIndexStore = defineStore('index', {
     state: () => {
         return {
+            isMobileBrowser: false,
             supportsWebp: false,
             isUserLogged: false,
             loadings: [],
@@ -22,6 +23,21 @@ export const useIndexStore = defineStore('index', {
         }
     },
     actions: {
+        checkIfIsMobileBrowser() {
+            const toMatch = [
+                /Android/i,
+                /webOS/i,
+                /iPhone/i,
+                /iPad/i,
+                /iPod/i,
+                /BlackBerry/i,
+                /Windows Phone/i
+            ];
+
+            this.isMobileBrowser = toMatch.some((toMatchItem) => {
+                return navigator.userAgent.match(toMatchItem);
+            });
+        },
         checkWebpSupport() {
             let elem = document.createElement('canvas')
 
