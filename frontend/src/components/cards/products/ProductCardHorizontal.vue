@@ -2,7 +2,8 @@
     <div class="card product-card product-card--horizontal">
         <div class="card__container product-card__container" v-if="product">
             <div class="product-card__image-container">
-                <img class="product-card__image" :src="imageSrc" :alt="product.name">
+                <ImagePicture class="product-card__image" :obj="productData"></ImagePicture>
+                <!-- <img class="product-card__image" :src="imageSrc" :alt="product.name"> -->
             </div>
             <div class="product-card__title">
                 {{ product.name }}
@@ -28,9 +29,7 @@ export default injectShared(shared, {
         StarRating,
     },
     data() {
-        return Object.assign({
-            rating: 0
-        }, shared.data)
+        return Object.assign({}, shared.data)
     }
 })
 </script>

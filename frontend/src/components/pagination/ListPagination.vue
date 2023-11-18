@@ -1,7 +1,7 @@
-<!-- ВАЖНО: чтобы компонент работал, он должен находиться внутри route, у которого есть params.pageNumber 
+<!-- ВАЖНО: чтобы компонент работал по router'у, он должен находиться внутри route, у которого есть params.pageNumber. Иначе, нужно пробросить пропс noRouter = true
     ({ name: '...', path: '/:pageNumber?' }) -->
 <template>
-    <div class="pagination" v-if="visiblePages.length > 0">
+    <div class="pagination" v-if="visiblePages.length > 1">
         <button class="pagination__button pagination__button--prev" type="button" @click="setPage('prev')">
             <ChevronIcon></ChevronIcon>
         </button>

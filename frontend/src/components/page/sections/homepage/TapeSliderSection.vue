@@ -1,5 +1,5 @@
 <template>
-    <ComponentWithGallery tag="section" class="tape-slider-section section section--theme-colored pdt-85 pdb-85" imageTag="tape-slider" v-model="gallery">
+    <ComponentWithGallery tag="section" class="tape-slider-section section section--theme-colored" imageTag="tape-slider" v-model="gallery">
         <div class="container">
             <h3 class="section-title section-title--centered">
                 <div>
@@ -37,7 +37,7 @@
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay } from 'swiper'
 import 'swiper/css'
-import ComponentWithGallery from '@/components/admin-panel/ComponentWithGallery.vue'
+import ComponentWithGallery from '@/components/misc/ComponentWithGallery.vue'
 
 export default {
     name: 'TapeSliderSection',
@@ -61,8 +61,14 @@ export default {
 
 <style lang="scss">
 .tape-slider-section {
+    padding: 85px 0;
+
     .section-title {
         margin-bottom: 65px;
+    }
+
+    @media (max-width: 949px){
+        padding: 40px 0 50px 0;
     }
 }
 

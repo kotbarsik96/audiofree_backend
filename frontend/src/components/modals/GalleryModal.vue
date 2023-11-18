@@ -107,5 +107,9 @@ export default {
     .modal__buttons {
         margin-top: 10px;
     }
+
+    .images-gallery {
+        width: 100%;
+    }
 }
 </style>

@@ -227,7 +227,7 @@ export default {
 
         &__slide-image {
 
-            img {
+            picture, img {
                 width: calc(43vw - 20px);
                 height: calc(30vw - 20px);
             }
@@ -241,7 +241,7 @@ export default {
         }
 
         &__slide-image {
-            img {
+            picture, img {
                 width: 350px;
                 height: 244px;
             }
@@ -257,7 +257,7 @@ export default {
 
     @media (max-width: 379px) {
         &__slide-image {
-            img {
+            picture, img {
                 width: 280px;
                 height: 195px;
             }

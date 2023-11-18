@@ -1,6 +1,7 @@
 <template>
     <picture>
-        <source :srcset="supportsWebp ? webpSrc : noWebpSrc">
+        <source :srcset="supportsWebp ? webpSrc : noWebpSrc" :media="media">
+        <source v-for="obj in mediaSources" :srcset="getSrcset(obj)" :media="obj.media">
         <img :src="noWebpSrc" :alt="alt">
     </picture>
 </template>
@@ -9,6 +10,12 @@
 import { mapState } from 'pinia'
 import { useIndexStore } from '@/stores/'
 import { getImagePath } from '@/assets/js/methods.js'
+
+function checkMediaRegexp(media) {
+    if (!media.match(/\(min-width: \d+px\)|\(max-width: \d+px\)/))
+        return false
+    return true
+}
 
 export default {
     name: 'ImagePicture',
@@ -26,6 +33,40 @@ export default {
         alt: {
             type: String,
             default: ''
+        },
+        media: {
+            type: String,
+            validator(media) {
+                return checkMediaRegexp(media)
+            }
+        },
+        /* mediaSources[i]: {
+            media: '(max-width: 799px)',
+            webpPath: String,
+            path: String,
+            obj: Object,
+            т.е. то же самое, что пропсы для этого компонента
+        } */
+        mediaSources: {
+            type: Array,
+            validator(array) {
+                for (let obj of array) {
+                    if (typeof obj.media !== 'string')
+                        return false
+                    if(!checkMediaRegexp(obj.media))
+                        return false
+
+                    if (obj.webpPath && typeof obj.webpPath !== 'string')
+                        return false
+                    if (obj.path && typeof obj.path !== 'string')
+                        return false
+
+                    if (obj.obj && typeof obj.obj !== 'object')
+                        return false
+                }
+
+                return true
+            }
         }
     },
     computed: {
@@ -43,5 +84,20 @@ export default {
             return getImagePath(this.obj, 'webp')
         }
     },
+    methods: {
+        getSrcset(obj) {
+            if (this.supportsWebp) {
+                if (obj.webpPath)
+                    return getImagePath(obj.webPath, 'webp')
+
+                return getImagePath(obj.obj, 'webp')
+            } else {
+                if (obj.path)
+                    return getImagePath(obj.webPath)
+
+                return getImagePath(obj.obj)
+            }
+        }
+    }
 }
 </script>

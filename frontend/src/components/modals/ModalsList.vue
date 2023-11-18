@@ -202,7 +202,7 @@ export default {
 
     @media (max-width: 519px) {
         min-width: 0;
-        width: 100%;
+        width: 95%;
     }
 }
 
