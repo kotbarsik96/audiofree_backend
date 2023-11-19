@@ -19,17 +19,17 @@
                     <ul class="header__top-nav-list">
                         <li class="header__top-nav-item link">
                             <DynamicAdaptive destinationSelector="#header-mobile-shipment-link" :query="mobileMediaQuery">
-                                <RouterLink :to="{ name: 'Home' }">Доставка и оплата</RouterLink>
+                                <RouterLink :to="{ name: 'DeliveryPayment' }">Доставка и оплата</RouterLink>
                             </DynamicAdaptive>
                         </li>
                         <li class="header__top-nav-item link">
                             <DynamicAdaptive destinationSelector="#header-mobile-guarantee-link" :query="mobileMediaQuery">
-                                <RouterLink :to="{ name: 'Home' }">Гарантия и возврат</RouterLink>
+                                <RouterLink :to="{ name: 'Warranty' }">Гарантия и возврат</RouterLink>
                             </DynamicAdaptive>
                         </li>
                         <li class="header__top-nav-item link">
                             <DynamicAdaptive destinationSelector="#header-mobile-contacts-link" :query="mobileMediaQuery">
-                                <RouterLink :to="{ name: 'Home' }">Контакты</RouterLink>
+                                <RouterLink :to="{ name: 'Contacts' }">Контакты</RouterLink>
                             </DynamicAdaptive>
                         </li>
                     </ul>

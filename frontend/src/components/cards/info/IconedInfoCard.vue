@@ -26,7 +26,7 @@ export default {
 <style lang="scss">
 .icon-info-card {
     color: #525252;
-    flex: 0 1 300px;
+    flex: 1 1 250px;
     margin: 0 15px 25px 15px;
 
     &::before {
