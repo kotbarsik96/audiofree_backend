@@ -32,7 +32,8 @@ export default {
     },
     data() {
         return {
-            bestsellers: []
+            bestsellers: [],
+            limit: 9
         }
     },
     methods: {
@@ -42,7 +43,8 @@ export default {
             try {
                 const res = await axios.get(link, {
                     params: {
-                        bestsellers_first: true
+                        bestsellers_first: true,
+                        limit: this.limit
                     }
                 })
                 

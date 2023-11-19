@@ -2,11 +2,14 @@
     <div class="card product-card product-card--horizontal">
         <div class="card__container product-card__container" v-if="product">
             <div class="product-card__image-container">
-                <ImagePicture class="product-card__image" :obj="productData"></ImagePicture>
-                <!-- <img class="product-card__image" :src="imageSrc" :alt="product.name"> -->
+                <RouterLink :to="{ name: 'Product', params: { productId: productData.id } }">
+                    <ImagePicture class="product-card__image" :obj="productData"></ImagePicture>
+                </RouterLink>
             </div>
             <div class="product-card__title">
-                {{ product.name }}
+                <RouterLink class="link" :to="{ name: 'Product', params: { productId: productData.id } }">
+                    {{ product.name }}
+                </RouterLink>
             </div>
             <div class="product-card__star-rating-container">
                 <StarRating :stars="5" :rating="product.rating_value || 0" v-model="rating"></StarRating>
