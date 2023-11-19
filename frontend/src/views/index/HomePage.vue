@@ -1,9 +1,9 @@
 <template>
     <main>
-        <BestsellersSlider></BestsellersSlider>
-        <BrandTabsSection></BrandTabsSection>
-        <TapeSliderSection></TapeSliderSection>
-        <QuestionsAnswersSection></QuestionsAnswersSection>
+        <!-- <BestsellersSlider></BestsellersSlider> -->
+        <!-- <BrandTabsSection></BrandTabsSection> -->
+        <!-- <TapeSliderSection></TapeSliderSection> -->
+        <!-- <QuestionsAnswersSection></QuestionsAnswersSection> -->
         <CtaSection imageTag="cta-5-bests-test" isScaledImage>
             <template v-slot:text>
                 <h3 class="section-title">

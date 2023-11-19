@@ -11,6 +11,21 @@ const router = createRouter({
             name: 'Home',
             component: () => import('@/views/index/HomePage.vue')
         },
+        {
+            path: '/delivery-payment',
+            name: 'DeliveryPayment',
+            component: () => import('@/views/index/DeliveryPaymentPage.vue')
+        },
+        {
+            path: '/warranty',
+            name: 'Warranty',
+            component: () => import('@/views/index/WarrantyPage.vue')
+        },
+        {
+            path: '/contacts',
+            name: 'Contacts',
+            component: () => import('@/views/index/ContactsPage.vue')
+        },
         // folder: admin
         {
             path: '/control',
