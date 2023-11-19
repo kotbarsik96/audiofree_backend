@@ -176,7 +176,16 @@ const router = createRouter({
             name: 'UI',
             component: () => import('@/views/.dev/UIKit.vue')
         }
-    ]
+    ],
+    scrollBehavior(to, from, savedPosition) {
+        if (savedPosition)
+            return savedPosition
+
+        return {
+            top: 0,
+            behavior: 'smooth'
+        }
+    }
 })
 
 export let currentRoute = null
@@ -258,7 +267,7 @@ router.beforeEach(async (to) => {
         try {
             const link = `${import.meta.env.VITE_ORDER_LINK}${id}`
             const res = await axios.get(link)
-            
+
             if (res.data.id && res.data.status === 'waiting_userdata') {
                 to.meta.orderData = res.data
             } else {

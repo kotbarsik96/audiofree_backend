@@ -28,11 +28,6 @@
                             </DynamicAdaptive>
                         </li>
                         <li class="header__top-nav-item link">
-                            <DynamicAdaptive destinationSelector="#header-mobile-pickups-link" :query="mobileMediaQuery">
-                                <RouterLink :to="{ name: 'Home' }">Пункты самовывоза</RouterLink>
-                            </DynamicAdaptive>
-                        </li>
-                        <li class="header__top-nav-item link">
                             <DynamicAdaptive destinationSelector="#header-mobile-contacts-link" :query="mobileMediaQuery">
                                 <RouterLink :to="{ name: 'Home' }">Контакты</RouterLink>
                             </DynamicAdaptive>
@@ -45,7 +40,8 @@
             <div class="container">
                 <div class="contact-block">
                     <DynamicAdaptive destinationSelector="#header-mobile-phone" :query="mobileMediaQuery">
-                        <a class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive" href="tel:81111111" aria-label="Телефон">
+                        <a class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive" href="tel:81111111"
+                            aria-label="Телефон">
                             <PhoneCallIcon></PhoneCallIcon>
                         </a>
                     </DynamicAdaptive>
@@ -69,7 +65,8 @@
                     <ul class="header__body-nav-list">
                         <li class="header__body-nav-item">
                             <DynamicAdaptive destinationSelector="#header-mobile-favorites" :query="mobileMediaQuery">
-                                <RouterLink class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive" :to="{ name: 'Favorites' }" aria-label="В избранное">
+                                <RouterLink class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive"
+                                    :to="{ name: 'Favorites' }" aria-label="В избранное">
                                     <span class="circle-wrapper__number" v-if="favoritesCountComputed">
                                         {{ favoritesCountComputed }}
                                     </span>
@@ -79,7 +76,9 @@
                         </li>
                         <li class="header__body-nav-item">
                             <DynamicAdaptive destinationSelector="#header-mobile-cart" :query="mobileMediaQuery">
-                                <RouterLink :to="{ name: 'Cart' }" class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive" aria-label="В корзину">
+                                <RouterLink :to="{ name: 'Cart' }"
+                                    class="circle-wrapper circle-wrapper--shadow circle-wrapper--adaptive"
+                                    aria-label="В корзину">
                                     <div class="circle-wrapper__number" v-if="cartCountComputed">
                                         {{ cartCountComputed }}
                                     </div>
@@ -242,11 +241,6 @@
                             <div id="header-mobile-contacts-link"></div>
                         </div>
                     </li>
-                    <li class="header__mobile-menu-item">
-                        <div class="header__mobile-menu-item-text">
-                            <div id="header-mobile-pickups-link"></div>
-                        </div>
-                    </li>
                     <li class="header__mobile-menu-item header__mobile-menu-item--phone">
                         <div class="header__mobile-menu-item-text">
                             <div id="header-mobile-phone-number"></div>
@@ -260,21 +254,16 @@
 
 <script>
 import { mapState } from 'pinia'
-import { useModalsStore } from '@/stores/modals.js'
 import { useIndexStore } from '@/stores/'
 import HeaderSearchInput from '@/components/inputs/HeaderSearchInput.vue'
 import DynamicAdaptive from '@/components/misc/DynamicAdaptive.vue'
-import AuthModal from '@/components/modals/auth/AuthModal.vue'
-import ConfirmModal from '@/components/modals/ConfirmModal.vue'
-import { h } from 'vue'
+import { openAuthModal, openConfirmLogoutModal, logout } from '@/assets/js/methods.js'
 
 export default {
     name: 'PageHeader',
     components: {
         DynamicAdaptive,
-        HeaderSearchInput,
-        AuthModal,
-        ConfirmModal
+        HeaderSearchInput
     },
     data() {
         return {
@@ -284,13 +273,8 @@ export default {
             isShownMobileMenu: false,
         }
     },
-    created() {
-        this.mobileMedia = window.matchMedia(this.mobileMediaQuery)
-        this.mobileMedia.addEventListener('change', this.onMediaChange)
-        this.onMediaChange()
-    },
     computed: {
-        ...mapState(useIndexStore, ['isUserLogged', 'role', 'isAdmin', 'favoritesCount', 'cartCount']),
+        ...mapState(useIndexStore, ['isUserLogged', 'isAdmin', 'favoritesCount', 'cartCount']),
         isLogged() {
             return true
         },
@@ -316,6 +300,9 @@ export default {
         }
     },
     methods: {
+        openAuthModal,
+        openConfirmLogoutModal,
+        logout,
         onMediaChange() {
             if (!this.mobileMedia)
                 return
@@ -325,29 +312,17 @@ export default {
             else
                 this.isDesktop = true
         },
-        openAuthModal(defaultType = 'register') {
-            const store = useModalsStore()
-            const component = h(AuthModal, { defaultType })
-            store.addModal({ component })
-        },
-        openConfirmLogoutModal() {
-            const store = useModalsStore()
-            const component = h(ConfirmModal, {
-                title: 'Вы уверены, что хотите выйти из профиля?',
-                confirmProps: {
-                    text: 'Выйти',
-                    callback: this.logout
-                },
-                declineProps: {
-                    text: 'Остаться'
-                }
-            })
-            store.addModal({ component })
-        },
-        logout() {
-            useIndexStore().logout()
+    },
+    watch: {
+        $route(to, from) {
+            this.isShownMobileMenu = false
         }
-    }
+    },
+    created() {
+        this.mobileMedia = window.matchMedia(this.mobileMediaQuery)
+        this.mobileMedia.addEventListener('change', this.onMediaChange)
+        this.onMediaChange()
+    },
 }
 </script>
 
@@ -788,5 +763,4 @@ export default {
             margin-left: 25px;
         }
     }
-}
-</style>
+}</style>

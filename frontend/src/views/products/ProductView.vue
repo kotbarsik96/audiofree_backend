@@ -50,15 +50,16 @@
                         </div>
                     </div>
                     <div class="product-page__quantity">
-                        <QuantityInput v-if="product.available_quantity > 0" v-model="cart.quantity" name="product-quantity" id="product-quantity" :min="1"
-                            :max="product.available_quantity">
+                        <QuantityInput v-if="product.available_quantity > 0" v-model="cart.quantity" name="product-quantity"
+                            id="product-quantity" :min="1" :max="product.available_quantity">
                             Количество
                         </QuantityInput>
                     </div>
                     <SelectProductVariations v-if="product.variations && product.variations.length > 0"
                         :variations="product.variations" v-model="cart.variations"></SelectProductVariations>
                     <div class="product-page__buttons">
-                        <button class="button button--colored" :disabled="isOutOfStock" type="button" @click="addToCart(true)">
+                        <button class="button button--colored" :disabled="isOutOfStock" type="button"
+                            @click="addToCart(true)">
                             Купить в 1 клик
                         </button>
                         <button class="button" type="button" :disabled="isOutOfStock" @click="addToCart(false)">
@@ -167,7 +168,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(useIndexStore, ['isAdmin', 'favoritesCount', 'cartCount']),
+        ...mapState(useIndexStore, ['isAdmin', 'isUserLogged', 'favoritesCount', 'cartCount']),
         fullname() {
             const brand = this.product.brand || ''
             const name = this.product.name || ''
@@ -223,10 +224,10 @@ export default {
 
             return arr
         },
-        isSmallQuantity(){
+        isSmallQuantity() {
             return this.product.available_quantity < 9 && this.product.available_quantity > 0
         },
-        isOutOfStock(){
+        isOutOfStock() {
             return this.product.available_quantity < 1
         }
     },
@@ -244,7 +245,7 @@ export default {
                 })
                 if (Array.isArray(res.data.result))
                     this.brandOtherProducts = res.data.result
-            } catch (err) { 
+            } catch (err) {
             }
         },
         async updateProduct() {
@@ -267,6 +268,9 @@ export default {
             }).filter(v => v)
         },
         async getPersonalRating() {
+            if (!this.isUserLogged)
+                return
+
             const link = `${import.meta.env.VITE_USER_PRODUCT_RATING_LINK}${this.$route.meta.product.id}`
 
             try {
@@ -355,7 +359,7 @@ export default {
                 )
             )
             this.updateProduct()
-            if(isOneClick)
+            if (isOneClick)
                 this.$router.push({ name: 'CartOneClick' })
         },
     },

@@ -7,26 +7,40 @@
                         Личный кабинет
                     </h5>
                     <ul class="footer__column-list">
-                        <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
-                                Зарегистрироваться
-                            </RouterLink>
-                        </li>
-                        <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
-                                Войти в аккаунт
-                            </RouterLink>
-                        </li>
-                        <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
-                                Отложенные товары
-                            </RouterLink>
-                        </li>
-                        <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
-                                Ваши заказы
-                            </RouterLink>
-                        </li>
+                        <template v-if="isUserLogged">
+                            <li class="footer__column-list-item">
+                                <RouterLink :to="{ name: 'Account' }" class="link">
+                                    Профиль
+                                </RouterLink>
+                            </li>
+                            <li class="footer__column-list-item">
+                                <button class="link" type="button" @click="openConfirmLogoutModal">
+                                    Выйти из аккаунта
+                                </button>
+                            </li>
+                            <li class="footer__column-list-item">
+                                <RouterLink class="link" :to="{ name: 'Favorites' }">
+                                    Отложенные товары
+                                </RouterLink>
+                            </li>
+                            <li class="footer__column-list-item">
+                                <RouterLink class="link" :to="{ name: 'Home' }">
+                                    Ваши заказы
+                                </RouterLink>
+                            </li>
+                        </template>
+                        <template v-else>
+                            <li class="footer__column-list-item">
+                                <button class="link" type="button" @click="openAuthModal('register')">
+                                    Зарегистрироваться
+                                </button>
+                            </li>
+                            <li class="footer__column-list-item">
+                                <button class="link" type="button" @click="openAuthModal('login')">
+                                    Войти в аккаунт
+                                </button>
+                            </li>
+                        </template>
                     </ul>
                 </div>
                 <div class="footer__column footer__column--categories">
@@ -35,28 +49,8 @@
                     </h5>
                     <ul class="footer__column-list">
                         <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
-                                TRUE WIRELESS
-                            </RouterLink>
-                        </li>
-                        <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
-                                Гарнитуры
-                            </RouterLink>
-                        </li>
-                        <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
-                                Накладные
-                            </RouterLink>
-                        </li>
-                        <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
-                                С проводом
-                            </RouterLink>
-                        </li>
-                        <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
-                                С шейным ободком
+                            <RouterLink class="link" :to="{ name: 'Catalog' }">
+                                Наушники
                             </RouterLink>
                         </li>
                     </ul>
@@ -67,32 +61,17 @@
                     </h5>
                     <ul class="footer__column-list">
                         <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
-                                О компании
-                            </RouterLink>
-                        </li>
-                        <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
+                            <RouterLink class="link" :to="{ name: 'DeliveryPayment' }">
                                 Доставка и оплата
                             </RouterLink>
                         </li>
                         <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
+                            <RouterLink class="link" :to="{ name: 'Warranty' }">
                                 Гарантия и возврат
                             </RouterLink>
                         </li>
                         <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
-                                Пункты самовывоза
-                            </RouterLink>
-                        </li>
-                        <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
-                                Отзывы
-                            </RouterLink>
-                        </li>
-                        <li class="footer__column-list-item">
-                            <RouterLink class="link" :to="{ name: 'Home' }">
+                            <RouterLink class="link" :to="{ name: 'Contacts' }">
                                 Контакты
                             </RouterLink>
                         </li>
@@ -176,15 +155,30 @@
 </template>
 
 <script>
+import { useIndexStore } from '@/stores/'
+import { mapState } from 'pinia'
+import { openAuthModal, openConfirmLogoutModal, logout } from '@/assets/js/methods.js'
 
 export default {
     name: 'PageFooter',
+    methods: {
+        openAuthModal,
+        openConfirmLogoutModal,
+        logout
+    },
+    computed: {
+        ...mapState(useIndexStore, ['isUserLogged', 'isAdmin']),
+    }
 }
 </script>
 
 <style lang="scss">
 .footer {
     color: #fff;
+
+    .link:not(:hover) {
+        color: inherit;
+    }
 
     &__body {
         background-color: var(--theme_color_darker);

@@ -66,6 +66,9 @@ export default {
         },
         moveToDestination() {
             this.usedDestination = findClosest(this.$refs.el, this.destinationSelector, this.maxParentsCount)
+            if (!this.$refs.el)
+                return
+
             this.$refs.el.replaceWith(this.anchor)
             if (!this.usedDestination)
                 return
@@ -77,7 +80,8 @@ export default {
         },
         returnToOrigParent() {
             if (this.usedDestination) {
-                this.$refs.el.after(this.usedDestination)
+                if (this.$refs.el)
+                    this.$refs.el.after(this.usedDestination)
                 this.usedDestination.classList
                     .forEach(className => this.$refs.el.classList.remove(className))
             }

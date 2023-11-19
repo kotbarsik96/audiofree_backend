@@ -3,8 +3,11 @@
 import { isNumeric } from './scripts.js'
 import { useIndexStore } from '@/stores/'
 import { useNotificationsStore } from '@/stores/notifications.js'
+import { useModalsStore } from '@/stores/modals.js'
+import AuthModal from '@/components/modals/auth/AuthModal.vue'
+import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import axios from 'axios'
-import { nextTick } from 'vue'
+import { h } from 'vue'
 
 /* требуется, чтобы в data был прописан объект matchMediaMatches такого вида:
     matchMediaMatches: {
@@ -43,6 +46,31 @@ export function setMatchMedia() {
         Object.keys(this.matchMediaMatches.min)
             .forEach(mediaValue => forEachCallback(mediaValue, 'min'))
     }
+}
+
+export function openAuthModal(defaultType = 'register') {
+    const store = useModalsStore()
+    const component = h(AuthModal, { defaultType })
+    store.addModal({ component })
+}
+
+export function openConfirmLogoutModal() {
+    const store = useModalsStore()
+    const component = h(ConfirmModal, {
+        title: 'Вы уверены, что хотите выйти из профиля?',
+        confirmProps: {
+            text: 'Выйти',
+            callback: logout
+        },
+        declineProps: {
+            text: 'Остаться'
+        }
+    })
+    store.addModal({ component })
+}
+
+export function logout() {
+    useIndexStore().logout()
 }
 
 export function getDate(dateString) {

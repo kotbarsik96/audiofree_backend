@@ -229,14 +229,24 @@ export default {
 
 // results 
 .text-input {
+    --trans_dur: .3s;
+
     &.__has-results &__input {
         border-bottom-right-radius: 0;
         border-bottom-left-radius: 0;
+        transition-delay: 0s;
     }
 
     &.__has-results &__results {
         opacity: 1;
         visibility: visible;
+        transition-delay: 0s;
+    }
+
+    &__input {
+        transition-property: border-radius;
+        transition-duration: var(--trans_dur);
+        transition-delay: var(--trans_dur);
     }
 
     &__results {
@@ -252,6 +262,9 @@ export default {
         border-top: 0;
         opacity: 0;
         visibility: hidden;
+        transition-property: opacity, visibility;
+        transition-duration: var(--trans_dur);
+        transition-delay: var(--trans_dur);
     }
 
     &__result-item {
