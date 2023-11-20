@@ -1,15 +1,16 @@
 <template>
-    <div class="card icon-info-card" :class="{ 'icon-info-card--centered': isCentered }">
+    <div class="card icon-info-card"
+        :class="{ 'icon-info-card--centered': isCentered, 'icon-info-card--bigger': isBigger }">
         <div class="card__container icon-info-card__container">
-            <div class="icon-info-card__icon-container">
+            <div class="icon-info-card__icon-container" :class="{ '__no-background': noIconBackground }">
                 <slot name="icon"></slot>
             </div>
             <h6 class="icon-info-card__title">
                 <slot name="title"></slot>
             </h6>
-            <p class="icon-info-card__text">
+            <div class="icon-info-card__text">
                 <slot></slot>
-            </p>
+            </div>
         </div>
     </div>
 </template>
@@ -18,7 +19,9 @@
 export default {
     name: 'IconedInfoCard',
     props: {
-        isCentered: Boolean
+        isCentered: Boolean,
+        noIconBackground: Boolean,
+        isBigger: Boolean
     }
 }
 </script>
@@ -55,6 +58,9 @@ export default {
         height: 90px;
         padding: 23px;
         margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         svg,
         picture img {
@@ -67,6 +73,22 @@ export default {
         }
     }
 
+    &__icon-container.__no-background {
+        background-color: transparent;
+        padding: 0;
+        justify-content: flex-start;
+
+        svg,
+        picture img {
+            max-width: 60px;
+            max-height: 60px;
+        }
+    }
+
+    &--centered &__icon-container.__no-background {
+        justify-content: center;
+    }
+
     &__title {
         font-weight: 500;
         font-size: 18px;
@@ -77,22 +99,50 @@ export default {
     &__text {
         font-size: 14px;
         line-height: 20px;
+
+        p:not(:last-child) {
+            margin-bottom: 1.5em;
+        }
     }
 
-    @media (max-width: 669px){
+    @media (max-width: 767px) {
+        margin: 0 5px 15px 5px;
+
+        &__icon-container {
+            margin-bottom: 10px;
+        }
+
+        &__title {
+            margin-bottom: 20px;
+        }
+    }
+
+    @media (max-width: 669px) {
         flex: 1 1 35%;
-        margin: 0 5px 25px 5px;
     }
 
-    @media (max-width: 459px){
+    @media (max-width: 459px) {
         &__container {
             padding: 20px 10px 25px 10px;
         }
     }
 
-    @media (max-width: 369px){
+    @media (max-width: 369px) {
         flex: 0 0 100%;
         margin: 0 0 25px 0;
+    }
+}
+
+.icon-info-card--bigger {
+    flex: 0 1 360px;
+
+    @media (max-width: 819px) {
+        flex: 1 1 300px;
+    }
+
+
+    @media (max-width: 519px) {
+        flex: 0 0 100%;
     }
 }
 </style>
