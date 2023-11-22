@@ -7,7 +7,7 @@
                 <slot name="text"></slot>
             </div>
             <div class="cta-section__image">
-                <ImagePicture v-if="gallery[0]" :obj="gallery[0]" media="(min-width: 1060px)" :mediaSources="mediaSource">
+                <ImagePicture v-if="desktopImage" :obj="desktopImage" media="(min-width: 1060px)" :mediaSources="mediaSource">
                 </ImagePicture>
             </div>
             <div class="cta-section__buttons">
@@ -37,28 +37,44 @@ export default {
     },
     computed: {
         mediaSource() {
-            if (!this.gallery[1])
-                return []
+            const mobile = this.gallery
+                .find(o => o.original_name && o.original_name.match(/mobile/i))
+            const tablet = this.gallery
+                .find(o => o.original_name && o.original_name.match(/tablet/i))
 
-            if (!this.gallery[2]) {
-                return [
-                    {
-                        obj: this.gallery[1],
-                        media: '(max-width: 1059px)'
-                    }
-                ]
+            const arr = []
+
+            if (mobile && !tablet)
+                arr.push({
+                    obj: mobile,
+                    media: '(max-width: 1059px)'
+                })
+            if (!mobile && tablet)
+                arr.push({
+                    obj: tablet,
+                    media: '(max-width: 559px)'
+                })
+
+            if (mobile && tablet) {
+                arr.push({
+                    obj: tablet,
+                    media: '(max-width: 1059px)'
+                })
+                arr.push({
+                    obj: mobile,
+                    media: '(max-width: 559px)'
+                })
             }
 
-            return [
-                {
-                    obj: this.gallery[1],
-                    media: '(max-width: 1059px)'
-                },
-                {
-                    obj: this.gallery[2],
-                    media: '(max-width: 559px)'
-                }
-            ]
+            return arr
+        },
+        desktopImage() {
+            if (this.gallery.length < 1)
+                return null
+
+            const image = this.gallery
+                .find(o => o.original_name && !o.original_name.match(/mobile|tablet/i))
+            return image || this.gallery[0]
         }
     }
 }
