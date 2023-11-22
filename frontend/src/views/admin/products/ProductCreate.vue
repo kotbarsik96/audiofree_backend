@@ -436,6 +436,37 @@ export default {
     mounted() {
         this.loadTaxonomies()
         this.loadProductData()
+        if (!this.productData)
+            this.input.info = [
+                {
+                    name: 'Наличие микрофона',
+                    values: ['есть']
+                },
+                {
+                    name: 'Конструкция наушников',
+                    values: ['внутриканальные']
+                },
+                {
+                    name: 'Шумоподавление',
+                    values: ['Пассивное']
+                },
+                {
+                    name: 'Время работы в режиме разговора, ч',
+                    values: ['11']
+                },
+                {
+                    name: 'Мин. частота, Гц',
+                    values: ['20']
+                },
+                {
+                    name: 'Макс. частота, Гц',
+                    values: ['20000']
+                },
+                {
+                    name: 'Импеданс, Ом',
+                    values: ['32']
+                },
+            ]
     },
     beforeUnmount() {
         document.removeEventListener('keydown', this.onKeydown)
