@@ -28,5 +28,15 @@ class UsersSeeder extends Seeder
             'created_at' => $now,
             'updated_at' => $now
         ]);
+        DB::table('carts')->insert([
+            'user_id' => '1',
+            'created_at' => $now,
+            'updated_at' => $now
+        ]);
+        DB::table('favorites')->insert([
+            'user_id' => '1',
+            'created_at' => $now,
+            'updated_at' => $now
+        ]);
     }
 }
