@@ -114,6 +114,7 @@ export default {
                 return ''
             const firstParagraph = json.blocks[0]
 
+            console.log(firstParagraph);
             return firstParagraph ? firstParagraph.data.text : '' || ''
         }
     },

@@ -1,7 +1,7 @@
 <template>
-    <picture>
+    <picture :class="{ '__empty': !wasIntersected }">
         <source :srcset="supportsWebp ? webpSrc : noWebpSrc" :media="media">
-        <source v-for="obj in mediaSources" :srcset="getSrcset(obj)" :media="obj.media">
+        <source v-for="obj in mediaSourcesComputed" :srcset="getSrcset(obj)" :media="obj.media">
         <img :src="noWebpSrc" :alt="alt">
     </picture>
 </template>
@@ -53,7 +53,7 @@ export default {
                 for (let obj of array) {
                     if (typeof obj.media !== 'string')
                         return false
-                    if(!checkMediaRegexp(obj.media))
+                    if (!checkMediaRegexp(obj.media))
                         return false
 
                     if (obj.webpPath && typeof obj.webpPath !== 'string')
@@ -67,21 +67,50 @@ export default {
 
                 return true
             }
-        }
+        },
+        /* позволяет задать дополнительные требования для ленивой загрузки. Только при удовлетворении всех требований и this.wasIntersected = true будут выставлены src и srcset */
+        lazyLoadConditions: Object
     },
     computed: {
         ...mapState(useIndexStore, ['supportsWebp']),
+        isVisible() {
+            if (this.lazyLoadConditions && typeof this.lazyLoadConditions === 'object') {
+                for (let bool of Object.values(this.lazyLoadConditions)) {
+                    if (!bool)
+                        return false
+                }
+            }
+            return this.wasIntersected
+        },
         noWebpSrc() {
+            if (!this.isVisible)
+                return '#'
+
             if (this.path)
                 return getImagePath(this.path)
 
             return getImagePath(this.obj)
         },
         webpSrc() {
+            if (!this.isVisible)
+                return '#'
+
             if (this.webpPath)
                 return getImagePath(this.webpPath, 'webp')
 
             return getImagePath(this.obj, 'webp')
+        },
+        mediaSourcesComputed() {
+            if (!this.wasIntersected)
+                return []
+
+            return this.mediaSources
+        },
+    },
+    data() {
+        return {
+            wasIntersected: false,
+            observer: null,
         }
     },
     methods: {
@@ -97,7 +126,23 @@ export default {
 
                 return getImagePath(obj.obj)
             }
+        },
+        onIntersect(entries) {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting)
+                    return
+
+                this.wasIntersected = true
+                this.observer.unobserve(this.$el)
+                this.observer = null
+            })
         }
+    },
+    mounted() {
+        this.observer = new IntersectionObserver(this.onIntersect, {
+            rootMargin: "250px 100px 450px 100px"
+        })
+        this.observer.observe(this.$el)
     }
 }
 </script>

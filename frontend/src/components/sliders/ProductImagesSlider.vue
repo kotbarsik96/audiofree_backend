@@ -2,8 +2,11 @@
     <div>
         <template v-if="isMobile">
             <Swiper ref="swiperContainer" @swiper="onSwiper">
-                <SwiperSlide v-for="(obj, index) in product.images" :key="obj.id" :data-index="index">
-                    <ImagePicture :obj="obj" :alt="obj.path" ref="sliderSlideImage"></ImagePicture>
+                <SwiperSlide v-if="product.image_path" :data-index="0">
+                    <ImagePicture :obj="product" :alt="product.name" :lazyLoadConditions="swiperLazyLoadConditions[0]"></ImagePicture>
+                </SwiperSlide>
+                <SwiperSlide v-for="(obj, index) in product.images" :key="obj.id" :data-index="index + 1">
+                    <ImagePicture :obj="obj" :alt="product.name" :lazyLoadConditions="swiperLazyLoadConditions[index]" ref="sliderSlideImage"></ImagePicture>
                 </SwiperSlide>
             </Swiper>
         </template>
@@ -13,9 +16,12 @@
             </div>
         </template>
         <ul class="product-page__images-list">
+            <li class="product-page__image-item" @click="selectedImageIndex = 0">
+                <ImagePicture :obj="product" :alt="product.name" ref="sliderSlideImage"></ImagePicture>
+            </li>
             <li class="product-page__image-item" v-for="(obj, index) in product.images" :key="obj.id"
-                @click="selectedImageIndex = index">
-                <ImagePicture :obj="obj" :alt="obj.path" ref="sliderSlideImage"></ImagePicture>
+                @click="selectedImageIndex = index + 1">
+                <ImagePicture :obj="obj" :alt="product.name" ref="sliderSlideImage"></ImagePicture>
             </li>
         </ul>
     </div>
@@ -23,6 +29,7 @@
 
 <script>
 import { setMatchMedia, getImagePath } from '@/assets/js/methods.js'
+import { SwiperLazyLoad } from '@/assets/js/scripts.js'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 
@@ -47,7 +54,9 @@ export default {
                 max: {
                     '849': false
                 }
-            }
+            },
+            swiperLazyLoadConditions: {},
+            swiperLazyLoad: null
         }
     },
     computed: {
@@ -55,7 +64,16 @@ export default {
             return this.matchMediaMatches.max['849']
         },
         selectedImage() {
-            return this.product.images[this.selectedImageIndex] || {}
+            return this.gallery[this.selectedImageIndex] || {}
+        },
+        gallery() {
+            return [
+                {
+                    extension: this.product.image_extension,
+                    image_path: this.product.image_path
+                },
+                ...this.product.images
+            ]
         }
     },
     methods: {
@@ -63,6 +81,7 @@ export default {
         getImagePath,
         onSwiper(swiper) {
             this.swiper = swiper
+            this.swiperLazyLoad = new SwiperLazyLoad(swiper, this)
         }
     },
     watch: {
@@ -71,6 +90,14 @@ export default {
             if (swiperInst) {
                 if (index >= 0 && this.swiper)
                     this.swiper.slideTo(index)
+            }
+        },
+        gallery: {
+            deep: true,
+            handler() {
+                this.gallery.forEach((o, i) => {
+                    this.swiperLazyLoadConditions[i] = { isActiveSlide: false }
+                })
             }
         }
     },
@@ -92,7 +119,8 @@ export default {
         display: flex;
         align-items: center;
 
-        picture, img {
+        picture,
+        img {
             width: 100%;
             height: 100%;
             object-fit: contain;
@@ -156,8 +184,9 @@ export default {
     }
 
     @media (max-width: 659px) {
-        .swiper-container {
+        .swiper {
             margin-right: 0;
+            margin-left: 0;
         }
 
         &__images-list {
@@ -166,13 +195,19 @@ export default {
     }
 
     @media (max-width: 519px) {
-        .swiper-container {
+        .swiper {
             width: 100%;
         }
 
+        .swiper-slide picture {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .swiper-slide img {
-            width: 85vw;
-            height: 81vw;
+            width: 90vw;
+            height: 85vw;
         }
     }
 }

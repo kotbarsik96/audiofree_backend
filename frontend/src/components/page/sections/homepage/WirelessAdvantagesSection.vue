@@ -14,9 +14,9 @@
                 <ol class="wls-advantages-section__list">
                     <li class="wls-advantages-section__item">
                         <span class="wls-advantages-section__item-dot"></span>
-                        <h5 class="wls-advantages-section__item-title">
+                        <h4 class="wls-advantages-section__item-title">
                             Отсутствие проводов
-                        </h5>
+                        </h4>
                         <p class="wls-advantages-section__item-text">
                             Наушники Bluetooth обеспечивают свободу движения и избавляют от мешающих проводов, позволяя вам
                             наслаждаться музыкой или звонками без ограничений
@@ -24,9 +24,9 @@
                     </li>
                     <li class="wls-advantages-section__item">
                         <span class="wls-advantages-section__item-dot"></span>
-                        <h5 class="wls-advantages-section__item-title">
+                        <h4 class="wls-advantages-section__item-title">
                             Удобство
-                        </h5>
+                        </h4>
                         <p class="wls-advantages-section__item-text">
                             Благодаря беспроводной технологии, наушники Bluetooth обеспечивают максимальное удобство
                             использования, позволяя вам забыть о неудобствах, связанных с проводами
@@ -34,9 +34,9 @@
                     </li>
                     <li class="wls-advantages-section__item">
                         <span class="wls-advantages-section__item-dot"></span>
-                        <h5 class="wls-advantages-section__item-title">
+                        <h4 class="wls-advantages-section__item-title">
                             Красивый аксессуар
-                        </h5>
+                        </h4>
                         <p class="wls-advantages-section__item-text">
                             Наушники Bluetooth не только предоставляют вам отличный звук, но и служат стильным аксессуаром,
                             подчеркивающим ваш индивидуальный стиль и вкус
@@ -51,9 +51,9 @@
                 <ol class="wls-advantages-section__list">
                     <li class="wls-advantages-section__item">
                         <span class="wls-advantages-section__item-dot"></span>
-                        <h5 class="wls-advantages-section__item-title">
+                        <h4 class="wls-advantages-section__item-title">
                             Без ограничений
-                        </h5>
+                        </h4>
                         <p class="wls-advantages-section__item-text">
                             С Bluetooth-наушниками вы освобождаетесь от физических ограничений, позволяя вам свободно
                             перемещаться, будь то в городе, в спортзале или дома
@@ -61,9 +61,9 @@
                     </li>
                     <li class="wls-advantages-section__item">
                         <span class="wls-advantages-section__item-dot"></span>
-                        <h5 class="wls-advantages-section__item-title">
+                        <h4 class="wls-advantages-section__item-title">
                             Функциональность
-                        </h5>
+                        </h4>
                         <p class="wls-advantages-section__item-text">
                             Наушники Bluetooth предлагают широкий спектр функций, включая управление музыкой, ответы на
                             звонки, встроенный микрофон и другие возможности, сделавшие их неотъемлемой частью вашей
@@ -72,9 +72,9 @@
                     </li>
                     <li class="wls-advantages-section__item">
                         <span class="wls-advantages-section__item-dot"></span>
-                        <h5 class="wls-advantages-section__item-title">
+                        <h4 class="wls-advantages-section__item-title">
                             Экономная батарея
-                        </h5>
+                        </h4>
                         <p class="wls-advantages-section__item-text">
                             Благодаря передовым технологиям управления энергией, Bluetooth-наушники способны обеспечивать
                             стабильную связь без значительного влияния на заряд батареи ваших устройств

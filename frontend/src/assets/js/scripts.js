@@ -190,6 +190,9 @@ export function getExcerpt(longText, options = {}) {
     options.maxlength = parseInt(options.maxlength)
 
     let cut = longText.slice(0, options.maxlength)
+    if (cut.length < options.maxlength)
+        return cut
+
     const match = cut.match(/^.+(?=\s)/)
     if (match)
         cut = match[0]
@@ -214,9 +217,95 @@ export function getScrollWidth() {
     const inner = createElement('div')
     outer.append(inner)
     document.body.append(outer)
-    
+
     const width = outer.offsetWidth - inner.offsetWidth
     outer.remove()
 
     return width
+}
+
+/* позволяет делать ленивую загрузку изображений в Swiper. Внедряется в компонент, внутри которого находится <Swiper></Swiper>.
+    1. необходим обработчик <Swiper @swiper="onSwiper"></Swiper>
+    2. onSwiper(swiper) {
+        this.swiperLazyLoad = new SwiperLazyLoad(swiper, this)
+    },
+    3. создать data(){ 
+        return { 
+            swiperLazyLoadConditions: {},
+            swiperLazyLoad: null
+        }
+    }
+    4. swiperLazyLoadConditions заполняется индексами слайдов. Сколько будет слайдов, столько и будет ключей-индексов со значением: { isActiveSlide: false }, т.е.:
+        0: { isActiveSlide: false },
+        1: { isActiveSlide: false }
+        ...и т.д. Например, в TapeSliderSection на this.gallery стоит watcher, при обновлении которого вызывается такой метод (также он вызывается на created()):
+        getLazyLoadConditions() {
+            // проходится по галерее
+            for (let i in this.gallery) {
+                // если такой уже был в объекте, пропускает: у него может стоять isActiveSlide: true
+                if (this.swiperLazyLoadConditions[i])
+                    continue
+
+                // создать объект
+                this.swiperLazyLoadConditions[i] = { isActiveSlide: false }
+            }
+        }
+    5. пропс <ImagePicture :lazyLoadConditions="swiperLazyLoadConditions[slideIndex]"></ImagePicture>
+    Не лишним будет делать вызов this.swiperLazyLoad.onSlideChange() после того, как обновился массив, из которого делаются слайды
+*/
+export class SwiperLazyLoad {
+    constructor(swiper, componentCtx) {
+        this.onSlideChange = this.onSlideChange.bind(this)
+
+        this.swiper = swiper
+        this.compCtx = componentCtx
+
+        swiper.on('slideChange', this.onSlideChange)
+        this.compCtx.$nextTick().then(() => {
+            setTimeout(this.onSlideChange, 150)
+        })
+    }
+    load() {
+        const conditions = this.compCtx.swiperLazyLoadConditions
+
+        const isCentered = this.swiper.params.centeredSlides
+        const realSlidesCount = this.swiper.slides
+            .filter(sl => !sl.classList.contains('swiper-slide-duplicate'))
+            .length
+        let slidesPerView = this.swiper.params.slidesPerView
+        if (slidesPerView % 2 === 0)
+            slidesPerView++
+
+        const activeSlideRealIndex = this.swiper.realIndex
+        const slidesToLoad = [activeSlideRealIndex]
+        if (isCentered) {
+            for (let i = 1; i <= Math.floor(slidesPerView / 2); i++) {
+                slidesToLoad.push(activeSlideRealIndex + i)
+                slidesToLoad.push(activeSlideRealIndex - i)
+            }
+        } else {
+            for (let i = 1; i <= slidesPerView; i++)
+                slidesToLoad.push(activeSlideRealIndex + i)
+        }
+
+        slidesToLoad.forEach(index => {
+            if (index < 0)
+                index = realSlidesCount - Math.abs(index)
+            else if (index > realSlidesCount - 1)
+                index = realSlidesCount - index
+
+            if (conditions[index])
+                conditions[index].isActiveSlide = true
+        })
+    }
+    async onSlideChange() {
+        // если все изображения уже итак загружены, не выполнять далее
+        const allLoaded = !Object.values(this.compCtx.swiperLazyLoadConditions)
+            .some(o => !o.isActiveSlide)
+        if (allLoaded)
+            return
+
+        await this.compCtx.$nextTick()
+        this.load()
+    }
 }

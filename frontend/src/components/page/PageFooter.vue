@@ -3,9 +3,9 @@
         <div class="footer__body">
             <div class="container">
                 <div class="footer__column footer__column--personal">
-                    <h5 class="footer__column-title">
+                    <div class="footer__column-title">
                         Личный кабинет
-                    </h5>
+                    </div>
                     <ul class="footer__column-list">
                         <template v-if="isUserLogged">
                             <li class="footer__column-list-item">
@@ -44,9 +44,9 @@
                     </ul>
                 </div>
                 <div class="footer__column footer__column--categories">
-                    <h5 class="footer__column-title">
+                    <div class="footer__column-title">
                         Категории
-                    </h5>
+                    </div>
                     <ul class="footer__column-list">
                         <li class="footer__column-list-item">
                             <RouterLink class="link" :to="{ name: 'Catalog' }">
@@ -56,9 +56,9 @@
                     </ul>
                 </div>
                 <div class="footer__column footer__column--shop">
-                    <h5 class="footer__column-title">
+                    <div class="footer__column-title">
                         Магазин
-                    </h5>
+                    </div>
                     <ul class="footer__column-list">
                         <li class="footer__column-list-item">
                             <RouterLink class="link" :to="{ name: 'DeliveryPayment' }">
@@ -78,13 +78,13 @@
                     </ul>
                 </div>
                 <div class="footer__column footer__column--contacts">
-                    <h5 class="footer__column-title">
+                    <div class="footer__column-title">
                         Контакты
-                    </h5>
+                    </div>
                     <ul class="footer__column-list footer__contacts">
                         <li class="footer__contacts-item">
                             <div class="contact-block">
-                                <a class="circle-wrapper" href="tel:81111111">
+                                <a class="circle-wrapper" href="tel:81111111" aria-label="Телефон">
                                     <PhoneCallIcon></PhoneCallIcon>
                                 </a>
                                 <div class="contact-block__text">

@@ -5,27 +5,28 @@
                 {{ error }}
             </div>
         </Transition>
-        <div class="inputs-flex inputs-flex--center">
-            <PasswordInput v-model="input.currentPassword" @update:modelValue="nullifyErrors" name="current_password" id="current_password"
+        <form class="inputs-flex inputs-flex--center">
+            <input type="text" style="display: none;" autocomplete="username">
+            <PasswordInput v-model="input.currentPassword" autocomplete="password" @update:modelValue="nullifyErrors" name="current_password" id="current_password"
                 placeholder="Текущий пароль" :passwordError="errorMessages.password">
                 <template v-slot:label>
                     Текущий пароль
                 </template>
             </PasswordInput>
-            <PasswordInput v-model="input.newPassword" @update:modelValue="nullifyErrors" name="new_password" id="new_password" placeholder="Новый пароль"
+            <PasswordInput v-model="input.newPassword" @update:modelValue="nullifyErrors" name="new_password" id="new_password" autocomplete="new-password" placeholder="Новый пароль"
                 :passwordError="errorMessages.new_password">
                 <template v-slot:label>
                     Новый пароль
                 </template>
             </PasswordInput>
             <PasswordInput v-model="input.newPasswordConfirmation" @update:modelValue="nullifyErrors" name="new_password_confirmation"
-                id="new_password_confirmation" placeholder="Новый пароль еще раз"
+                id="new_password_confirmation" autocomplete="new-password" placeholder="Новый пароль еще раз"
                 :passwordError="errorMessages.new_password_confirmation">
                 <template v-slot:label>
                     Новый пароль еще раз
                 </template>
             </PasswordInput>
-        </div>
+        </form>
         <div class="account__buttons">
             <button class="button button--colored" type="button" @click="save">
                 Сохранить

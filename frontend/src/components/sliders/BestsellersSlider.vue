@@ -1,11 +1,12 @@
 <template>
     <section class="section section--theme-colored pdt-90 pdb-55" v-if="!hideSection">
         <div class="bestsellers-slider">
-            <Swiper :class="{ 'swiper-container--one-slide': bestsellers.length <= 1 }" :modules="[Pagination, EffectFlip]" effect="flip" :pagination="{
-                clickable: true,
-                bulletClass: 'bestsellers-slider__bullet',
-                bulletActiveClass: 'bestsellers-slider__bullet--active',
-            }">
+            <Swiper :class="{ 'swiper-container--one-slide': bestsellers.length <= 1 }" :modules="[Pagination, EffectFlip]"
+                effect="flip" :pagination="{
+                    clickable: true,
+                    bulletClass: 'bestsellers-slider__bullet',
+                    bulletActiveClass: 'bestsellers-slider__bullet--active',
+                }" @swiper="onSwiper">
                 <SwiperSlide v-for="(product, index) in bestsellers" :key="product.id">
                     <div class="container bestsellers-slider__slide-container">
                         <div class="bestsellers-slider__slide-background-box">
@@ -22,7 +23,8 @@
                             {{ titles[index] }}
                         </h3>
                         <div class="bestsellers-slider__slide-image">
-                            <ImagePicture :obj="product" :alt="product.name"></ImagePicture>
+                            <ImagePicture :obj="product" :alt="product.name"
+                                :lazyLoadConditions="swiperLazyLoadConditions[index]"></ImagePicture>
                         </div>
                         <div class="bestsellers-slider__button-container">
                             <RouterLink class="button" :to="{ name: 'Product', params: { productId: product.id } }">
@@ -40,6 +42,7 @@
 import axios from 'axios'
 import { getImagePath } from '@/assets/js/methods.js'
 import { useIndexStore } from '@/stores/'
+import { SwiperLazyLoad } from '@/assets/js/scripts.js'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Pagination, EffectFlip } from 'swiper'
 import 'swiper/css'
@@ -65,7 +68,9 @@ export default {
                 'BESTSELLER',
                 'MUST HAVE',
                 'GREAT CHOISE'
-            ]
+            ],
+            swiperLazyLoadConditions: {},
+            swiperLazyLoad: null
         }
     },
     methods: {
@@ -84,7 +89,12 @@ export default {
                 })
                 if (Array.isArray(res.data.result)) {
                     this.hideSection = false
+                    res.data.result.forEach((o, i) => {
+                        this.swiperLazyLoadConditions[i] = { isActiveSlide: false }
+                    })
+
                     this.bestsellers = res.data.result
+                    this.swiperLazyLoad.onSlideChange()
                 }
                 else
                     throw new Error()
@@ -93,6 +103,9 @@ export default {
             }
 
             store.toggleLoading('loadBestsellers', false)
+        },
+        onSwiper(swiper) {
+            this.swiperLazyLoad = new SwiperLazyLoad(swiper, this)
         }
     },
     created() {
@@ -180,7 +193,8 @@ export default {
         position: relative;
         z-index: 15;
 
-        img, picture {
+        img,
+        picture {
             width: 500px;
             height: 350px;
             object-fit: contain;
@@ -227,7 +241,8 @@ export default {
 
         &__slide-image {
 
-            picture, img {
+            picture,
+            img {
                 width: calc(43vw - 20px);
                 height: calc(30vw - 20px);
             }
@@ -241,7 +256,9 @@ export default {
         }
 
         &__slide-image {
-            picture, img {
+
+            picture,
+            img {
                 width: 350px;
                 height: 244px;
             }
@@ -257,7 +274,9 @@ export default {
 
     @media (max-width: 379px) {
         &__slide-image {
-            picture, img {
+
+            picture,
+            img {
                 width: 280px;
                 height: 195px;
             }

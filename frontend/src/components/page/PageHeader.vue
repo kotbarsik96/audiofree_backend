@@ -51,7 +51,9 @@
                                 Бесплатный звонок по РФ
                             </div>
                             <div class="contact-block__value contact-block__value--bigger link">
-                                <a href="tel:81111111" aria-label="Телефон">8 111 111-11-11</a>
+                                <a href="tel:81111111" aria-label="8 111 111-11-11">
+                                    8 111 111-11-11
+                                </a>
                             </div>
                         </div>
                     </DynamicAdaptive>
@@ -763,4 +765,5 @@ export default {
             margin-left: 25px;
         }
     }
-}</style>
+}
+</style>

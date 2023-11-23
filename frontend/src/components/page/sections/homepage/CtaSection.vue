@@ -7,7 +7,8 @@
                 <slot name="text"></slot>
             </div>
             <div class="cta-section__image">
-                <ImagePicture v-if="desktopImage" :obj="desktopImage" media="(min-width: 1060px)" :mediaSources="mediaSource">
+                <ImagePicture v-if="desktopImage" :obj="desktopImage" media="(min-width: 1060px)"
+                    :mediaSources="mediaSource">
                 </ImagePicture>
             </div>
             <div class="cta-section__buttons">
@@ -135,6 +136,10 @@ export default {
             object-fit: contain;
             transform-origin: bottom center;
         }
+
+        picture.__empty {
+            min-height: 500px;
+        }
     }
 
     &--scaled-image &__image {
@@ -199,6 +204,10 @@ export default {
         &__image {
             position: relative;
             margin: 0 auto 10px auto;
+
+            picture.__empty {
+                min-height: unset;
+            }
         }
 
         &--right-text &__text,

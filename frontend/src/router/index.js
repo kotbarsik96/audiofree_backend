@@ -194,6 +194,33 @@ router.beforeEach(async (to) => {
     const store = useIndexStore()
     currentRoute = to
 
+    switch (to.name) {
+        case 'Account':
+        case 'AccountInfo':
+            document.title = 'AudioFree – Профиль'
+            break
+        case 'ChangePassword':
+            document.title = 'Audiofree – Сменить пароль'
+            break
+        case 'Catalog':
+            document.title = 'Audiofree – Каталог'
+            break
+        case 'Order':
+            document.title = 'Audiofree – Оформление заказа'
+            break
+        case 'CartOneClick':
+            document.title = 'Audiofree – Купить в 1 клик'
+            break
+        case 'Cart':
+            document.title = 'Audiofree – Корзина'
+            break
+        case 'Favorites':
+            document.title = 'Audiofree – Избранное'
+            break
+        default: document.title = 'Audiofree – Купить наушники'
+            break
+    }
+
     if (to.meta.requiresAdmin) {
         const parentName = to.matched[0].name
         const hasRight = await store.checkPageAccess(parentName)

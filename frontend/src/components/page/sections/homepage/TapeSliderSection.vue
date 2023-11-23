@@ -1,5 +1,6 @@
 <template>
-    <ComponentWithGallery tag="section" class="tape-slider-section section section--theme-colored" imageTag="tape-slider" v-model="gallery">
+    <ComponentWithGallery tag="section" class="tape-slider-section section section--theme-colored" imageTag="tape-slider"
+        v-model="gallery">
         <div class="container">
             <h3 class="section-title section-title--centered">
                 <div>
@@ -11,7 +12,7 @@
             </h3>
         </div>
         <div class="tape-slider">
-            <Swiper :modules="modules" :slides-per-view="1" loop :autoplay="{ delay: 5000 }" :breakpoints="{
+            <Swiper :modules="modules" :slides-per-view="1" :autoplay="{ delay: 5000 }" loop :breakpoints="{
                 450: {
                     slidesPerView: 2
                 },
@@ -24,9 +25,9 @@
                 1630: {
                     slidesPerView: 5
                 }
-            }">
-                <SwiperSlide v-for="obj in gallery">
-                    <ImagePicture :obj="obj"></ImagePicture>
+            }" @swiper="onSwiper">
+                <SwiperSlide v-for="(obj, slideIndex) in gallery" :key="obj.id">
+                    <ImagePicture :obj="obj" :lazyLoadConditions="swiperLazyLoadConditions[slideIndex]"></ImagePicture>
                 </SwiperSlide>
             </Swiper>
         </div>
@@ -38,6 +39,7 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay } from 'swiper'
 import 'swiper/css'
 import ComponentWithGallery from '@/components/misc/ComponentWithGallery.vue'
+import { SwiperLazyLoad } from '@/assets/js/scripts.js'
 
 export default {
     name: 'TapeSliderSection',
@@ -51,11 +53,39 @@ export default {
             modules: [Autoplay]
         }
     },
-    data(){
+    data() {
         return {
-            gallery: []
+            gallery: [],
+            swiperLazyLoadConditions: {},
+            swiperLazyLoad: null
         }
-    }
+    },
+    methods: {
+        onSwiper(swiper) {
+            this.swiperLazyLoad = new SwiperLazyLoad(swiper, this)
+        },
+        getLazyLoadConditions() {
+            for (let i in this.gallery) {
+                if (this.swiperLazyLoadConditions[i])
+                    continue
+
+                this.swiperLazyLoadConditions[i] = { isActiveSlide: false }
+            }
+            if (this.swiperLazyLoad)
+                this.swiperLazyLoad.onSlideChange()
+        }
+    },
+    watch: {
+        gallery: {
+            deep: true,
+            handler() {
+                this.getLazyLoadConditions()
+            }
+        }
+    },
+    created() {
+        this.getLazyLoadConditions()
+    },
 }
 </script>
 
@@ -67,7 +97,7 @@ export default {
         margin-bottom: 65px;
     }
 
-    @media (max-width: 949px){
+    @media (max-width: 949px) {
         padding: 40px 0 50px 0;
     }
 }

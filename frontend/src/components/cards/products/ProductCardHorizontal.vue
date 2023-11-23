@@ -2,7 +2,7 @@
     <div class="card product-card product-card--horizontal">
         <div class="card__container product-card__container" v-if="product">
             <div class="product-card__image-container">
-                <RouterLink :to="{ name: 'Product', params: { productId: productData.id } }">
+                <RouterLink :to="{ name: 'Product', params: { productId: productData.id } }" :aria-label="product.name">
                     <ImagePicture class="product-card__image" :obj="productData"></ImagePicture>
                 </RouterLink>
             </div>

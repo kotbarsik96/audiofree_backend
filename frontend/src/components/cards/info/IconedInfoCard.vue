@@ -5,9 +5,9 @@
             <div class="icon-info-card__icon-container" :class="{ '__no-background': noIconBackground }">
                 <slot name="icon"></slot>
             </div>
-            <h6 class="icon-info-card__title">
+            <div class="icon-info-card__title">
                 <slot name="title"></slot>
-            </h6>
+            </div>
             <div class="icon-info-card__text">
                 <slot></slot>
             </div>
