@@ -15,6 +15,12 @@ class ImagesController extends Controller
 {
     public $maxSimultaneousLoads = 10;
 
+    /* такие суффиксы могут быть присвоены изображениям. При удалении изображений через deleteByIdOrImage, также удалит изображения с этими суффиксами, если они есть */
+    public $supportsSuffixes = [
+        '195x195',
+        '430x430'
+    ];
+
     public function getGallery(ImagesFilter $queryFilter)
     {
         $limit = $queryFilter->request->get('limit') ?? 10;
@@ -239,13 +245,27 @@ class ImagesController extends Controller
         if (empty($image))
             return response(['error' => ImagesExceptions::noImage()->getMessage()], 400);
 
-        $path = public_path() . '/' . $image->path . $image->name;
+        $path = public_path($image->path . $image->name);
         $pathToOrigExt = $path . '.' . $image->extension;
         $pathToWebp = $path . '.webp';
         if (file_exists($pathToOrigExt))
             unlink($pathToOrigExt);
         if (file_exists($pathToWebp))
             unlink($pathToWebp);
+
+        foreach ($this->supportsSuffixes as $suffix) {
+            $pathToSuffixed = public_path(
+                $image->path . $image->name . '_' . $suffix . '.' . $image->extension
+            );
+            $pathToSuffixedWebp = public_path(
+                $image->path . $image->name . '_' . $suffix . '.webp'
+            );
+
+            if (file_exists($pathToSuffixed))
+                unlink($pathToSuffixed);
+            if (file_exists($pathToSuffixedWebp))
+                unlink($pathToSuffixedWebp);
+        }
 
         $image->delete();
 

@@ -129,6 +129,7 @@ export default {
         display: flex;
         align-items: flex-end;
         width: 500px;
+        min-height: 550px;
 
         picture {
             width: 100%;
@@ -204,6 +205,8 @@ export default {
         &__image {
             position: relative;
             margin: 0 auto 10px auto;
+            min-height: 200px;
+            right: 0;
 
             picture.__empty {
                 min-height: unset;

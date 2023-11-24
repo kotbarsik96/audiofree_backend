@@ -9,9 +9,12 @@ use App\Models\Image;
 use App\Models\Products\Product;
 use App\Filesystem\FilesystemActions;
 use App\Http\Controllers\ImagesController;
+use Intervention\Image\ImageManagerStatic as ImageManager;
 
 class ProductImagesController extends Controller
 {
+    public $resizes = ['195x195'];
+
     public function storeArray($idsToStore, $product)
     {
         $stored = [];
@@ -38,7 +41,7 @@ class ProductImagesController extends Controller
         ];
     }
 
-    /* переместить изображение в папку images/products/[$product->name]/ */
+    /* переместить изображение в папку images/products/[$product->name]/ и создать для каждого  */
     public function moveToProductsFolder($imageModel, $productId)
     {
         if (empty($imageModel))
@@ -58,18 +61,50 @@ class ProductImagesController extends Controller
 
         $oldPathToImage = public_path() . '/' . $imageModel->path . $imageModel->name;
         $renameTo = $fullpathToProductFolder . '/' . $imageModel->name;
+        // перенос
         rename(
             $oldPathToImage . '.' . $imageModel->extension,
             $renameTo . '.' . $imageModel->extension
         );
         rename($oldPathToImage . '.webp',  $renameTo . '.webp');
 
+        // удалить старую папку, если она пустая
         if (count(scandir(dirname($oldPathToImage))) <= 2)
             rmdir(dirname($oldPathToImage));
 
+        // обновить бд
         $imageModel->update([
             'path' => $pathToProductFolder . '/',
         ]);
+
+        // создать версии для 195x195 и 430x430
+        foreach ($this->resizes as $resize) {
+            $this->resizeImages($imageModel, $resize);
+        }
+    }
+
+    public function resizeImages($imageModel, $resize)
+    {
+        if (!preg_match('/\d+x\d+/', $resize))
+            return;
+
+        $path = public_path($imageModel->path . $imageModel->name);
+        $extension = $imageModel->extension;
+        $image = ImageManager::make($path . '.' . $extension);
+        $imageWebp = ImageManager::make($path . '.webp');
+
+        $resizeSplit = explode('x', $resize);
+        $resizeWidth = $resizeSplit[0];
+        $resizeHeight = $resizeSplit[1];
+
+        $image->resize($resizeWidth, $resizeHeight, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        })->save($path . '_' . $resize . '.' . $imageModel->extension);
+        $imageWebp->resize($resizeWidth, $resizeHeight, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        })->save($path . '_' . $resize . '.webp');
     }
 
     public function store($imageId, $productId)

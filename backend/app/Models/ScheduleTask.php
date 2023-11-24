@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Models\Image;
-use App\Models\UserEntities\Cart;
-use App\Models\UserEntities\Favorite;
+use App\Http\Controllers\Products\ProductImagesController;
 
 class ScheduleTask extends Model
 {
@@ -66,6 +65,21 @@ class ScheduleTask extends Model
 
             // файла не существует - удалить из бд
             $imageModel->delete();
+        }
+    }
+
+    public static function resizeProductImages()
+    {
+        $productImagesController = new ProductImagesController();
+        $images = Image::where('path', 'like', '%' . '/products' . '%')->get();
+        foreach ($images as $imageModel) {
+            $path = public_path($imageModel->path . $imageModel->name);
+            foreach ($productImagesController->resizes as $resize) {
+                $notExists = !file_exists($path . '_' . $resize . '.' . $imageModel->extension)
+                    || !file_exists($path . '_' . $resize . '.webp');
+                if ($notExists)
+                    $productImagesController->resizeImages($imageModel, $resize);
+            }
         }
     }
 }

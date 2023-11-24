@@ -161,7 +161,10 @@ export async function addToCart(productId, cart = {}) {
     store.toggleLoading('addToCart', false)
 }
 
-export function getImagePath(pathOrObject, extension = null) {
+export function getImagePath(pathOrObject, params = null) {
+    let extension = params ? params.extension || null : null
+    let suffix = params ? params.suffix || '' : ''
+
     if (!pathOrObject)
         return '#'
 
@@ -173,6 +176,9 @@ export function getImagePath(pathOrObject, extension = null) {
     }
     if (!path || !extension)
         return '#'
+
+    if (suffix)
+        return `${import.meta.env.VITE_LINK}${path}_${suffix}.${extension}`
 
     return `${import.meta.env.VITE_LINK}${path}.${extension}`
 }

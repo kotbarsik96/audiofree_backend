@@ -22,6 +22,8 @@ export default {
     props: {
         webpPath: String,
         path: String,
+        /* будет добавляться после названия, перед расширением */
+        suffix: String,
         /* в случае, если не передан webpPath или path, будет искать в объекте ключи (последовательность такая, как описано тут):
             1. для браузеров без поддержки webp: 'image_path', 'path', 'image',
             2. для браузеров с webp: 'image_webp_path', 'webp_path' 'image_webp'. Если не найдено webp изображения, будет идти также, как по noWebpSrc
@@ -87,18 +89,18 @@ export default {
                 return '#'
 
             if (this.path)
-                return getImagePath(this.path)
+                return getImagePath(this.path, { suffix: this.suffix })
 
-            return getImagePath(this.obj)
+            return getImagePath(this.obj, { suffix: this.suffix })
         },
         webpSrc() {
             if (!this.isVisible)
                 return '#'
 
             if (this.webpPath)
-                return getImagePath(this.webpPath, 'webp')
+                return getImagePath(this.webpPath, { extension: 'webp', suffix: this.suffix })
 
-            return getImagePath(this.obj, 'webp')
+            return getImagePath(this.obj, { extension: 'webp', suffix: this.suffix })
         },
         mediaSourcesComputed() {
             if (!this.wasIntersected)
@@ -117,14 +119,14 @@ export default {
         getSrcset(obj) {
             if (this.supportsWebp) {
                 if (obj.webpPath)
-                    return getImagePath(obj.webPath, 'webp')
+                    return getImagePath(obj.webPath, { extension: 'webp', suffix: this.suffix })
 
-                return getImagePath(obj.obj, 'webp')
+                return getImagePath(obj.obj, { extension: 'webp', suffix: this.suffix })
             } else {
                 if (obj.path)
-                    return getImagePath(obj.webPath)
+                    return getImagePath(obj.webPath, { suffix: this.suffx })
 
-                return getImagePath(obj.obj)
+                return getImagePath(obj.obj, { suffix: this.suffx })
             }
         },
         onIntersect(entries) {

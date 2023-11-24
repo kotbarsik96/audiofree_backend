@@ -93,9 +93,6 @@ export default {
 
         if(this.propsGallery)
             this.gallery = this.propsGallery
-
-        if (!this.withPagination && !this.propsGallery)
-            this.loadGallery()
     }
 }
 </script>

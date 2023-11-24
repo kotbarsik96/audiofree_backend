@@ -18,7 +18,7 @@
             </div>
             <div class="product-card__image-container">
                 <RouterLink class="link" :to="{ name: 'Product', params: { productId: product.id } }" :aria-label="product.name">
-                    <ImagePicture class="product-card__image" :obj="product" :alt="product.name"></ImagePicture>
+                    <ImagePicture class="product-card__image" :obj="product" :alt="product.name" suffix="195x195"></ImagePicture>
                 </RouterLink>
             </div>
             <div class="product-card__title">

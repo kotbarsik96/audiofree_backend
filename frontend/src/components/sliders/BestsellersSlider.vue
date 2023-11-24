@@ -1,5 +1,5 @@
 <template>
-    <section class="section section--theme-colored pdt-90 pdb-55" v-if="!hideSection">
+    <section class="section section--theme-colored bestsellers-section">
         <div class="bestsellers-slider">
             <Swiper :class="{ 'swiper-container--one-slide': bestsellers.length <= 1 }" :modules="[Pagination, EffectFlip]"
                 effect="flip" :pagination="{
@@ -63,7 +63,6 @@ export default {
     data() {
         return {
             bestsellers: [],
-            hideSection: false,
             titles: [
                 'BESTSELLER',
                 'MUST HAVE',
@@ -88,7 +87,6 @@ export default {
                     }
                 })
                 if (Array.isArray(res.data.result)) {
-                    this.hideSection = false
                     res.data.result.forEach((o, i) => {
                         this.swiperLazyLoadConditions[i] = { isActiveSlide: false }
                     })
@@ -98,9 +96,7 @@ export default {
                 }
                 else
                     throw new Error()
-            } catch (err) {
-                this.hideSection = true
-            }
+            } catch (err) { }
 
             store.toggleLoading('loadBestsellers', false)
         },
@@ -115,6 +111,21 @@ export default {
 </script>
 
 <style lang="scss">
+.bestsellers-section {
+    padding-top: 90px;
+    padding-bottom: 55px;
+    min-height: 735px;
+
+    @media (max-width: 1129px){
+        min-height: calc(100vw / 1.76);
+    }
+
+    @media (max-width: 949px){
+        padding-top: 35px;
+        padding-bottom: 35px;
+    }
+}
+
 .bestsellers-slider {
     .swiper-pagination {
         display: flex;

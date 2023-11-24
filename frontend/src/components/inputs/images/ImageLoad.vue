@@ -64,7 +64,8 @@ export default {
             errors: {
                 image: ''
             },
-            isLoading: false
+            isLoading: false,
+            addClicked: false
         }
     },
     methods: {
@@ -76,18 +77,28 @@ export default {
             this.error = ''
         },
         onAddClick() {
+            if (this.addClicked)
+                return
+
+            this.addClicked = true
             const component = h(ConfirmModal, {
                 onlyConfirm: true,
                 confirmProps: {
                     text: 'Загрузить из галереи на сайте',
-                    callback: this.createModalGallery
+                    callback: () => {
+                        this.createModalGallery()
+                        this.addClicked = false
+                    }
                 },
                 confirmButtons: [
                     {
                         text: 'Загрузить с устройства',
-                        callback: () => this.openExplorer()
+                        callback: () => {
+                            this.openExplorer()
+                            this.addClicked = false
+                        }
                     }
-                ]
+                ],
             })
             useModalsStore().addModal({ component })
         },
@@ -105,7 +116,8 @@ export default {
                 props: {
                     title: 'Изображение для товара',
                     confirmData: { callback },
-                    singleSelect: true
+                    singleSelect: true,
+                    withPagination: true
                 }
             })
         },
