@@ -40,7 +40,8 @@
                             <template v-if="item.productData">
                                 <div class="cart-list__item-row cart-list__item-image cart-list__column-image">
                                     <RouterLink :to="{ name: 'Product', params: { productId: item.product_id } }">
-                                        <img :src="getImagePath(item.productData.image_path)" :alt="item.productData.name">
+                                        <ImagePicture :obj="item.productData"></ImagePicture>
+                                        <!-- <img :src="getImagePath(item.productData.image_path)" :alt="item.productData.name"> -->
                                     </RouterLink>
                                 </div>
                                 <div class="cart-list__item-row cart-list__item-name cart-list__column-name">
@@ -117,7 +118,6 @@
 import LoadingScreen from '@/components/page/LoadingScreen.vue'
 import QuantityInput from '@/components/inputs/QuantityInput.vue'
 import CodeInput from '@/components/inputs/CodeInput.vue'
-import { getImagePath } from '@/assets/js/methods.js'
 import { getHeight } from '@/assets/js/scripts.js'
 import { mapState } from 'pinia'
 import { useIndexStore } from '@/stores'
@@ -162,7 +162,6 @@ export default {
         }
     },
     methods: {
-        getImagePath,
         getSum(item) {
             if (!item.productData)
                 return 0
@@ -255,21 +254,21 @@ export default {
                 this.isCheckoutDisabled = false
             }, 1000);
         },
-        async createOrder(){
+        async createOrder() {
             const link = import.meta.env.VITE_ORDER_NEW_LINK
 
             try {
                 const res = await axios.post(link, {
                     isOneClick: this.isOneClick
                 })
-                if(res.data) {
+                if (res.data) {
                     this.$router.push({ name: 'Order', params: { id: res.data } })
                 } else {
                     throw new Error()
                 }
             } catch (err) {
                 let message = 'Произошла ошибка. Попробуйте оформить заказ позднее'
-                if(err.response.data.error)
+                if (err.response.data.error)
                     message = err && err.response && err.response.data.error
 
                 useNotificationsStore().addNotification({
@@ -442,6 +441,7 @@ export default {
     &__item-image {
         padding-left: 0;
 
+        picture,
         img {
             width: 70px;
             height: 70px;
